@@ -16,11 +16,15 @@ zuul:
     frontend:
       path: /**
       url: http://localhost:3000
-
 hystrix:
   command:
     default:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 60000
+            timeoutInMilliseconds: 30000
+
+# show error
+server:
+  error:
+    path: /api/v1/error

@@ -47,4 +47,5 @@ public class UserService implements UserDetailsService {
         String jwt = jwtUtil.generateToken(user);
         return new ResponseEntity<>(new AuthenticationResponse(jwt), status);
     }
+
 }

@@ -43,6 +43,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws ServletException, IOException {
+        // todo could look in the jwt cookie as well
         final String authorizationHeader = request.getHeader("Authorization");
 
         String email = null;

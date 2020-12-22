@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import theme from '../utils/theme'
 import BlackText from '../utils/BlackText'
-import { Typography } from '@material-ui/core'
+import { Button, Typography } from '@material-ui/core'
 
 export default function LandingPageNavbar() {
 
@@ -16,10 +16,10 @@ export default function LandingPageNavbar() {
       <div style={{ height: '10vh' }} />
       <div
         style={{
-          position: 'fixed',
+          position: 'absolute',
           top: 0,
           left: 0,
-          backgroundColor: theme.palette.primary.main,
+          backgroundColor: theme.palette.secondary.main,
           display: 'flex',
           justifyContent: 'space-between',
           padding: '31px 15vw',
@@ -30,7 +30,7 @@ export default function LandingPageNavbar() {
       >
         <BlackText variant='h3' style={{ fontSize: 28, fontWeight: 500, paddingBottom: 5 }}>
           card
-          <span style={{ color: theme.palette.secondary.main }}>
+          <span style={{ color: theme.palette.primary.main }}>
             town
           </span>
         </BlackText>
@@ -54,29 +54,20 @@ export default function LandingPageNavbar() {
               </BlackText>
             </a>
           </Link>
-          
-          {/* todo make this look better (probly use an MUI outlined button) */}
-          <Link href='/login'>
-            <a href='/login'>
-              <div
-                style={{
-                  border: `2px solid ${theme.palette.secondary.main}`,
-                  borderRadius: 10,
-                  padding: '7.5px 15px',
-                  color: hoveringOverLogin ? 'white' : theme.palette.secondary.main,
-                  backgroundColor: hoveringOverLogin ? theme.palette.secondary.main : undefined,
-                  transition: 'background-color color 0.2s ease-in-out',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={() => setHoveringOverLogin(true)}
-                onMouseLeave={() => setHoveringOverLogin(false)}
-              >
-                <Typography variant='h4' style={{ fontSize: 20 }}>
+
+          <Button
+            variant='outlined'
+            color='primary'
+            style={{ textTransform: 'none', border: '2px solid' }}
+          >
+            <Link href='/login'>
+              <a href='/login'>
+                <Typography variant='h4' style={{ fontSize: 20, padding: '5px 5px' }}>
                   Login
                 </Typography>
-              </div>
-            </a>
-          </Link>
+              </a>
+            </Link>
+          </Button>
         </div>
       </div>
     </>

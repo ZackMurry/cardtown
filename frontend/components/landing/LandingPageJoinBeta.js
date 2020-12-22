@@ -1,15 +1,22 @@
 import { Button, Typography } from '@material-ui/core'
 import { useState } from 'react'
+import { useRouter } from 'next/router'
 import theme from '../utils/theme'
 
 export default function LandingPageJoinBeta() {
   const [ email, setEmail ] = useState('')
   const [ invalid, setInvalid ] = useState(false)
 
+  const router = useRouter()
+
   const handleSubmit = e => {
     e.preventDefault()
     setInvalid(false)
-    console.log(email)
+    if (email === '') {
+      setInvalid(true)
+      return
+    }
+    router.push(`/signup?email=${email}`)
   }
 
   // todo validation message
@@ -38,7 +45,7 @@ export default function LandingPageJoinBeta() {
         <Button
           type='submit'
           variant='contained'
-          color='secondary'
+          color='primary'
           style={{
             borderRadius: '0 10px 10px 0',
             boxShadow: 'none',

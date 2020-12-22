@@ -20,7 +20,7 @@ export default function Home() {
           }}
         >
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          The hub for your <span style={{ color: theme.palette.secondary.main }}>debate cards</span>
+          The hub for your <span style={{ color: theme.palette.primary.main }}>debate cards</span>
         </BlackText>
         <BlackText
           variant='h5'
@@ -30,7 +30,7 @@ export default function Home() {
         >
           Cardtown is the easiest way to store, search, and read all of your debate cards.
         </BlackText>
-        <div style={{ margin: '0 auto' }}>
+        <div style={{ margin: '5px auto' }}>
           <LandingPageJoinBeta />
         </div>
       </div>
