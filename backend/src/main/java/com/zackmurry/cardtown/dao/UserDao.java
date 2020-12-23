@@ -13,4 +13,8 @@ public interface UserDao {
 
     HttpStatus createAccount(User user);
 
+    boolean accountExists(String email);
+
+    HttpStatus deleteUser(String email);
+
 }

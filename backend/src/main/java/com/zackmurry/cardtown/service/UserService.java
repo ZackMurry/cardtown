@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService implements UserDetailsService {
 
@@ -34,6 +36,15 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return userDao.findByEmail(email);
+    }
+
+    /**
+     * creates an account for a user with the specified details
+     * @param user user model to create in database. password should not be encoded
+     * @return a <code>ResponseEntity</code> with an AuthenticationResponse. this represents the status and access token for the new user
+     */
     public ResponseEntity<AuthenticationResponse> createUserAccount(User user) {
         // yikes 0.0
         if ((user.getPassword() == null || user.getPassword().length() > 64) ||
@@ -46,6 +57,27 @@ public class UserService implements UserDetailsService {
         HttpStatus status = userDao.createAccount(user);
         String jwt = jwtUtil.generateToken(user);
         return new ResponseEntity<>(new AuthenticationResponse(jwt), status);
+    }
+
+    /**
+     * helper method for creating a new user account
+     * @param email the email of the new account
+     * @param firstName the first name of the new user
+     * @param lastName the last name of the new user
+     * @param password the password of this user
+     * @return a <code>ResponseEntity</code> with an AuthenticationResponse. this represents the status and access token for the new user
+     * @see UserService#createUserAccount(User)
+     */
+    public ResponseEntity<AuthenticationResponse> createUserAccount(String email, String firstName, String lastName, String password) {
+        return createUserAccount(new User(email, firstName, lastName, password));
+    }
+
+    public boolean accountExists(String email) {
+        return userDao.accountExists(email);
+    }
+
+    public ResponseEntity<Void> deleteUserAccount(String email) {
+        return new ResponseEntity<>(userDao.deleteUser(email));
     }
 
 }

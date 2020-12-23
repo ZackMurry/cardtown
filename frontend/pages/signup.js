@@ -57,6 +57,14 @@ export default function Signup({ redirect, initialEmail }) {
       return
     }
 
+    if (first === '__TEST__' && last === '__USER__') {
+      // __TEST__ __USER__ is what the unit test users are called in the backend.
+      // if one of the test fails, it's likely that test users will be left. if this is the case,
+      // i can easily delete them using a SQL statement.
+      setErrorText('This username is not allowed.')
+      return
+    }
+
     const response = await fetch('/api/v1/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

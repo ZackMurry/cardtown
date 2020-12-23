@@ -6,6 +6,7 @@ import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -27,7 +28,7 @@ public class UserDataAccessService implements UserDao {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        String sql = "SELECT * FROM users WHERE email=?";
+        String sql = "SELECT * FROM users WHERE email= ?";
 
         try {
             List<User> users = jdbcTemplate.query(
@@ -72,6 +73,29 @@ public class UserDataAccessService implements UserDao {
             return HttpStatus.INTERNAL_SERVER_ERROR;
         }
 
+    }
+
+    @Override
+    public boolean accountExists(String email) {
+        return findByEmail(email).isPresent();
+    }
+
+    @Override
+    public HttpStatus deleteUser(String email) {
+        if (!accountExists(email)) {
+            return HttpStatus.NOT_FOUND;
+        }
+        String sql = "DELETE FROM users WHERE email = ?";
+        try {
+            jdbcTemplate.execute(
+                    sql,
+                    email
+            );
+            return HttpStatus.OK;
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
     }
 
 }

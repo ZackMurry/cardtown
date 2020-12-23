@@ -4,6 +4,7 @@ import com.zackmurry.cardtown.model.AuthenticationResponse;
 import com.zackmurry.cardtown.model.User;
 import com.zackmurry.cardtown.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,10 @@ public class UserController {
 
     @PostMapping("")
     public ResponseEntity<AuthenticationResponse> createUserAccount(@RequestBody User user) {
+        // reserved for unit tests
+        if (user.getFirstName().equals("__TEST__") && user.getLastName().equals("__USER__")) {
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        }
         return userService.createUserAccount(user);
     }
 
