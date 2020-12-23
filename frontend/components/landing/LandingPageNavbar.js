@@ -1,16 +1,10 @@
 import Link from 'next/link'
-import { useState } from 'react'
+import { Button, Typography } from '@material-ui/core'
 import theme from '../utils/theme'
 import BlackText from '../utils/BlackText'
-import { Button, Typography } from '@material-ui/core'
 
 export default function LandingPageNavbar() {
-
-  const [ hoveringOverLogin, setHoveringOverLogin ] = useState(false)
-
   return (
-    // navbar
-    // todo might not want to be position: fixed (just absolute)
     <>
       {/* for padding purposes */}
       <div style={{ height: '10vh' }} />

@@ -19,4 +19,9 @@ public class UserController {
         return userService.createUserAccount(user);
     }
 
+    @GetMapping("/test")
+    public String test() {
+        return "this is a test";
+    }
+
 }
