@@ -32,26 +32,12 @@ public class AuthenticationController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@RequestBody AuthenticationRequest request) throws Exception {
+    public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@RequestBody AuthenticationRequest request) throws AuthenticationException {
         if (request.getPassword() == null || request.getPassword().length() > 64 || request.getPassword().length() < 8) {
             return new ResponseEntity<>(HttpStatus.LENGTH_REQUIRED);
         }
 
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        } catch (BadCredentialsException e) {
-            System.out.println("bad credentials");
-            throw new Exception("Incorrect username or password", e);
-        } catch (AuthenticationException e) {
-            System.out.println("authentication exception");
-            throw new Exception("Bad authentication attempt", e);
-        } catch (IllegalArgumentException e) {
-            System.out.println("password cannot be null");
-            throw new Exception("password cannot be null", e);
-        } catch (MalformedJwtException e) {
-            System.out.println("malformed jwt");
-            throw new Exception("jwt malformed", e);
-        }
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         final String jwt = jwtUtil.generateToken(userDetails);

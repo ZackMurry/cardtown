@@ -13,10 +13,8 @@ import ToggleIcon from '../components/utils/ToggleIcon'
 import ErrorAlert from '../components/utils/ErrorAlert'
 import theme from '../components/utils/theme'
 
-export default function Signup({ redirect, initialEmail }) {
-  const [ email, setEmail ] = useState(initialEmail)
-  const [ first, setFirst ] = useState('')
-  const [ last, setLast ] = useState('')
+export default function Login({ redirect }) {
+  const [ email, setEmail ] = useState('')
   const [ password, setPassword ] = useState('')
 
   const [ showPassword, setShowPassword ] = useState(false)
@@ -27,69 +25,29 @@ export default function Signup({ redirect, initialEmail }) {
   const handleSubmit = async e => {
     e.preventDefault()
 
-    if (!first) {
-      setErrorText('Your first name cannot be empty.')
-      return
-    }
-
-    if (first.length > 32) {
-      setErrorText('Your first name cannot be more than 32 characters.')
-      return
-    }
-
-    if (!last) {
-      setErrorText('Your last name cannot be empty.')
-      return
-    }
-
-    if (last.length > 32) {
-      setErrorText('Your last name cannot be more than 32 characters.')
-      return
-    }
-
-    if (password.length < 8) {
-      setErrorText('Your password must be at least 8 characters long.')
-      return
-    }
-
-    // form onInvalid should check this but ya never know
-    if (!email || email.length > 320) {
-      return
-    }
-
-    const response = await fetch('/api/v1/users', {
+    const response = await fetch('/api/v1/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email,
-        firstName: first,
-        lastName: last,
         password
       })
     })
 
+    // 400: no account found
+    // 400: bad password
     if (response.status < 400) {
       const json = await response.json()
       Cookie.set('jwt', json.jwt)
       router.push(redirect || '/dash')
-    } else if (response.status === 412) {
-      setErrorText('An account with this email already exists.')
-    } else if (response.status === 500) {
-      setErrorText('There was an error in the server. Please try again later.')
-    } else if (response.status === 411) {
-      // shouldn't happen because of fron
-      setErrorText('One or more of the fields have an invalid length.')
+    } else if (response.status === 400) {
+      // todo resetting passwords
+      setErrorText('Incorrect email and/or password.')
     } else if (response.status === 404) {
       setErrorText('There was an error communicating with the server. Please try again later.')
     } else {
       setErrorText('There was an unknown error. Status code: ' + response.status)
     }
-  }
-
-  // since the only field w built-in validation is email, we know that email is invalid
-  const handleInvalid = e => {
-    e.preventDefault()
-    setErrorText('Please enter a valid email address.')
   }
 
   return (
@@ -103,36 +61,20 @@ export default function Signup({ redirect, initialEmail }) {
       }}
       >
         <BlackText variant='h3' style={{ fontSize: 42, textAlign: 'center' }}>
-          Sign up
+          Sign in
         </BlackText>
         <Typography color='textSecondary' style={{ fontSize: 18, marginTop: 5 }}>
           Simplify your debate experience
         </Typography>
-        <form style={{ width: '62.5%', marginTop: 20 }} onSubmit={handleSubmit} onInvalid={handleInvalid}>
+        <form style={{ width: '62.5%', marginTop: 20 }} onSubmit={handleSubmit}>
           <TextField
-            type='email'
+            type='text'
             label='Email address'
             value={email}
             onChange={e => setEmail(e.target.value)}
             variant='outlined'
             style={{ width: '100%', marginBottom: 10 }}
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between', margin: '5px 0' }}>
-            <TextField
-              label='First'
-              value={first}
-              onChange={e => setFirst(e.target.value)}
-              variant='outlined'
-              style={{ width: '45%' }}
-            />
-            <TextField
-              label='Last'
-              value={last}
-              onChange={e => setLast(e.target.value)}
-              variant='outlined'
-              style={{ width: '45%' }}
-            />
-          </div>
           <TextField
             type={showPassword ? 'text' : 'password'}
             label='Password'
@@ -159,7 +101,7 @@ export default function Signup({ redirect, initialEmail }) {
             }}
           >
             <Typography variant='h5' style={{ fontWeight: 500, fontSize: 18 }}>
-              Create account
+              Log in
             </Typography>
           </Button>
           {
@@ -167,10 +109,10 @@ export default function Signup({ redirect, initialEmail }) {
           }
         </form>
         <Typography color='textSecondary' variant='h6' style={{ fontSize: 14, marginTop: 20 }}>
-          Already have an account?
-          <Link href='/login'>
-            <a href='/login' style={{ marginLeft: 2, color: theme.palette.primary.main }}>
-              Log in
+          Don't have an account?
+          <Link href='/signup'>
+            <a href='/signup' style={{ marginLeft: 2, color: theme.palette.primary.main }}>
+              Sign up
             </a>
           </Link>
           .
@@ -183,8 +125,7 @@ export default function Signup({ redirect, initialEmail }) {
 export async function getServerSideProps({ query }) {
   return {
     props: {
-      redirect: query?.redirect || null,
-      initialEmail: query?.email || ''
+      redirect: query?.redirect || null
     }
   }
 }
