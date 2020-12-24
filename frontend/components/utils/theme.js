@@ -22,6 +22,18 @@ const theme = createMuiTheme({
     action: {
       disabled: '#2d323e'
     },
+    lightBlue: {
+      main: '#f9fbfd'
+    },
+    darkGrey: {
+      main: '#6e84a3'
+    },
+    lightGrey: {
+      main: '#e3ebf6'
+    },
+    darkBlue: {
+      main: '#5B8AE9'
+    },
     text: {
       primary: '#2E3032',
       secondary: '#869AB8'

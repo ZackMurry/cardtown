@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import BlackText from '../components/utils/BlackText'
 import LandingPageNavbar from '../components/landing/LandingPageNavbar'
 import theme from '../components/utils/theme'
@@ -6,6 +7,10 @@ import LandingPageJoinBeta from '../components/landing/LandingPageJoinBeta'
 export default function Home() {
   return (
     <>
+      <Head>
+        <title>Debate cards in the cloud</title>
+      </Head>
+
       <LandingPageNavbar />
 
       {/* hero */}
