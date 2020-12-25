@@ -34,6 +34,9 @@ const theme = createMuiTheme({
     darkBlue: {
       main: '#5B8AE9'
     },
+    blueBlack: {
+      main: '#12263F'
+    },
     text: {
       primary: '#2E3032',
       secondary: '#869AB8'
