@@ -1,6 +1,6 @@
 package com.zackmurry.cardtown.service;
 
-import com.zackmurry.cardtown.dao.UserDao;
+import com.zackmurry.cardtown.dao.user.UserDao;
 import com.zackmurry.cardtown.model.AuthenticationResponse;
 import com.zackmurry.cardtown.model.User;
 import com.zackmurry.cardtown.util.JwtUtil;

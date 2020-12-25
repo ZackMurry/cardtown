@@ -1,12 +1,9 @@
-package com.zackmurry.cardtown.dao;
+package com.zackmurry.cardtown.dao.user;
 
 
 import com.zackmurry.cardtown.model.User;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -17,8 +14,6 @@ import java.util.UUID;
 
 @Repository
 public class UserDataAccessService implements UserDao {
-
-    private static final Logger logger = LoggerFactory.getLogger(UserDataAccessService.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -46,6 +41,25 @@ public class UserDataAccessService implements UserDao {
                 return Optional.empty();
             }
             return Optional.of(users.get(0));
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<UUID> getIdByEmail(String email) {
+        String sql = "SELECT id FROM users WHERE email = ?";
+        try {
+            List<Object> list = jdbcTemplate.query(
+                    sql,
+                    resultSet -> UUID.fromString(resultSet.getString("id")),
+                    email
+            );
+            if (list.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of((UUID) list.get(0));
         } catch(SQLException e) {
             e.printStackTrace();
             return Optional.empty();
