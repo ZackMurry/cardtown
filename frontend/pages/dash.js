@@ -1,5 +1,6 @@
-import { Divider, Typography } from '@material-ui/core'
+import { Typography } from '@material-ui/core'
 import DashboardSidebar from '../components/dash/DashboardSidebar'
+import BlackText from '../components/utils/BlackText'
 import theme from '../components/utils/theme'
 
 export default function Dash() {
@@ -19,9 +20,9 @@ export default function Dash() {
         >
           Overview
         </Typography>
-        <Typography style={{ fontSize: 24, fontWeight: 'bold' }}>
+        <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
           Dashboard
-        </Typography>
+        </BlackText>
         <div
           style={{
             width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
