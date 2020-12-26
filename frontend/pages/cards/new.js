@@ -15,19 +15,52 @@ const emptyContentState = convertFromRaw({
   blocks: [
     {
       text: '',
-      key: 'nottte',
+      key: 'cardtown',
       type: 'unstyled',
       entityRanges: []
     }
   ]
 })
 
+const inlineStyles = {
+  highlight: {
+    style: {
+      backgroundColor: 'rgb(255, 255, 0)'
+    }
+  },
+  FONT_SIZE_6: {
+    style: {
+      fontSize: '6pt'
+    }
+  },
+  FONT_SIZE_8: {
+    style: {
+      fontSize: '8pt'
+    }
+  },
+  FONT_SIZE_9: {
+    style: {
+      fontSize: '9pt'
+    }
+  },
+  FONT_SIZE_10: {
+    style: {
+      fontSize: '10pt'
+    }
+  },
+  FONT_SIZE_11: {
+    style: {
+      fontSize: '11pt'
+    }
+  }
+}
+
 export default function NewCard() {
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')
   const [ citeInformation, setCiteInformation ] = useState('')
   const [ bodyState, setBodyState ] = useState(() => EditorState.createWithContent(emptyContentState))
-  
+
   const jwt = useMemo(() => Cookie.get('jwt'), [])
 
   const handleSubmit = async e => {
@@ -36,15 +69,7 @@ export default function NewCard() {
     const content = bodyState.getCurrentContent()
 
     const bodyDraft = convertToRaw(content)
-    const bodyHtml = stateToHTML(content, {
-      inlineStyles: {
-        highlight: {
-          style: {
-            backgroundColor: 'rgb(255, 255, 0)'
-          }
-        }
-      }
-    })
+    const bodyHtml = stateToHTML(content, { inlineStyles })
 
     const response = await fetch('/api/v1/cards', {
       method: 'POST',
@@ -67,7 +92,7 @@ export default function NewCard() {
       <DashboardSidebar pageName='Cards' />
 
       <div style={{ marginLeft: '12.9vw', paddingLeft: 38, paddingRight: 38 }}>
-        <div style={{ width: '65%', margin: '10vh auto' }}>
+        <div style={{ width: '65%', margin: '7.5vh auto' }}>
           <div>
             <Typography
               style={{
