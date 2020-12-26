@@ -4,6 +4,7 @@ import { stateToHTML } from 'draft-js-export-html'
 import Cookie from 'js-cookie'
 import { useMemo, useState } from 'react'
 import NewCardBodyEditor from '../../components/cards/NewCardBodyEditor'
+import NewCardFormattingPopover from '../../components/cards/NewCardFormattingPopover'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import BlackText from '../../components/utils/BlackText'
 import theme from '../../components/utils/theme'
@@ -23,7 +24,7 @@ const emptyContentState = convertFromRaw({
 })
 
 const inlineStyles = {
-  highlight: {
+  HIGHLIGHT: {
     style: {
       backgroundColor: 'rgb(255, 255, 0)'
     }
@@ -51,6 +52,11 @@ const inlineStyles = {
   FONT_SIZE_11: {
     style: {
       fontSize: '11pt'
+    }
+  },
+  OUTLINE: {
+    style: {
+      border: '2px solid black'
     }
   }
 }
@@ -209,15 +215,8 @@ export default function NewCard() {
                   *
                 </span>
               </BlackText>
-              <Typography color='textSecondary' id='citeInfoDescription' style={{ fontSize: 14, margin: '6px 0' }}>
-                Put the main text of your card here. You can use formatting.
-              </Typography>
+              <NewCardFormattingPopover />
               <NewCardBodyEditor editorState={bodyState} setEditorState={setBodyState} />
-            </div>
-            <div>
-              <Typography color='textSecondary' style={{ fontSize: 11, marginTop: 5 }}>
-                *required field
-              </Typography>
             </div>
             <div style={{ marginTop: 10, marginBottom: -5 }}>
               <Button type='submit' variant='contained' color='primary' style={{ textTransform: 'none' }}>

@@ -14,3 +14,7 @@ a {
 * {
   box-sizing: border-box;
 }
+
+li > b {
+  margin-right: 3px;
+}

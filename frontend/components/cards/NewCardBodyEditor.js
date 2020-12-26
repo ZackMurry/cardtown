@@ -1,9 +1,10 @@
+import { Typography } from '@material-ui/core'
 import { Editor, getDefaultKeyBinding, RichUtils } from 'draft-js'
 import styles from '../../styles/NewCard.module.css'
 import theme from '../utils/theme'
 
 const styleMap = {
-  highlight: {
+  HIGHLIGHT: {
     backgroundColor: 'rgb(255, 255, 0)'
   },
   FONT_SIZE_6: {
@@ -20,7 +21,23 @@ const styleMap = {
   },
   FONT_SIZE_11: {
     fontSize: '11pt'
+  },
+  OUTLINE: {
+    border: '2px solid black'
   }
+}
+
+const styleToReadable = {
+  BOLD: 'bold',
+  HIGHLIGHT: 'highlight',
+  FONT_SIZE_6: 'font size 6',
+  FONT_SIZE_8: 'font size 8',
+  FONT_SIZE_9: 'font size 9',
+  FONT_SIZE_10: 'font size 10',
+  FONT_SIZE_11: 'font size 11',
+  UNDERLINE: 'underline',
+  ITALIC: 'italics',
+  OUTLINE: 'outline'
 }
 
 export default function NewCardBodyEditor({ editorState, setEditorState }) {
@@ -40,7 +57,11 @@ export default function NewCardBodyEditor({ editorState, setEditorState }) {
       handleChange(RichUtils.toggleInlineStyle(newEditorState, command))
       return 'handled'
     }
-    if (command === 'highlight') {
+    if (command === 'HIGHLIGHT') {
+      handleChange(RichUtils.toggleInlineStyle(editorState, command))
+      return 'handled'
+    }
+    if (command === 'OUTLINE') {
       handleChange(RichUtils.toggleInlineStyle(editorState, command))
       return 'handled'
     }
@@ -62,50 +83,78 @@ export default function NewCardBodyEditor({ editorState, setEditorState }) {
       return getDefaultKeyBinding(e)
     }
 
-    if (e.ctrlKey && e.key === 'h') {
-      return 'highlight'
+    if (e.key === 'h') {
+      return 'HIGHLIGHT'
     }
-    if (e.ctrlKey && e.key === '1') {
+
+    if (e.key === 'o') {
+      e.preventDefault()
+      return 'OUTLINE'
+    }
+
+    if (e.key === '1') {
       return 'FONT_SIZE_6'
     }
-    if (e.ctrlKey && e.key === '2') {
+    if (e.key === '2') {
       return 'FONT_SIZE_8'
     }
-    if (e.ctrlKey && e.key === '3') {
+    if (e.key === '3') {
       return 'FONT_SIZE_9'
     }
-    if (e.ctrlKey && e.key === '4') {
+    if (e.key === '4') {
       return 'FONT_SIZE_10'
     }
-    if (e.ctrlKey && e.key === '5') {
+    if (e.key === '5') {
       return 'FONT_SIZE_11'
     }
 
     return getDefaultKeyBinding(e)
   }
 
+  let currentInlineStyles = []
+  for (let s of editorState.getCurrentInlineStyle()) {
+    if (s === 'FONT_SIZE_11') {
+      // don't show default font size
+      continue
+    }
+    currentInlineStyles.push(' ' + (styleToReadable[s] ?? s))
+  }
+
   return (
     // todo make this look more like the other inputs
     // todo get user's preferred formatting
     // todo guide for shortcuts somewhere
-    // todo visual style editor
-    <div
-      style={{
-        backgroundColor: theme.palette.secondary.main,
-        border: `1px solid rgba(0, 0, 0, 0.23)`,
-        borderRadius: 3
-      }}
-      className={styles['editor-container']}
-    >
-      <Editor
-        editorState={editorState}
-        onChange={handleChange}
-        handleKeyCommand={handleKeyCommand}
-        keyBindingFn={keyBindingFn}
-        editorKey='newCardEditor'
-        customStyleMap={styleMap}
-      />
-    </div>
+    <>
+      <div
+        style={{
+          backgroundColor: theme.palette.secondary.main,
+          border: `1px solid rgba(0, 0, 0, 0.23)`,
+          borderRadius: 3
+        }}
+        className={styles['editor-container']}
+      >
+        <Editor
+          editorState={editorState}
+          onChange={handleChange}
+          handleKeyCommand={handleKeyCommand}
+          keyBindingFn={keyBindingFn}
+          editorKey='newCardEditor'
+          customStyleMap={styleMap}
+        />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <Typography color='textSecondary' style={{ fontSize: 11, marginTop: 5 }}>
+            *required field
+          </Typography>
+        </div>
+        <div style={{ height: 15 }}>
+          {
+            currentInlineStyles.toString()
+          }
+        </div>
+      </div>
+    </>
   )
 }
 
