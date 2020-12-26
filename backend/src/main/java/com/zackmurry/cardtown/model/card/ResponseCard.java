@@ -22,7 +22,8 @@ public class ResponseCard implements UUIDOwnerCard, ShortenedIdCard {
     private String tag;
     private String cite;
     private String citeInformation;
-    private String body;
+    private String bodyHtml;
+    private String bodyDraft;
 
     public static ResponseCard fromCard(UUIDOwnerCard card, String shortenedId) {
         return new ResponseCard(
@@ -31,7 +32,8 @@ public class ResponseCard implements UUIDOwnerCard, ShortenedIdCard {
                 card.getTag(),
                 card.getCite(),
                 card.getCiteInformation(),
-                card.getBody()
+                card.getBodyHtml(),
+                card.getBodyDraft()
         );
     }
 

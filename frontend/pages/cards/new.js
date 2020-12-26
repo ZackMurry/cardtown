@@ -1,14 +1,66 @@
-import { TextField, Typography } from '@material-ui/core'
-import { useState } from 'react'
+import { Button, TextField, Typography } from '@material-ui/core'
+import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
+import { stateToHTML } from 'draft-js-export-html'
+import Cookie from 'js-cookie'
+import { useMemo, useState } from 'react'
 import NewCardBodyEditor from '../../components/cards/NewCardBodyEditor'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import BlackText from '../../components/utils/BlackText'
 import theme from '../../components/utils/theme'
 
+//used because EditorState.createFromEmpty() was producing errors.
+//just an empty content state
+const emptyContentState = convertFromRaw({
+  entityMap: {},
+  blocks: [
+    {
+      text: '',
+      key: 'nottte',
+      type: 'unstyled',
+      entityRanges: []
+    }
+  ]
+})
+
 export default function NewCard() {
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')
   const [ citeInformation, setCiteInformation ] = useState('')
+  const [ bodyState, setBodyState ] = useState(() => EditorState.createWithContent(emptyContentState))
+  
+  const jwt = useMemo(() => Cookie.get('jwt'), [])
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    console.log(JSON.stringify(convertToRaw(bodyState.getCurrentContent())))
+    const content = bodyState.getCurrentContent()
+
+    const bodyDraft = convertToRaw(content)
+    const bodyHtml = stateToHTML(content, {
+      inlineStyles: {
+        highlight: {
+          style: {
+            backgroundColor: 'rgb(255, 255, 0)'
+          }
+        }
+      }
+    })
+
+    const response = await fetch('/api/v1/cards', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` },
+      body: JSON.stringify({
+        tag,
+        cite,
+        citeInformation,
+        bodyHtml,
+        bodyDraft: JSON.stringify(bodyDraft)
+      })
+    })
+    console.log(response.status)
+    console.log(await response.text())
+    // todo redirect to card's page
+  }
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
@@ -37,7 +89,7 @@ export default function NewCard() {
               }}
             />
           </div>
-          <div>
+          <form onSubmit={handleSubmit}>
 
             {/* tag */}
             <div>
@@ -53,6 +105,7 @@ export default function NewCard() {
                 Put a quick summary of what this card says.
               </Typography>
               <TextField
+                id='tag'
                 variant='outlined'
                 value={tag}
                 onChange={e => setTag(e.target.value)}
@@ -91,8 +144,8 @@ export default function NewCard() {
                 InputProps={{
                   inputProps: {
                     name: 'cite',
-                    "aria-labelledby": 'citeLabel',
-                    "aria-describedby": 'citeDescription'
+                    'aria-labelledby': 'citeLabel',
+                    'aria-describedby': 'citeDescription'
                   }
                 }}
               />
@@ -116,15 +169,15 @@ export default function NewCard() {
                 InputProps={{
                   inputProps: {
                     name: 'citeInfo',
-                    "aria-labelledby": 'citeInfoLabel',
-                    "aria-describedby": 'citeInfoDescription'
+                    'aria-labelledby': 'citeInfoLabel',
+                    'aria-describedby': 'citeInfoDescription'
                   }
                 }}
               />
             </div>
 
             {/* body */}
-            <div style={{ marginTop: 25 }}>
+            <div style={{ marginTop: 20 }}>
               <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
                 Body
                 <span style={{ fontWeight: 300 }}>
@@ -134,9 +187,21 @@ export default function NewCard() {
               <Typography color='textSecondary' id='citeInfoDescription' style={{ fontSize: 14, margin: '6px 0' }}>
                 Put the main text of your card here. You can use formatting.
               </Typography>
-              <NewCardBodyEditor />
+              <NewCardBodyEditor editorState={bodyState} setEditorState={setBodyState} />
             </div>
-          </div>
+            <div>
+              <Typography color='textSecondary' style={{ fontSize: 11, marginTop: 5 }}>
+                *required field
+              </Typography>
+            </div>
+            <div style={{ marginTop: 10, marginBottom: -5 }}>
+              <Button type='submit' variant='contained' color='primary' style={{ textTransform: 'none' }}>
+                <Typography>
+                  Finish
+                </Typography>
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

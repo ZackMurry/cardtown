@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface CardDao {
 
-    Optional<UUID> createCard(UUIDOwnerCard card);
+    Optional<UUID> createCard(CardEntity card);
 
     Optional<CardEntity> getCardById(UUID id);
 

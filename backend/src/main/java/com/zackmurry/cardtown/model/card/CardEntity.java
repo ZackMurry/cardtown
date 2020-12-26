@@ -21,14 +21,16 @@ public class CardEntity implements UUIDIdCard, UUIDOwnerCard {
     private String tag;
     private String cite;
     private String citeInformation;
-    private String body;
+    private String bodyHtml;
+    private String bodyDraft;
 
-    public CardEntity(UUID ownerId, String tag, String cite, String citeInformation, String body) {
+    public CardEntity(UUID ownerId, String tag, String cite, String citeInformation, String bodyHtml, String bodyDraft) {
         this.ownerId = ownerId;
         this.tag = tag;
         this.cite = cite;
         this.citeInformation = citeInformation;
-        this.body = body;
+        this.bodyHtml = bodyHtml;
+        this.bodyDraft = bodyDraft;
     }
 
 }

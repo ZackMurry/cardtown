@@ -59,7 +59,8 @@ public class CardService {
      */
     public ResponseEntity<String> createCard(CardCreateRequest request) {
         if (request.getOwnerEmail() == null ||
-            request.getBody() == null ||
+            request.getBodyHtml() == null ||
+            request.getBodyDraft() == null ||
             request.getCite() == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -69,6 +70,7 @@ public class CardService {
         if (request.getCiteInformation() == null) {
             request.setCiteInformation("");
         }
+        // todo check lengths
         Optional<UUID> optionalUserId = userDao.getIdByEmail(request.getOwnerEmail());
         if (optionalUserId.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);

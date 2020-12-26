@@ -1,3 +1,6 @@
 .editor-container > * > * > * {
-  min-height: 200px;
+  min-height: 150px;
+  padding: 10px;
+  font-family: Calibri;
+  font-size: 11;
 }

@@ -8,6 +8,8 @@ public interface BasicCard {
 
     String getCiteInformation();
 
-    String getBody();
+    String getBodyHtml();
+
+    String getBodyDraft();
 
 }

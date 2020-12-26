@@ -1,21 +1,6 @@
-import { convertFromRaw, Editor, EditorState, getDefaultKeyBinding, RichUtils } from 'draft-js'
-import { useState } from 'react'
+import { Editor, getDefaultKeyBinding, RichUtils } from 'draft-js'
 import styles from '../../styles/NewCard.module.css'
 import theme from '../utils/theme'
-
-//used because EditorState.createFromEmpty() was producing errors.
-//just an empty content state
-const emptyContentState = convertFromRaw({
-  entityMap: {},
-  blocks: [
-    {
-      text: '',
-      key: 'nottte',
-      type: 'unstyled',
-      entityRanges: []
-    }
-  ]
-})
 
 const styleMap = {
   highlight: {
@@ -23,8 +8,7 @@ const styleMap = {
   }
 }
 
-export default function NewCardBodyEditor() {
-  const [ editorState, setEditorState ] = useState(() => EditorState.createWithContent(emptyContentState))
+export default function NewCardBodyEditor({ editorState, setEditorState }) {
 
   const handleChange = newState => {
     setEditorState(newState)

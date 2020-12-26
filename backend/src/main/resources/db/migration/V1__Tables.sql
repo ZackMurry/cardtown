@@ -14,5 +14,6 @@ CREATE TABLE IF NOT EXISTS cards (
     tag VARCHAR(256) DEFAULT '' NOT NULL,
     cite VARCHAR(128) NOT NULL,
     cite_information VARCHAR(2048) DEFAULT '',
-    body TEXT NOT NULL
+    body_html TEXT NOT NULL,
+    body_draft TEXT NOT NULL
 );

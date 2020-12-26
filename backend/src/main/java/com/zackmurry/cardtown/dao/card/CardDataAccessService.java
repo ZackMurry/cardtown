@@ -1,9 +1,9 @@
 package com.zackmurry.cardtown.dao.card;
 
-import com.zackmurry.cardtown.model.card.BasicCard;
 import com.zackmurry.cardtown.model.card.CardEntity;
-import com.zackmurry.cardtown.model.card.UUIDOwnerCard;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +17,8 @@ import java.util.UUID;
 @Repository
 public class CardDataAccessService implements CardDao {
 
+    private static final Logger logger = LoggerFactory.getLogger(CardDataAccessService.class);
+
     private final JdbcTemplate jdbcTemplate;
 
     public CardDataAccessService(DataSource dataSource) throws SQLException {
@@ -28,8 +30,8 @@ public class CardDataAccessService implements CardDao {
      * @return HttpStatus representing success
      */
     @Override
-    public Optional<UUID> createCard(UUIDOwnerCard card) {
-        String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body) VALUES (?, ?, ?, ?, ?)";
+    public Optional<UUID> createCard(CardEntity card) {
+        String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body_html, body_draft) VALUES (?, ?, ?, ?, ?, ?)";
         try {
             String[] returnId = { "id" };
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
@@ -37,17 +39,17 @@ public class CardDataAccessService implements CardDao {
             preparedStatement.setString(2, card.getTag());
             preparedStatement.setString(3, card.getCite());
             preparedStatement.setString(4, card.getCiteInformation());
-            preparedStatement.setString(5, card.getBody());
+            preparedStatement.setString(5, card.getBodyHtml());
+            preparedStatement.setString(6, card.getBodyDraft());
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
-                System.out.println("no affected rows");
+                logger.warn("Card creation by {} didn't generate an id.", card.getOwnerId());
             }
 
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
             if (resultSet.next()) {
                 return Optional.of(UUID.fromString(resultSet.getString("id")));
             }
-            System.out.println("not next");
             return Optional.empty();
         } catch(SQLException e) {
             e.printStackTrace();
@@ -57,7 +59,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public Optional<CardEntity> getCardById(@NonNull UUID id) {
-        String sql = "SELECT owner_id, tag, cite, cite_information, body FROM cards WHERE id = ?";
+        String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft FROM cards WHERE id = ?";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -74,7 +76,8 @@ public class CardDataAccessService implements CardDao {
                     resultSet.getString("tag"),
                     resultSet.getString("cite"),
                     resultSet.getString("cite_information"),
-                    resultSet.getString("body")
+                    resultSet.getString("body_html"),
+                    resultSet.getString("body_draft")
                 )
             );
         } catch(SQLException e) {
