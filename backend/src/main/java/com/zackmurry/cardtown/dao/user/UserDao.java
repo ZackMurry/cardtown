@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.dao.user;
 
 import com.zackmurry.cardtown.model.auth.User;
+import com.zackmurry.cardtown.model.auth.UserModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -14,10 +15,12 @@ public interface UserDao {
 
     Optional<UUID> getIdByEmail(String email);
 
-    HttpStatus createAccount(User user);
+    HttpStatus createAccount(UserModel user);
 
     boolean accountExists(String email);
 
     HttpStatus deleteUser(String email);
+
+    String getEncryptedSecretKey(String email);
 
 }

@@ -1,6 +1,6 @@
 package com.zackmurry.cardtown.filter;
 
-import com.zackmurry.cardtown.model.auth.PrincipalModel;
+import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.service.UserService;
 import com.zackmurry.cardtown.util.JwtUtil;
@@ -15,14 +15,11 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Base64;
 
 /**
  *
@@ -34,7 +31,7 @@ import java.util.Base64;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
-    private UserService userDetailsService;
+    private UserService userService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -64,11 +61,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = (User) userDetailsService.loadUserByUsername(email);
+            User user = (User) userService.loadUserByUsername(email);
 
-            // getting user's private key for encryption
-            String secretKey = jwtUtil.extractSecretKey(jwt);
-            PrincipalModel model = new PrincipalModel(user, secretKey);
+            // getting user's encryption key for decrypting their secret eky
+            String encryptionKey = jwtUtil.extractSecretKey(jwt);
+
+            String secretKey = userService.getUserSecretKey(email, encryptionKey);
+            if (secretKey == null) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value());
+                return;
+            }
+            UserModel model = new UserModel(user, encryptionKey);
             if (jwtUtil.validateToken(jwt, user)) {
                 var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
                 token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

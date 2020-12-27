@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(320) UNIQUE NOT NULL,
     first_name VARCHAR(32) NOT NULL,
     last_name VARCHAR(32) NOT NULL,
-    password VARCHAR(64) NOT NULL
+    password VARCHAR(64) NOT NULL,
+    encrypted_secret_key VARCHAR(96) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS cards (
@@ -17,3 +18,5 @@ CREATE TABLE IF NOT EXISTS cards (
     body_html TEXT NOT NULL,
     body_draft TEXT NOT NULL
 );
+
+

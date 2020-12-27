@@ -1,6 +1,6 @@
 package com.zackmurry.cardtown.controller;
 
-import com.zackmurry.cardtown.model.auth.PrincipalModel;
+import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.service.CardService;
@@ -18,7 +18,7 @@ public class CardController {
 
     @GetMapping("/auth-test")
     public String authTest() {
-        return ((PrincipalModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
+        return ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
     }
 
     @GetMapping("/{id}")

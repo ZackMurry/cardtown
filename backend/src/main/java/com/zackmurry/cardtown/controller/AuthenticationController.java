@@ -48,16 +48,11 @@ public class AuthenticationController {
         final Map<String, Object> claims = new HashMap<>();
 
         // generate SHA-256 hash of password as their secret key (hash is 32 bytes)
-        MessageDigest messageDigest;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        String encryptionKey = EncryptionUtils.getEncryptionKeyHex(request.getPassword());
+        if (encryptionKey == null) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        byte[] encodedHash = messageDigest.digest(request.getPassword().getBytes(StandardCharsets.UTF_8));
-        String hex = EncryptionUtils.bytesToHex(encodedHash);
-        claims.put("secret", hex);
+        claims.put("ek", encryptionKey);
 
         String jwt = jwtUtil.createToken(claims, userDetails.getUsername());
         return ResponseEntity.ok(new AuthenticationResponse(jwt));

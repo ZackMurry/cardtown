@@ -52,7 +52,7 @@ public class JwtUtil {
     }
 
     public String extractSecretKey(String token) {
-        return (String) extractAllClaims(token).get("secret");
+        return (String) extractAllClaims(token).get("ek");
     }
 
 }

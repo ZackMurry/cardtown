@@ -2,6 +2,7 @@ package com.zackmurry.cardtown.dao.user;
 
 
 import com.zackmurry.cardtown.model.auth.User;
+import com.zackmurry.cardtown.model.auth.UserModel;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
@@ -67,11 +68,11 @@ public class UserDataAccessService implements UserDao {
     }
 
     @Override
-    public HttpStatus createAccount(User user) {
+    public HttpStatus createAccount(UserModel user) {
         if (findByEmail(user.getEmail()).isPresent()) {
             return HttpStatus.PRECONDITION_FAILED;
         }
-        String sql = "INSERT INTO users (email, first_name, last_name, password) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (email, first_name, last_name, password, encrypted_secret_key) VALUES (?, ?, ?, ?, ?)";
 
         try {
             jdbcTemplate.execute(
@@ -79,7 +80,8 @@ public class UserDataAccessService implements UserDao {
                     user.getEmail(),
                     user.getFirstName(),
                     user.getLastName(),
-                    user.getPassword() // hashed
+                    user.getPassword(), // hashed
+                    user.getSecretKey() // encrypted with AES by SHA-256 hash of password
             );
             return HttpStatus.OK;
         } catch(SQLException e) {
@@ -109,6 +111,20 @@ public class UserDataAccessService implements UserDao {
         } catch(SQLException e) {
             e.printStackTrace();
             return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+    }
+
+    @Override
+    public String getEncryptedSecretKey(String email) {
+        String sql = "SELECT encrypted_secret_key FROM users WHERE email = ?";
+        try {
+            return jdbcTemplate.queryForString(
+                    sql,
+                    email
+            );
+        } catch(SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
