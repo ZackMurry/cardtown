@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown.filter;
 
+import com.zackmurry.cardtown.model.auth.PrincipalModel;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.service.UserService;
 import com.zackmurry.cardtown.util.JwtUtil;
@@ -31,10 +32,6 @@ import java.util.Base64;
  */
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
-
-    public static final byte[] TEMPORARY_JWT_PWD_SECRET_KEY = {
-            0x74, 0x68, 0x69, 0x73, 0x49, 0x73, 0x41, 0x53, 0x65, 0x63, 0x72, 0x65, 0x74, 0x4b, 0x65, 0x79
-    };
 
     @Autowired
     private UserService userDetailsService;
@@ -70,16 +67,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             User user = (User) userDetailsService.loadUserByUsername(email);
 
             // getting user's private key for encryption
-            String plainTextPass = null;
-            try {
-                plainTextPass = jwtUtil.extractPassword(jwt);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
-            user.setPassword(plainTextPass);
+            String secretKey = jwtUtil.extractSecretKey(jwt);
+            PrincipalModel model = new PrincipalModel(user, secretKey);
             if (jwtUtil.validateToken(jwt, user)) {
-                var token = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
                 token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(token);
             }

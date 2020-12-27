@@ -6,8 +6,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.util.*;
 import java.util.function.Function;
 
@@ -15,8 +13,6 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private static final String SECRET_KEY = System.getenv("CARDTOWN_JWT_SECRET_KEY");
-
-    public static final byte[] JWT_PWD_SECRET_KEY = Base64.getDecoder().decode(System.getenv("CARDTOWN_JWT_PWD_SECRET_KEY"));
 
     public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -55,17 +51,8 @@ public class JwtUtil {
         return (subject.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    public String extractPassword(String token) throws Exception {
-        String encryptedPass = (String) extractAllClaims(token).get("pwd");
-        if (encryptedPass == null) {
-            return null;
-        }
-        Cipher cipher = Cipher.getInstance("AES");
-        final SecretKeySpec secretKey = new SecretKeySpec(JWT_PWD_SECRET_KEY, "AES");
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        final byte[] decorVal = Base64.getDecoder().decode(encryptedPass);
-        final byte[] decValue = cipher.doFinal(decorVal);
-        return new String(decValue);
+    public String extractSecretKey(String token) {
+        return (String) extractAllClaims(token).get("secret");
     }
 
 }

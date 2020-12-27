@@ -1,11 +1,10 @@
 package com.zackmurry.cardtown.controller;
 
-import com.zackmurry.cardtown.filter.JwtRequestFilter;
 import com.zackmurry.cardtown.model.auth.AuthenticationRequest;
 import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
 import com.zackmurry.cardtown.service.UserService;
+import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,16 +47,18 @@ public class AuthenticationController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         final Map<String, Object> claims = new HashMap<>();
 
+        // generate SHA-256 hash of password as their secret key (hash is 32 bytes)
+        MessageDigest messageDigest;
         try {
-            Cipher cipher = Cipher.getInstance("AES");
-            final SecretKeySpec secretKey = new SecretKeySpec(JwtUtil.JWT_PWD_SECRET_KEY, "AES");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            final String encryptedString = Base64.encodeBase64String(cipher.doFinal(request.getPassword().getBytes()));
-            claims.put("pwd", encryptedString);
-        } catch (Exception e) {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        byte[] encodedHash = messageDigest.digest(request.getPassword().getBytes(StandardCharsets.UTF_8));
+        String hex = EncryptionUtils.bytesToHex(encodedHash);
+        claims.put("secret", hex);
+
         String jwt = jwtUtil.createToken(claims, userDetails.getUsername());
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
