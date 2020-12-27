@@ -43,8 +43,7 @@ public class CardService {
         }
         UUID userId = optionalUserId.get();
         if (!userId.equals(cardEntity.getOwnerId())) {
-            // todo probably the biggest thing that will be missing from the beta is sharing.
-            // would like to test the core application before i have to deal with that
+            // todo sharing
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         // todo probably switch owner_id to the owner name (and eventually profile picture and such)

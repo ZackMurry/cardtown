@@ -1,4 +1,4 @@
-package com.zackmurry.cardtown.model;
+package com.zackmurry.cardtown.model.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

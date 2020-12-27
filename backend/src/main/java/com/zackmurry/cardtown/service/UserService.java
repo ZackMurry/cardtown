@@ -1,8 +1,8 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.user.UserDao;
-import com.zackmurry.cardtown.model.AuthenticationResponse;
-import com.zackmurry.cardtown.model.User;
+import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
+import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

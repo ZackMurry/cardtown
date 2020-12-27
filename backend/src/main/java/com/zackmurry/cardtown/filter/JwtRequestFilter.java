@@ -1,6 +1,6 @@
 package com.zackmurry.cardtown.filter;
 
-import com.zackmurry.cardtown.model.User;
+import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.service.UserService;
 import com.zackmurry.cardtown.util.JwtUtil;
 import io.jsonwebtoken.MalformedJwtException;
@@ -14,11 +14,14 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Base64;
 
 /**
  *
@@ -28,6 +31,10 @@ import java.io.IOException;
  */
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
+
+    public static final byte[] TEMPORARY_JWT_PWD_SECRET_KEY = {
+            0x74, 0x68, 0x69, 0x73, 0x49, 0x73, 0x41, 0x53, 0x65, 0x63, 0x72, 0x65, 0x74, 0x4b, 0x65, 0x79
+    };
 
     @Autowired
     private UserService userDetailsService;
@@ -61,6 +68,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             User user = (User) userDetailsService.loadUserByUsername(email);
+
+            // getting user's private key for encryption
+            String plainTextPass = null;
+            try {
+                plainTextPass = jwtUtil.extractPassword(jwt);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+            user.setPassword(plainTextPass);
             if (jwtUtil.validateToken(jwt, user)) {
                 var token = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

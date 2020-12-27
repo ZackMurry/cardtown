@@ -1,6 +1,6 @@
 package com.zackmurry.cardtown.dao.user;
 
-import com.zackmurry.cardtown.model.User;
+import com.zackmurry.cardtown.model.auth.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 

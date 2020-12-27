@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown.config;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,6 +35,12 @@ public class WebRestControllerAdvice {
     @ExceptionHandler(MalformedJwtException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public String handleMalformedJwtException(MalformedJwtException exception, HttpServletResponse response) {
+        return exception.getMessage();
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String handleExpiredJwtException(ExpiredJwtException exception, HttpServletResponse response) {
         return exception.getMessage();
     }
 

@@ -1,7 +1,7 @@
 package com.zackmurry.cardtown.controller;
 
-import com.zackmurry.cardtown.model.AuthenticationResponse;
-import com.zackmurry.cardtown.model.User;
+import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
+import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +14,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    // todo get all of the cards that user has access to route
 
     @PostMapping("")
     public ResponseEntity<AuthenticationResponse> createUserAccount(@RequestBody User user) {

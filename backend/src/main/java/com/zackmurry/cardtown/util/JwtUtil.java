@@ -6,15 +6,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
 public class JwtUtil {
 
     private static final String SECRET_KEY = System.getenv("CARDTOWN_JWT_SECRET_KEY");
+
+    public static final byte[] JWT_PWD_SECRET_KEY = Base64.getDecoder().decode(System.getenv("CARDTOWN_JWT_PWD_SECRET_KEY"));
 
     public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -29,7 +31,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
 
@@ -42,7 +44,7 @@ public class JwtUtil {
         return createToken(claims, userDetails.getUsername());
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
@@ -51,6 +53,19 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String subject = extractSubject(token);
         return (subject.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public String extractPassword(String token) throws Exception {
+        String encryptedPass = (String) extractAllClaims(token).get("pwd");
+        if (encryptedPass == null) {
+            return null;
+        }
+        Cipher cipher = Cipher.getInstance("AES");
+        final SecretKeySpec secretKey = new SecretKeySpec(JWT_PWD_SECRET_KEY, "AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        final byte[] decorVal = Base64.getDecoder().decode(encryptedPass);
+        final byte[] decValue = cipher.doFinal(decorVal);
+        return new String(decValue);
     }
 
 }
