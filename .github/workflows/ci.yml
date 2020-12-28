@@ -1,0 +1,54 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs: 
+  build-backend:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./backend
+    steps:
+    - name: Set up Postgres
+      uses: harmon758/postgresql-action@v1
+      with:
+        postgresql version: '11'
+        postgresql db: 'cardtown'
+        postgresql user: ${{secrets.POSTGRES_USERNAME}}
+        postgresql password: ${{secrets.POSTGRES_PASSWORD}}
+    - uses: actions/checkout@v2
+    - uses: AdoptOpenJDK/install-jdk@v1
+      with:
+        version: '11'
+        architecture: x64
+    - name: Test Java version
+      run: java -version
+    - name: Set environment variables
+      run: |
+        echo "CARDTOWN_JWT_SECRET_KEY=${{secrets.JWT_SECRET_KEY}}" >> $GITHUB_ENV
+        echo "POSTGRES_USERNAME=${{secrets.POSTGRES_USERNAME}}" >> $GITHUB_ENV
+        echo "POSTGRES_PASSWORD=${{secrets.POSTGRES_PASSWORD}}" >> $GITHUB_ENV
+    - name: Build with Maven
+      working-directory: ${{env.working-directory}}
+      run: mvn -X -B package --file pom.xml -DskipTests
+    - name: Run unit tests
+      working-directory: ${{env.working-directory}}
+      run: mvn test
+  build-frontend:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./frontend
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.18.3'
+    - name: Install packages
+      working-directory: ${{env.working-directory}}
+      run: npm install
+    - name: Test build
+      working-directory: ${{env.working-directory}}
+      run: npm run build
