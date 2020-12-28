@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.test.context.junit4.statements.RunAfterTestClassCallbacks;
 
 import java.util.Arrays;
 
@@ -75,7 +74,7 @@ public class UserServiceTest {
     @DisplayName("Test secret key with account creation")
     @Test
     public void testSecretKey() {
-        final byte[] encryptionKey = EncryptionUtils.getEncryptionKey(testPassword);
+        final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(testPassword);
         assertNotNull(encryptionKey);
         final AuthenticationResponse authRes = accountCreationResponse.getBody();
         assertNotNull(authRes);

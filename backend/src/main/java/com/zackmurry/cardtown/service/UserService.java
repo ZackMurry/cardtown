@@ -6,6 +6,8 @@ import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +18,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserDao userDao;
@@ -70,7 +71,7 @@ public class UserService implements UserDetailsService {
 
         // generating and encrypting secret key
         // todo salt encryptionKey with email or something
-        final byte[] encryptionKey = EncryptionUtils.getEncryptionKey(plainTextPassword);
+        final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(plainTextPassword);
         if (encryptionKey == null) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

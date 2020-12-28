@@ -4,6 +4,7 @@ package com.zackmurry.cardtown.util;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -35,28 +36,24 @@ public class EncryptionUtils {
     }
 
     /**
-     * takes a user's plain-text password and generates and encryption key
-     * @param password user's plain-text password
-     * @return a hex-encoded SHA-256 hash of the password
+     * takes a user's plain-text text and generates and encryption key
+     * @param text user's plain-text text
+     * @return a hex-encoded SHA-256 hash of the text
      */
-    public static String getEncryptionKeyHex(String password) {
-        MessageDigest messageDigest;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+    public static String getSHA256HashHex(String text) {
+        byte[] bytes = getSHA256Hash(text);
+        if (bytes == null) {
             return null;
         }
-        byte[] encodedHash = messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
-        return bytesToHex(encodedHash);
+        return bytesToHex(bytes);
     }
 
     /**
-     * takes a user's plain-text password and generates and encryption key
-     * @param password user's plain-text password
-     * @return a SHA-256 hash of the password
+     * takes a user's plain-text text and generates and encryption key
+     * @param text user's plain-text text
+     * @return a SHA-256 hash of the text
      */
-    public static byte[] getEncryptionKey(String password) {
+    public static byte[] getSHA256Hash(String text) {
         MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance("SHA-256");
@@ -64,7 +61,7 @@ public class EncryptionUtils {
             e.printStackTrace();
             return null;
         }
-        return messageDigest.digest(password.getBytes(StandardCharsets.UTF_8));
+        return messageDigest.digest(text.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -91,17 +88,61 @@ public class EncryptionUtils {
         return keyGenerator.generateKey();
     }
 
-    public static byte[] encryptAES(byte[] value, byte[] secretKey) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(secretKey, "AES"));
-        return cipher.doFinal(value);
+    // from https://gist.github.com/itarato/abef95871756970a9dad
+
+    public static byte[] encryptAES(byte[] plainText, byte[] key) throws Exception {
+        // Generating IV.
+        int ivSize = 16;
+        byte[] iv = new byte[ivSize];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(iv);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+        // Hashing key.
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.update(key);
+        byte[] keyBytes = new byte[16];
+        System.arraycopy(digest.digest(), 0, keyBytes, 0, keyBytes.length);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+
+        // Encrypt.
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+        byte[] encrypted = cipher.doFinal(plainText);
+
+        // Combine IV and encrypted part.
+        byte[] encryptedIVAndText = new byte[ivSize + encrypted.length];
+        System.arraycopy(iv, 0, encryptedIVAndText, 0, ivSize);
+        System.arraycopy(encrypted, 0, encryptedIVAndText, ivSize, encrypted.length);
+
+        return encryptedIVAndText;
     }
 
-    public static byte[] decryptAES(byte[] cipherText, byte[] secretKey) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        final SecretKeySpec skc = new SecretKeySpec(secretKey, "AES");
-        cipher.init(Cipher.DECRYPT_MODE, skc);
-        return cipher.doFinal(cipherText);
+    public static byte[] decryptAES(byte[] cipher, byte[] key) throws Exception {
+        int ivSize = 16;
+        int keySize = 16;
+
+        // Extract IV.
+        byte[] iv = new byte[ivSize];
+        System.arraycopy(cipher, 0, iv, 0, iv.length);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+        // Extract encrypted part.
+        int encryptedSize = cipher.length - ivSize;
+        byte[] encryptedBytes = new byte[encryptedSize];
+        System.arraycopy(cipher, ivSize, encryptedBytes, 0, encryptedSize);
+
+        // Hash key.
+        byte[] keyBytes = new byte[keySize];
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(key);
+        System.arraycopy(md.digest(), 0, keyBytes, 0, keyBytes.length);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+
+        // Decrypt.
+        Cipher cipherDecrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipherDecrypt.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+        return cipherDecrypt.doFinal(encryptedBytes);
     }
 
 }
