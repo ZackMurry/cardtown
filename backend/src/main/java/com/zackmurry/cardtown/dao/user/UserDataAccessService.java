@@ -3,6 +3,7 @@ package com.zackmurry.cardtown.dao.user;
 
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.util.EncryptionUtils;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
@@ -81,7 +82,7 @@ public class UserDataAccessService implements UserDao {
                     user.getFirstName(),
                     user.getLastName(),
                     user.getPassword(), // hashed
-                    user.getSecretKey() // encrypted with AES by SHA-256 hash of password
+                    EncryptionUtils.bytesToHex(user.getSecretKey()) // encrypted with AES by SHA-256 hash of password
             );
             return HttpStatus.OK;
         } catch(SQLException e) {

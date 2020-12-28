@@ -57,6 +57,7 @@ public class EncryptionUtilsTest {
             toBeEncrypted = "this is another cool test that happens to be a bit longer";
             assertEquals(Arrays.toString(toBeEncrypted.getBytes(StandardCharsets.UTF_8)), Arrays.toString(decryptAES(encryptAES(toBeEncrypted.getBytes(StandardCharsets.UTF_8), hexToBytes(key)), hexToBytes(key))));
             assertNotEquals(toBeEncrypted.getBytes(StandardCharsets.UTF_8), encryptAES(toBeEncrypted.getBytes(StandardCharsets.UTF_8), hexToBytes(key)));
+            assertEquals(toBeEncrypted, decryptStringAES(encryptStringAES(toBeEncrypted, hexToBytes(key)), hexToBytes(key)));
         } catch (Exception e) {
             fail("Valid encryption/decryption should never throw an exception", e);
         }
