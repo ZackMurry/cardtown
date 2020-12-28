@@ -7,9 +7,9 @@ import lombok.Setter;
 @Setter
 public class UserModel extends User {
 
-    private String secretKey;
+    private byte[] secretKey;
 
-    public UserModel(User u, String secretKey) {
+    public UserModel(User u, byte[] secretKey) {
         this.setId(u.getId());
         this.setEmail(u.getEmail());
         this.setFirstName(u.getFirstName());

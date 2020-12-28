@@ -4,10 +4,13 @@ import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.service.CardService;
+import com.zackmurry.cardtown.util.EncryptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("/api/v1/cards")
 @RestController
@@ -18,7 +21,7 @@ public class CardController {
 
     @GetMapping("/auth-test")
     public String authTest() {
-        return ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
+        return EncryptionUtils.bytesToHex(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey());
     }
 
     @GetMapping("/{id}")
@@ -33,6 +36,11 @@ public class CardController {
     public ResponseEntity<String> createCard(@RequestBody CardCreateRequest request) {
         request.setOwnerEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         return cardService.createCard(request);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<ResponseCard>> getAllCardsByUser() {
+        return cardService.getAllCardsByUser();
     }
 
 }

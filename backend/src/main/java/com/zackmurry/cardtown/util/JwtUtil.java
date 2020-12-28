@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +15,7 @@ public class JwtUtil {
 
     private static final String SECRET_KEY = System.getenv("CARDTOWN_JWT_SECRET_KEY");
 
-    public String extractSubject(String token) {
+    public String extractSubject(String token) throws ExpiredJwtException {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -51,7 +52,7 @@ public class JwtUtil {
         return (subject.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    public String extractSecretKey(String token) {
+    public String extractEncryptionKey(String token) {
         return (String) extractAllClaims(token).get("ek");
     }
 

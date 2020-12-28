@@ -22,6 +22,7 @@ import javax.crypto.SecretKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -77,10 +78,10 @@ public class UserService implements UserDetailsService {
         }
 
         SecretKey secretKey = EncryptionUtils.generateStrongAESKey(256);
-        // aes encrypting the aes secret key
-        String encryptedSecretKey = null;
+        // aes encrypting the aes secret key 0.0
+        byte[] encryptedSecretKey = null;
         try {
-            encryptedSecretKey = EncryptionUtils.bytesToHex(EncryptionUtils.encryptAES(secretKey.getEncoded(), encryptionKey));
+            encryptedSecretKey = EncryptionUtils.encryptAES(secretKey.getEncoded(), encryptionKey);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -135,4 +136,7 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public Optional<UUID> getIdByEmail(String email) {
+        return userDao.getIdByEmail(email);
+    }
 }

@@ -3,6 +3,7 @@ package com.zackmurry.cardtown.filter;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.service.UserService;
+import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -64,9 +65,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             User user = (User) userService.loadUserByUsername(email);
 
             // getting user's encryption key for decrypting their secret eky
-            String encryptionKey = jwtUtil.extractSecretKey(jwt);
+            final String encryptionKeyHex = jwtUtil.extractEncryptionKey(jwt);
+            if (encryptionKeyHex == null) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value());
+                return;
+            }
+            final byte[] encryptionKey = EncryptionUtils.hexToBytes(encryptionKeyHex);
 
-            String secretKey = userService.getUserSecretKey(email, encryptionKey);
+            byte[] secretKey = userService.getUserSecretKey(email, encryptionKey);
             if (secretKey == null) {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
                 return;

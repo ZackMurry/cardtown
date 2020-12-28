@@ -7,10 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import javax.print.attribute.standard.PresentationDirection;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -83,6 +86,35 @@ public class CardDataAccessService implements CardDao {
         } catch(SQLException e) {
             e.printStackTrace();
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<CardEntity> getCardsByUser(UUID id) {
+        String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft FROM cards WHERE owner_id = ?";
+        try {
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            List<CardEntity> cards = new ArrayList<>();
+            while (rs.next()) {
+                cards.add(
+                        new CardEntity(
+                                UUID.fromString(rs.getString("id")),
+                                id,
+                                rs.getString("tag"),
+                                rs.getString("cite"),
+                                rs.getString("cite_information"),
+                                rs.getString("body_html"),
+                                rs.getString("body_draft")
+                        )
+                );
+            }
+            return cards;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

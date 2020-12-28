@@ -82,7 +82,7 @@ public class UserServiceTest {
         assertNotNull(jwt);
         final Claims claims = jwtUtil.extractAllClaims(jwt);
         assertEquals(testEmail, claims.getSubject());
-        assertEquals(EncryptionUtils.bytesToHex(encryptionKey), jwtUtil.extractSecretKey(jwt));
+        assertEquals(EncryptionUtils.bytesToHex(encryptionKey), jwtUtil.extractEncryptionKey(jwt));
         final byte[] allegedSecretKey = userService.getUserSecretKey(testEmail, encryptionKey);
         final String encryptedSecretKey = userDao.getEncryptedSecretKey(testEmail);
         try {

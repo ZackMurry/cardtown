@@ -145,4 +145,25 @@ public class EncryptionUtils {
         return cipherDecrypt.doFinal(encryptedBytes);
     }
 
+    /**
+     * converts a UTF-8 String to an AES-encrypted, hex-encoded String
+     * @param plainText text to encrypt
+     * @param secretKey secret key for AES
+     * @return cipher in hex
+     * @throws Exception if something goes wrong, like a bad secret key
+     */
+    public static String encryptStringAES(String plainText, byte[] secretKey) throws Exception {
+        return bytesToHex(encryptAES(plainText.getBytes(StandardCharsets.UTF_8), secretKey));
+    }
+
+    /**
+     * uses AES encryption with hex byte encoding and switches to UTF-8 character encoding
+     * @param cipher text to decrypt
+     * @param secretKey AES secret key
+     * @return output in hex
+     */
+    public static String decryptStringAES(String cipher, byte[] secretKey) throws Exception {
+        return new String(decryptAES(hexToBytes(cipher), secretKey), StandardCharsets.UTF_8);
+    }
+
 }
