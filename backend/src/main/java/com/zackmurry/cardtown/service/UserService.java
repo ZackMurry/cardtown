@@ -27,8 +27,6 @@ import java.util.UUID;
 @Service
 public class UserService implements UserDetailsService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-
     @Autowired
     private UserDao userDao;
 

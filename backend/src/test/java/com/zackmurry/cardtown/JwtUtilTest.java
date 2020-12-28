@@ -36,7 +36,7 @@ public class JwtUtilTest {
             createTestUser();
         } else {
             final String testPassword = RandomStringUtils.randomAlphanumeric(12);
-            assertEquals(HttpStatus.OK, userService.createUserAccount(testEmail, "__TEST__", "__USER__", passwordEncoder.encode(testPassword)).getStatusCode());
+            assertEquals(HttpStatus.OK, userService.createUserAccount(testEmail, "__TEST__", "__USER__", testPassword).getStatusCode());
             userDetails = userService.loadUserByUsername(testEmail);
         }
 
@@ -66,6 +66,12 @@ public class JwtUtilTest {
             final String alteredJwt = jwt.substring(0, i) + (alteredChar != jwt.charAt(i) ? alteredChar : ((char) ((int) alteredChar) + 1)) + jwt.substring(i + 1);
             assertThrows(Exception.class, () -> jwtUtil.validateToken(alteredJwt, userDetails), "JwtUtil should find that an altered JWT is invalid.");
         }
+    }
+
+    @DisplayName("Test environment variable for secret key")
+    @Test
+    public void testEnvironmentVariable() {
+        assertNotNull(System.getenv("CARDTOWN_JWT_SECRET_KEY"));
     }
 
 }
