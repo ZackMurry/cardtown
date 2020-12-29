@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS cards (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     owner_id UUID NOT NULL REFERENCES users ON DELETE CASCADE,
-    tag VARCHAR(256) DEFAULT '' NOT NULL,
-    cite VARCHAR(128) NOT NULL,
-    cite_information VARCHAR(2048) DEFAULT '',
+    tag VARCHAR(384) DEFAULT '' NOT NULL, -- limited length is actually 256, but it has to be longer to account for Base64 and AES
+    cite VARCHAR(216) NOT NULL, -- limited length 128
+    cite_information VARCHAR(2776) DEFAULT '',
     body_html TEXT NOT NULL,
     body_draft TEXT NOT NULL
 );

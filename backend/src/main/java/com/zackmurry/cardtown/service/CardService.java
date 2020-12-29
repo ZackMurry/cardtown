@@ -90,13 +90,17 @@ public class CardService {
         if (request.getTag() == null) {
             request.setTag("");
         }
+
         if (request.getCiteInformation() == null) {
             request.setCiteInformation("");
         }
 
+        if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
+            return new ResponseEntity<>(HttpStatus.LENGTH_REQUIRED);
+        }
+
         // sanitizing script tags
         request.setBodyHtml(HtmlUtils.removeScriptTags(request.getBodyHtml()));
-        System.out.println(request.getBodyHtml());
 
         // todo check lengths
         Optional<UUID> optionalUserId = userService.getIdByEmail(request.getOwnerEmail());

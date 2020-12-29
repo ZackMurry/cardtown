@@ -1,6 +1,8 @@
 package com.zackmurry.cardtown.util;
 
 
+import org.apache.tomcat.util.codec.binary.Base64;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -13,39 +15,39 @@ import java.security.SecureRandom;
 
 public class EncryptionUtils {
 
-    public static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }
-
-    public static byte[] hexToBytes(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
-        }
-        return data;
-    }
+//    public static String bytesToHex(byte[] hash) {
+//        StringBuilder hexString = new StringBuilder(2 * hash.length);
+//        for (byte b : hash) {
+//            String hex = Integer.toHexString(0xff & b);
+//            if (hex.length() == 1) {
+//                hexString.append('0');
+//            }
+//            hexString.append(hex);
+//        }
+//        return hexString.toString();
+//    }
+//
+//    public static byte[] hexToBytes(String s) {
+//        int len = s.length();
+//        byte[] data = new byte[len / 2];
+//        for (int i = 0; i < len; i += 2) {
+//            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+//                    + Character.digit(s.charAt(i+1), 16));
+//        }
+//        return data;
+//    }
 
     /**
      * takes a user's plain-text text and generates and encryption key
      * @param text user's plain-text text
      * @return a hex-encoded SHA-256 hash of the text
      */
-    public static String getSHA256HashHex(String text) {
+    public static String getSHA256HashBase64(String text) {
         byte[] bytes = getSHA256Hash(text);
         if (bytes == null) {
             return null;
         }
-        return bytesToHex(bytes);
+        return Base64.encodeBase64String(bytes);
     }
 
     /**
@@ -153,7 +155,7 @@ public class EncryptionUtils {
      * @throws Exception if something goes wrong, like a bad secret key
      */
     public static String encryptStringAES(String plainText, byte[] secretKey) throws Exception {
-        return bytesToHex(encryptAES(plainText.getBytes(StandardCharsets.UTF_8), secretKey));
+        return Base64.encodeBase64String(encryptAES(plainText.getBytes(StandardCharsets.UTF_8), secretKey));
     }
 
     /**
@@ -163,7 +165,7 @@ public class EncryptionUtils {
      * @return output in hex
      */
     public static String decryptStringAES(String cipher, byte[] secretKey) throws Exception {
-        return new String(decryptAES(hexToBytes(cipher), secretKey), StandardCharsets.UTF_8);
+        return new String(decryptAES(Base64.decodeBase64(cipher), secretKey), StandardCharsets.UTF_8);
     }
 
 }

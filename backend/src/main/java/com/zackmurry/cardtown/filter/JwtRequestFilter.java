@@ -7,6 +7,7 @@ import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
@@ -70,7 +71,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
                 return;
             }
-            final byte[] encryptionKey = EncryptionUtils.hexToBytes(encryptionKeyHex);
+            final byte[] encryptionKey = Base64.decodeBase64(encryptionKeyHex);
 
             byte[] secretKey = userService.getUserSecretKey(email, encryptionKey);
             if (secretKey == null) {

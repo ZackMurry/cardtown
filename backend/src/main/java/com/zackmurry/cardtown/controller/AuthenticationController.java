@@ -45,7 +45,7 @@ public class AuthenticationController {
         final Map<String, Object> claims = new HashMap<>();
 
         // generate SHA-256 hash of password as their secret key (hash is 32 bytes)
-        String encryptionKey = EncryptionUtils.getSHA256HashHex(request.getPassword());
+        String encryptionKey = EncryptionUtils.getSHA256HashBase64(request.getPassword());
         if (encryptionKey == null) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

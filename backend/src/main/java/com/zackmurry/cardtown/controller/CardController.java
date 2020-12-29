@@ -5,6 +5,7 @@ import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.service.CardService;
 import com.zackmurry.cardtown.util.EncryptionUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class CardController {
 
     @GetMapping("/auth-test")
     public String authTest() {
-        return EncryptionUtils.bytesToHex(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey());
+        return Base64.encodeBase64String(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey());
     }
 
     @GetMapping("/**")
