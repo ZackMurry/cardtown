@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class UserService implements UserDetailsService {
 
         // generating and encrypting secret key
         // todo salt encryptionKey with email or something
-        final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(plainTextPassword);
+        final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(plainTextPassword.getBytes(StandardCharsets.UTF_8));
         if (encryptionKey == null) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

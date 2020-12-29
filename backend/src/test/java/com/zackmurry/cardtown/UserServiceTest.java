@@ -7,6 +7,7 @@ import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,26 +73,26 @@ public class UserServiceTest {
         assertDoesNotThrow(() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(testEmail, testPassword)), "User should be authenticated if they enter the correct email and password. " + testEmail + "; " + testPassword);
     }
 
-//    @DisplayName("Test secret key with account creation")
-//    @Test
-//    public void testSecretKey() {
-//        final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(testPassword);
-//        assertNotNull(encryptionKey);
-//        final AuthenticationResponse authRes = accountCreationResponse.getBody();
-//        assertNotNull(authRes);
-//        final String jwt = authRes.getJwt();
-//        assertNotNull(jwt);
-//        final Claims claims = jwtUtil.extractAllClaims(jwt);
-//        assertEquals(testEmail, claims.getSubject());
-//        assertEquals(EncryptionUtils.bytesToHex(encryptionKey), jwtUtil.extractEncryptionKey(jwt));
-//        final byte[] allegedSecretKey = userService.getUserSecretKey(testEmail, encryptionKey);
-//        final String encryptedSecretKey = userDao.getEncryptedSecretKey(testEmail);
-//        try {
-//            byte[] actualSecretKey = EncryptionUtils.decryptAES(EncryptionUtils.hexToBytes(encryptedSecretKey), encryptionKey);
-//            assertEquals(Arrays.toString(actualSecretKey), Arrays.toString(allegedSecretKey));
-//        } catch (Exception e) {
-//            fail("When decrypting an encrypted secret key, it should be valid.");
-//        }
-//    }
+    @DisplayName("Test secret key with account creation")
+    @Test
+    public void testSecretKey() {
+        final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(testPassword.getBytes(StandardCharsets.UTF_8));
+        assertNotNull(encryptionKey);
+        final AuthenticationResponse authRes = accountCreationResponse.getBody();
+        assertNotNull(authRes);
+        final String jwt = authRes.getJwt();
+        assertNotNull(jwt);
+        final Claims claims = jwtUtil.extractAllClaims(jwt);
+        assertEquals(testEmail, claims.getSubject());
+        assertEquals(Base64.encodeBase64String(encryptionKey), jwtUtil.extractEncryptionKey(jwt));
+        final byte[] allegedSecretKey = userService.getUserSecretKey(testEmail, encryptionKey);
+        final String encryptedSecretKey = userDao.getEncryptedSecretKey(testEmail);
+        try {
+            byte[] actualSecretKey = EncryptionUtils.decryptAES(Base64.decodeBase64(encryptedSecretKey), encryptionKey);
+            assertEquals(Arrays.toString(actualSecretKey), Arrays.toString(allegedSecretKey));
+        } catch (Exception e) {
+            fail("When decrypting an encrypted secret key, it should be valid.");
+        }
+    }
 
 }
