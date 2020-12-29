@@ -12,7 +12,7 @@ export default function all() {
 
   const loadCards = async () => {
     if (!jwt) {
-      router.push(`/login?redirect=${encodeURI('/cards/all')}`)
+      router.push(`/login?redirect=${encodeURIComponent('/cards/all')}`)
       return
     }
     const response = await fetch('/api/v1/cards', {

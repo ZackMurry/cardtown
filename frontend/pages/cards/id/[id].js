@@ -13,10 +13,11 @@ export default function ViewCard({ id }) {
 
   const getCardData = async () => {
     if (!jwt) {
-      router.push(`/login?redirect=${encodeURI(`/cards/id/${id}`)}`)
+      router.push(`/login?redirect=${encodeURIComponent(`/cards/id/${id}`)}`)
       return
     }
-    const response = await fetch(`/api/v1/cards/${id}`, {
+    console.log(encodeURIComponent(id))
+    const response = await fetch(`/api/v1/cards/${encodeURIComponent(id)}`, {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
     })
     if (response.ok) {

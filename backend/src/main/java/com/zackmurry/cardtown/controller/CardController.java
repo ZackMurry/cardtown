@@ -6,10 +6,16 @@ import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.service.CardService;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 @RequestMapping("/api/v1/cards")
@@ -24,8 +30,13 @@ public class CardController {
         return EncryptionUtils.bytesToHex(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseCard> getCardById(@PathVariable String id) {
+    @GetMapping("/**")
+    public ResponseEntity<ResponseCard> getCardById(HttpServletRequest request) {
+        String encodedId = request.getRequestURI().split("/api/v1/cards/")[1];
+        if (encodedId == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        String id = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
         return cardService.getResponseCardById(id);
     }
 

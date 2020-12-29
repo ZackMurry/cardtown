@@ -7,6 +7,7 @@ import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.EncryptionUtils;
+import com.zackmurry.cardtown.util.HtmlUtils;
 import com.zackmurry.cardtown.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,7 @@ public class CardService {
 
     public ResponseEntity<ResponseCard> getResponseCardById(String id) {
         if (id == null) {
+            System.out.println("null id");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -91,6 +93,11 @@ public class CardService {
         if (request.getCiteInformation() == null) {
             request.setCiteInformation("");
         }
+
+        // sanitizing script tags
+        request.setBodyHtml(HtmlUtils.removeScriptTags(request.getBodyHtml()));
+        System.out.println(request.getBodyHtml());
+
         // todo check lengths
         Optional<UUID> optionalUserId = userService.getIdByEmail(request.getOwnerEmail());
         if (optionalUserId.isEmpty()) {
