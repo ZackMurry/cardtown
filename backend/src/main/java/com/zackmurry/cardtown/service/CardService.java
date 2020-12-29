@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.BufferUnderflowException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,14 @@ public class CardService {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        UUID uuid = UUIDUtils.decompress(id);
+        UUID uuid;
+        try {
+            uuid = UUIDUtils.decompress(id);
+        } catch (BufferUnderflowException e) {
+            // this happens if there's an invalid UUID (too short)
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        }
+
         Optional<CardEntity> optionalCard = cardDao.getCardById(uuid);
         if (optionalCard.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -53,6 +61,14 @@ public class CardService {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         // todo probably switch owner_id to the owner name (and eventually profile picture and such)
+
+        try {
+            final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
+            cardEntity.decryptFields(secretKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         ResponseCard responseCard = ResponseCard.fromCard(cardEntity, id);
         return new ResponseEntity<>(responseCard, HttpStatus.OK);
     }

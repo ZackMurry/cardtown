@@ -101,7 +101,7 @@ public class UserService implements UserDetailsService {
      * @param email the email of the new account
      * @param firstName the first name of the new user
      * @param lastName the last name of the new user
-     * @param password the password of this user
+     * @param password the password of this user. this should not be encoded.
      * @return a <code>ResponseEntity</code> with an AuthenticationResponse. this represents the status and access token for the new user
      * @see UserService#createUserAccount(User)
      */

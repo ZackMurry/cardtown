@@ -197,6 +197,9 @@ export default function NewCard() {
                 value={citeInformation}
                 onChange={e => setCiteInformation(e.target.value)}
                 style={{ width: '100%', backgroundColor: theme.palette.secondary.main }}
+                multiline
+                rowsMax={5}
+                rows={3}
                 InputProps={{
                   inputProps: {
                     name: 'citeInfo',
