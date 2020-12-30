@@ -4,10 +4,11 @@ import com.zackmurry.cardtown.model.card.CardEntity;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
-import javax.print.attribute.standard.PresentationDirection;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,6 +117,23 @@ public class CardDataAccessService implements CardDao {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public ResponseEntity<Integer> getNumberOfCardsByUser(UUID id) {
+        String sql = "SELECT COUNT(id) FROM cards WHERE owner_id = ?";
+
+        try {
+            PreparedStatement ps = jdbcTemplate.getConnection().prepareStatement(sql);
+            ps.setObject(1, id);
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()) {
+                return ResponseEntity.ok(resultSet.getInt("count"));
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

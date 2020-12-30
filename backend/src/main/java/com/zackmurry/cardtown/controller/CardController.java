@@ -55,4 +55,9 @@ public class CardController {
         return cardService.getAllCardsByUser();
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getNumberOfCardsByUser() {
+        return cardService.getNumberOfCardsByUser(SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
 }

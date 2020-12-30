@@ -1,12 +1,25 @@
 import { Grid, Typography } from '@material-ui/core'
 import AddRoundedIcon from '@material-ui/icons/AddRounded'
 import Link from 'next/link'
+import { useEffect, useMemo } from 'react'
+import Cookie from 'js-cookie'
+import { useRouter } from 'next/router'
 import styles from '../../styles/Cards.module.css'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
 import BlackText from '../../components/utils/BlackText'
+import CardCount from '../../components/cards/CardCount'
 
 export default function Cards() {
+
+  const jwt = useMemo(() => Cookie.get('jwt'), [])
+
+  useEffect(() => {
+    if (!jwt) {
+      router.push(`/login?redirect=${'/cards'}`)
+    }
+  }, [])
+
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardSidebar pageName='Cards' />
@@ -46,42 +59,7 @@ export default function Cards() {
               alignItems: 'center'
             }}
           >
-            <Link href='/cards/all' passHref>
-              <a style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '100%' }}>
-                <Typography variant='h5' style={{ fontSize: 28, color: theme.palette.blueBlack.main }}>
-                  <span style={{ fontWeight: 500, paddingRight: 5 }}>
-                    128
-                    {/* temp value */}
-                  </span>
-                  cards
-                </Typography>
-                <div style={{ marginRight: 10 }}>
-                  <div
-                    style={{
-                      borderRadius: 5,
-                      border: `3px solid ${theme.palette.text.secondary}`,
-                      width: '1.75vw',
-                      minWidth: 20,
-                      height: '2.5vh',
-                      minHeight: 25
-                    }}
-                  />
-                  <div
-                    style={{
-                      marginLeft: 10,
-                      marginTop: -15,
-                      borderRadius: 5,
-                      border: `3px solid ${theme.palette.text.secondary}`,
-                      width: '1.75vw',
-                      minWidth: 20,
-                      height: '2.5vh',
-                      minHeight: 25
-                    }}
-                  />
-                </div>
-              </a>
-            </Link>
-            
+            <CardCount jwt={jwt} />
           </Grid>
 
           <Grid

@@ -146,4 +146,12 @@ public class CardService {
 
         return new ResponseEntity<>(responseCards, HttpStatus.OK);
     }
+
+    public ResponseEntity<Integer> getNumberOfCardsByUser(String email) {
+        final Optional<UUID> id = userService.getIdByEmail(email);
+        if (id.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.GONE);
+        }
+        return cardDao.getNumberOfCardsByUser(id.get());
+    }
 }
