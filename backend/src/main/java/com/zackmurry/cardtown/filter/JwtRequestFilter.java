@@ -46,7 +46,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws ServletException, IOException {
-        // todo could look in the jwt cookie as well
         final String authorizationHeader = request.getHeader("Authorization");
 
         String email = null;
@@ -65,13 +64,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             User user = (User) userService.loadUserByUsername(email);
 
-            // getting user's encryption key for decrypting their secret eky
-            final String encryptionKeyHex = jwtUtil.extractEncryptionKey(jwt);
-            if (encryptionKeyHex == null) {
+            // getting user's encryption key for decrypting their secret key
+            final String encryptionKeyBase64 = jwtUtil.extractEncryptionKey(jwt);
+            if (encryptionKeyBase64 == null) {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
                 return;
             }
-            final byte[] encryptionKey = Base64.decodeBase64(encryptionKeyHex);
+            final byte[] encryptionKey = Base64.decodeBase64(encryptionKeyBase64);
 
             byte[] secretKey = userService.getUserSecretKey(email, encryptionKey);
             if (secretKey == null) {

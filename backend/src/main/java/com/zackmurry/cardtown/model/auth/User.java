@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User implements UserDetails {
 
-    private UUID id; // todo might not want to expose UUID to a POST for creating an account
+    private UUID id;
     private String email;
     private String firstName;
     private String lastName;

@@ -1,12 +1,10 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.card.CardDao;
-import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.ResponseCard;
-import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.HtmlUtils;
 import com.zackmurry.cardtown.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
 import java.nio.BufferUnderflowException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -99,16 +95,14 @@ public class CardService {
             return new ResponseEntity<>(HttpStatus.LENGTH_REQUIRED);
         }
 
-        // sanitizing script tags
-        request.setBodyHtml(HtmlUtils.removeScriptTags(request.getBodyHtml()));
+        // whitelisting html tags to prevent XSS
+        request.setBodyHtml(HtmlUtils.sanitizeHtml(request.getBodyHtml()));
 
-        // todo check lengths
         Optional<UUID> optionalUserId = userService.getIdByEmail(request.getOwnerEmail());
         if (optionalUserId.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
 
-        // todo probably switch secret key storage in model to bytes
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
         final CardEntity cardEntity = request.toCardEntity(optionalUserId.get());
         try {

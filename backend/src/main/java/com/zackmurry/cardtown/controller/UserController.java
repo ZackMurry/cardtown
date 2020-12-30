@@ -15,8 +15,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // todo get all of the cards that user has access to route
-
     @PostMapping("")
     public ResponseEntity<AuthenticationResponse> createUserAccount(@RequestBody User user) {
         // reserved for unit tests
