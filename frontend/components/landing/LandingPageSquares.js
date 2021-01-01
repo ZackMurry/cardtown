@@ -19,10 +19,10 @@ export default function LandingPageSquares() {
 
   return (
     <>
-      <BlackText variant='h2' style={{ fontWeight: 400, fontSize: 42 }}>
+      <BlackText variant='h2' style={{ fontWeight: 400, fontSize: 36 }}>
         Made for debate
       </BlackText>
-      <Grid container spacing={3} style={{ marginTop: 15 }}>
+      <Grid container spacing={4} style={{ marginTop: 15 }}>
         <Grid item xs={12} md={6} style={{ display: 'flex' }}>
           <div style={{ marginTop: 10 }}>
             <div className={styles['icon-backdrop']} style={{ backgroundColor: theme.palette.lightGrey.translucent }}>

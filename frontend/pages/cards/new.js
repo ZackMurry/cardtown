@@ -7,6 +7,7 @@ import NewCardBodyEditor from '../../components/cards/NewCardBodyEditor'
 import NewCardFormattingPopover from '../../components/cards/NewCardFormattingPopover'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import BlackText from '../../components/utils/BlackText'
+import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import theme from '../../components/utils/theme'
 
 //used because EditorState.createFromEmpty() was producing errors.
@@ -62,6 +63,8 @@ const inlineStyles = {
 }
 
 export default function NewCard() {
+  const { width } = useWindowSize()
+  
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')
   const [ citeInformation, setCiteInformation ] = useState('')
@@ -95,10 +98,10 @@ export default function NewCard() {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardSidebar pageName='Cards' />
+      <DashboardSidebar windowWidth={width} pageName='Cards' />
 
-      <div style={{ marginLeft: '12.9vw', paddingLeft: 38, paddingRight: 38 }}>
-        <div style={{ width: '65%', margin: '7.5vh auto' }}>
+      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ?  '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
+        <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
           <div>
             <Typography
               style={{
@@ -219,7 +222,7 @@ export default function NewCard() {
                 </span>
               </BlackText>
               <NewCardFormattingPopover />
-              <NewCardBodyEditor editorState={bodyState} setEditorState={setBodyState} />
+              <NewCardBodyEditor windowWidth={width} editorState={bodyState} setEditorState={setBodyState} />
             </div>
             <div style={{ marginTop: 10, marginBottom: -5 }}>
               <Button type='submit' variant='contained' color='primary' style={{ textTransform: 'none' }}>

@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import { Button, Typography } from '@material-ui/core'
-import theme from '../utils/theme'
-import BlackText from '../utils/BlackText'
+import theme from '../../utils/theme'
+import BlackText from '../../utils/BlackText'
 
 export default function LandingPageNavbar() {
   return (
     <>
       {/* for padding purposes */}
-      <div style={{ height: '10vh' }} />
+      <div style={{ height: '15vh' }} />
       <div
         style={{
           position: 'absolute',
@@ -21,6 +21,7 @@ export default function LandingPageNavbar() {
           alignItems: 'center',
           height: '10vh'
         }}
+        role='navigation'
       >
         <BlackText variant='h3' style={{ fontSize: 28, fontWeight: 500, paddingBottom: 5 }}>
           card

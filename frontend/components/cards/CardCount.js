@@ -24,7 +24,7 @@ export default function CardCount({ jwt }) {
   return (
     <Link href='/cards/all' passHref>
       <a style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '100%' }}>
-        <Typography variant='h5' style={{ fontSize: 28, color: theme.palette.blueBlack.main }}>
+        <Typography variant='h5' style={{ fontSize: 22, color: theme.palette.blueBlack.main }}>
           <span style={{ fontWeight: 500, paddingRight: 5 }}>
             { cardCount }
           </span>

@@ -20,7 +20,7 @@ export default function ImportCard() {
           <Typography
             variant='h5'
             style={{
-              fontSize: 28,
+              fontSize: 22,
               fontWeight: 500,
               paddingRight: 5,
               color: theme.palette.blueBlack.main

@@ -40,7 +40,7 @@ const styleToReadable = {
   OUTLINE: 'outline'
 }
 
-export default function NewCardBodyEditor({ editorState, setEditorState }) {
+export default function NewCardBodyEditor({ editorState, setEditorState, windowWidth }) {
 
   const handleChange = newState => {
     setEditorState(newState)
@@ -148,11 +148,11 @@ export default function NewCardBodyEditor({ editorState, setEditorState }) {
             *required field
           </Typography>
         </div>
-        <div style={{ height: 15 }}>
+        <Typography color='textSecondary' style={{ fontSize: windowWidth >= theme.breakpoints.values.md ? 15 : 11, marginTop: 5 }}>
           {
             currentInlineStyles.toString()
           }
-        </div>
+        </Typography>
       </div>
     </>
   )

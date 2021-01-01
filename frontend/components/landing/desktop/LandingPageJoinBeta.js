@@ -1,8 +1,7 @@
 import { Button, Typography } from '@material-ui/core'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import theme from '../utils/theme'
-import BlackText from '../utils/BlackText'
+import theme from '../../utils/theme'
 
 export default function LandingPageJoinBeta() {
   const [ email, setEmail ] = useState('')
@@ -42,6 +41,8 @@ export default function LandingPageJoinBeta() {
           }}
           value={email}
           onChange={e => setEmail(e.target.value)}
+          autoComplete='email'
+          aria-label='Email'
         />
         <Button
           type='submit'

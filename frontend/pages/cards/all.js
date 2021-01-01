@@ -3,9 +3,10 @@ import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
+import useWindowSize from '../../components/utils/hooks/useWindowSize'
 
 export default function all() {
-
+  const { width } = useWindowSize()
   const [ cards, setCards ] = useState([])
   const jwt = useMemo(() => Cookie.get('jwt'), [])
   const router = useRouter()
@@ -31,8 +32,8 @@ export default function all() {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto' }}>
-      <DashboardSidebar pageName='Cards' />
-      <div style={{ marginLeft: '12.9vw' }}>
+      <DashboardSidebar windowWidth={width} pageName='Cards' />
+      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0 }}>
         {/* todo style this page */}
         {
           cards.map(c => (

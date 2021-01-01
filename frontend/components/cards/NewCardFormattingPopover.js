@@ -14,8 +14,13 @@ export default function NewCardFormattingPopover() {
     <div>
       <Typography color='textSecondary' id='citeInfoDescription' style={{ fontSize: 14, margin: '6px 0' }}>
         Put the main text of your card here. You can
-        <span onMouseEnter={e => setAnchorEl(e.currentTarget)} style={{ margin: '0 3px', color: theme.palette.primary.main }}>
-          use keyboard shortcuts
+        <span
+          onClick={e => setAnchorEl(e.currentTarget)}
+          onMouseEnter={e => setAnchorEl(e.currentTarget)}
+          style={{ color: theme.palette.primary.main }}
+          // todo make alternate shortcut system for mobile
+        >
+          {' use keyboard shortcuts '}
         </span>
         for formatting.
       </Typography>

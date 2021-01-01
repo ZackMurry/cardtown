@@ -9,9 +9,10 @@ import BlackText from '../../components/utils/BlackText'
 import CardCount from '../../components/cards/CardCount'
 import NewCard from '../../components/cards/NewCard'
 import ImportCard from '../../components/cards/ImportCard'
+import useWindowSize from '../../components/utils/hooks/useWindowSize'
 
 export default function Cards() {
-
+  const { width } = useWindowSize()
   const jwt = useMemo(() => Cookie.get('jwt'), [])
   const router = useRouter()
 
@@ -23,8 +24,8 @@ export default function Cards() {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardSidebar pageName='Cards' />
-      <div style={{ marginLeft: '12.9vw', paddingLeft: 38, paddingRight: 38 }}>
+      <DashboardSidebar windowWidth={width} pageName='Cards' />
+      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ?  '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{
             color: theme.palette.darkGrey.main,

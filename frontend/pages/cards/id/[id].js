@@ -4,9 +4,11 @@ import { useRouter } from 'next/router'
 import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import theme from '../../../components/utils/theme'
 import BlackText from '../../../components/utils/BlackText'
+import useWindowSize from '../../../components/utils/hooks/useWindowSize'
 
+// todo styling
 export default function ViewCard({ id }) {
-
+  const { width } = useWindowSize()
   const [ card, setCard ] = useState(null)
   const jwt = useMemo(() => Cookie.get('jwt'), [])
   const router = useRouter()
@@ -33,7 +35,7 @@ export default function ViewCard({ id }) {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto' }}>
-      <DashboardSidebar pageName='Cards' />
+      <DashboardSidebar windowWidth={width} pageName='Cards' />
       <div
         style={{
           width: '50%',
