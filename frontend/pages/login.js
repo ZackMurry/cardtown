@@ -84,13 +84,14 @@ export default function Login({ redirect }) {
             style={{ width: '100%', margin: '10px 0' }}
             InputProps={{
               endAdornment: (
-                <InputAdornment position='end'>
+                <InputAdornment position='end' style={{ marginLeft: '-15%', marginTop: '-7.5%' }}>
                   <IconButton onClick={() => setShowPassword(!showPassword)} style={{ padding: 0 }}>
                     <ToggleIcon on={showPassword} onIcon={<VisibilityIcon />} offIcon={<VisibilityOffIcon />} timeout={250} />
                   </IconButton>
                 </InputAdornment>
               )
             }}
+            autoComplete='current-password'
           />
           <Button
             type='submit'

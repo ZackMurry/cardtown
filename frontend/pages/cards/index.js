@@ -1,6 +1,4 @@
 import { Grid, Typography } from '@material-ui/core'
-import AddRoundedIcon from '@material-ui/icons/AddRounded'
-import Link from 'next/link'
 import { useEffect, useMemo } from 'react'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
@@ -9,10 +7,13 @@ import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
 import BlackText from '../../components/utils/BlackText'
 import CardCount from '../../components/cards/CardCount'
+import NewCard from '../../components/cards/NewCard'
+import ImportCard from '../../components/cards/ImportCard'
 
 export default function Cards() {
 
   const jwt = useMemo(() => Cookie.get('jwt'), [])
+  const router = useRouter()
 
   useEffect(() => {
     if (!jwt) {
@@ -43,7 +44,7 @@ export default function Cards() {
             width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
           }}
         />
-        <Grid container className={styles['card-grid']} role='grid'>
+        <Grid container className={styles['card-grid']} role='grid' style={{ width: '80%' }}>
           <Grid
             item
             xs={12}
@@ -77,15 +78,27 @@ export default function Cards() {
               padding: 20
             }}
           >
-            <Link href='/cards/new' passHref>
-              <a style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '100%' }}>
-                <Typography variant='h5' style={{ fontSize: 28, fontWeight: 500, paddingRight: 5, color: theme.palette.blueBlack.main }}>
-                  Create new card
-                </Typography>
-                <AddRoundedIcon style={{ fontSize: 50, color: theme.palette.text.secondary, marginRight: 10 }} />
-              </a>
-            </Link>
+            <NewCard />
           </Grid>
+
+          <Grid
+            item
+            xs={12}
+            md={6}
+            lg={3}
+            style={{
+              borderRadius: 10,
+              backgroundColor: theme.palette.secondary.main,
+              border: `1px solid ${theme.palette.lightGrey.main}`,
+              minHeight: '7.5vh',
+              display: 'flex',
+              alignItems: 'center',
+              padding: 20
+            }}
+          >
+            <ImportCard />
+          </Grid>
+
         </Grid>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { Button, Typography } from '@material-ui/core'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import theme from '../utils/theme'
+import BlackText from '../utils/BlackText'
 
 export default function LandingPageJoinBeta() {
   const [ email, setEmail ] = useState('')

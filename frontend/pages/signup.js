@@ -124,6 +124,7 @@ export default function Signup({ redirect, initialEmail }) {
             onChange={e => setEmail(e.target.value)}
             variant='outlined'
             style={{ width: '100%', marginBottom: 10 }}
+            autoComplete='email'
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', margin: '5px 0' }}>
             <TextField
@@ -132,6 +133,7 @@ export default function Signup({ redirect, initialEmail }) {
               onChange={e => setFirst(e.target.value)}
               variant='outlined'
               style={{ width: '45%' }}
+              autoComplete='given-name'
             />
             <TextField
               label='Last'
@@ -139,6 +141,7 @@ export default function Signup({ redirect, initialEmail }) {
               onChange={e => setLast(e.target.value)}
               variant='outlined'
               style={{ width: '45%' }}
+              autoComplete='family-name'
             />
           </div>
           <TextField
@@ -150,13 +153,14 @@ export default function Signup({ redirect, initialEmail }) {
             style={{ width: '100%', margin: '10px 0' }}
             InputProps={{
               endAdornment: (
-                <InputAdornment position='end'>
+                <InputAdornment position='end' style={{ marginLeft: '-15%', marginTop: '-7.5%' }}>
                   <IconButton onClick={() => setShowPassword(!showPassword)} style={{ padding: 0 }}>
                     <ToggleIcon on={showPassword} onIcon={<VisibilityIcon />} offIcon={<VisibilityOffIcon />} timeout={250} />
                   </IconButton>
                 </InputAdornment>
               )
             }}
+            autoComplete='new-password'
           />
           <Button
             type='submit'

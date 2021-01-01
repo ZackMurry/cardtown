@@ -33,8 +33,8 @@ export default function LandingPageNavbar() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 349
           }}
         >
-          <Link href='/about'>
-            <a href='/about'>
+          <Link href='/features'>
+            <a href='/features'>
               <BlackText variant='h4' style={{ fontSize: 20, fontWeight: 300 }}>
                 Features
               </BlackText>

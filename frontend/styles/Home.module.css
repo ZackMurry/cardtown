@@ -1,0 +1,28 @@
+.icon-container:hover {
+  transform: rotate(60deg);
+}
+
+.icon-container-180:hover {
+  transform: rotate(180deg);
+}
+
+.icon-container-360:hover {
+  transform: rotate(360deg);
+}
+
+.icon-container, .icon-container-180, .icon-container-360 {
+  transition: all 0.5s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-backdrop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  padding: 10px;
+  border-radius: 50%;
+}
