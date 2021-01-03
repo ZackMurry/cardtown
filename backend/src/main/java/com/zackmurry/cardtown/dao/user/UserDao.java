@@ -23,4 +23,6 @@ public interface UserDao {
 
     String getEncryptedSecretKey(String email);
 
+    Optional<User> findById(UUID id);
+
 }

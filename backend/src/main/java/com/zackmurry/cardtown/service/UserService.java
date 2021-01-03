@@ -7,8 +7,6 @@ import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -139,4 +137,9 @@ public class UserService implements UserDetailsService {
     public Optional<UUID> getIdByEmail(String email) {
         return userDao.getIdByEmail(email);
     }
+
+    public Optional<User> getUserById(UUID userId) {
+        return userDao.findById(userId);
+    }
+
 }

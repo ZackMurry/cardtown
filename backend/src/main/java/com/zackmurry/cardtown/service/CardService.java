@@ -1,12 +1,16 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.card.CardDao;
+import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
+import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.HtmlUtils;
 import com.zackmurry.cardtown.util.UUIDUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +18,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.nio.BufferUnderflowException;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CardService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CardService.class);
 
     @Autowired
     private UserService userService;
@@ -67,7 +71,13 @@ public class CardService {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        ResponseCard responseCard = ResponseCard.fromCard(cardEntity, id);
+        User owner = userService.getUserById(userId).orElse(null);
+        if (owner == null) {
+            logger.warn("Owner of card not found in users database. Owner id: {}, card id: {}", userId, cardEntity.getId());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        ResponseCard responseCard = ResponseCard.fromCard(cardEntity, ResponseUserDetails.fromUser(owner));
         return new ResponseEntity<>(responseCard, HttpStatus.OK);
     }
 
@@ -142,8 +152,14 @@ public class CardService {
             // not sure if this would be the server's or user's fault tbh
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        final List<ResponseCard> responseCards = rawCards.stream().map(ResponseCard::fromCard).collect(Collectors.toList());
-
+        // probably use a HashMap<UUID, ResponseUserDetails> when i add sharing to greedily keep track of user details by UUID
+        final User userEntity = userService.getUserById(id).orElse(null);
+        if (userEntity == null) {
+            logger.warn("Author of card not found in database -- author id: {}", id);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        final ResponseUserDetails resUserDetails = ResponseUserDetails.fromUser(userEntity);
+        final List<ResponseCard> responseCards = rawCards.stream().map(c -> ResponseCard.fromCard(c, resUserDetails)).collect(Collectors.toList());
         return new ResponseEntity<>(responseCards, HttpStatus.OK);
     }
 

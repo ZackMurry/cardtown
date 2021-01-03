@@ -3,13 +3,14 @@ package com.zackmurry.cardtown.dao.user;
 
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
-import com.zackmurry.cardtown.util.EncryptionUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -128,6 +129,30 @@ public class UserDataAccessService implements UserDao {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        String sql = "SELECT email, first_name, last_name, password FROM users WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(
+                        new User(
+                                id,
+                                resultSet.getString("email"),
+                                resultSet.getString("first_name"),
+                                resultSet.getString("last_name"),
+                                resultSet.getString("password")
+                        )
+                );
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
     }
 
 }
