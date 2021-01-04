@@ -170,4 +170,18 @@ public class CardService {
         }
         return cardDao.getNumberOfCardsByUser(id.get());
     }
+
+    public ResponseEntity<Void> deleteCardById(String id) {
+        final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final UUID cardId = UUIDUtils.decompress(id);
+        final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);
+        if (ownerId == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (!principalId.equals(ownerId)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(cardDao.deleteCardById(cardId));
+    }
 }

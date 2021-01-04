@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.dao.card;
 
 import com.zackmurry.cardtown.model.card.CardEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -16,5 +17,9 @@ public interface CardDao {
     List<CardEntity> getCardsByUser(UUID id);
 
     ResponseEntity<Integer> getNumberOfCardsByUser(UUID id);
+
+    Optional<UUID> getOwnerIdByCardId(UUID cardId);
+
+    HttpStatus deleteCardById(UUID id);
 
 }

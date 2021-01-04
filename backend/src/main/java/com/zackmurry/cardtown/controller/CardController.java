@@ -60,4 +60,14 @@ public class CardController {
         return cardService.getNumberOfCardsByUser(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
+    @DeleteMapping("/**")
+    public ResponseEntity<Void> deleteCardById(HttpServletRequest request) {
+        String compressedId = request.getRequestURI().split("/api/v1/cards/")[1];
+        if (compressedId == null) {
+            System.out.println("encoded is null");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return cardService.deleteCardById(compressedId);
+    }
+
 }

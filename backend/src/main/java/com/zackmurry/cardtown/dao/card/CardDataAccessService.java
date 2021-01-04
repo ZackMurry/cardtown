@@ -34,7 +34,7 @@ public class CardDataAccessService implements CardDao {
      * @return HttpStatus representing success
      */
     @Override
-    public Optional<UUID> createCard(CardEntity card) {
+    public Optional<UUID> createCard(@NonNull CardEntity card) {
         String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body_html, body_draft) VALUES (?, ?, ?, ?, ?, ?)";
         try {
             String[] returnId = { "id" };
@@ -91,7 +91,7 @@ public class CardDataAccessService implements CardDao {
     }
 
     @Override
-    public List<CardEntity> getCardsByUser(UUID id) {
+    public List<CardEntity> getCardsByUser(@NonNull UUID id) {
         String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft FROM cards WHERE owner_id = ?";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -120,7 +120,7 @@ public class CardDataAccessService implements CardDao {
     }
 
     @Override
-    public ResponseEntity<Integer> getNumberOfCardsByUser(UUID id) {
+    public ResponseEntity<Integer> getNumberOfCardsByUser(@NonNull UUID id) {
         String sql = "SELECT COUNT(id) FROM cards WHERE owner_id = ?";
 
         try {
@@ -134,6 +134,45 @@ public class CardDataAccessService implements CardDao {
             e.printStackTrace();
         }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public Optional<UUID> getOwnerIdByCardId(@NonNull UUID cardId) {
+        String sql = "SELECT owner_id FROM cards WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, cardId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(UUID.fromString(resultSet.getString("owner_id")));
+            } else {
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.warn("SQL exception occurred when getting owner id from a card id. Card id: {}", cardId);
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Delete a card from the database given the card's non-compressed id. Does not check if the card exists and does not care.
+     * @param id the card's id
+     * @return an <code>HttpStatus</code> representing the success of the operation
+     */
+    @Override
+    public HttpStatus deleteCardById(@NonNull UUID id) {
+        String sql = "DELETE FROM cards WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            preparedStatement.execute();
+            return HttpStatus.OK;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.warn("SQL exception occurred when deleting card {}", id);
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
     }
 
 }

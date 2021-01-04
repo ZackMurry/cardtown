@@ -5,6 +5,7 @@ import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import theme from '../../../components/utils/theme'
 import BlackText from '../../../components/utils/BlackText'
 import useWindowSize from '../../../components/utils/hooks/useWindowSize'
+import CardOptionsButton from '../../../components/cards/CardOptionsButton'
 
 // todo styling
 export default function ViewCard({ id }) {
@@ -49,10 +50,11 @@ export default function ViewCard({ id }) {
         {
           card && (
             <>
-              <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
                   {card.tag}
                 </BlackText>
+                <CardOptionsButton id={id} jwt={jwt} />
               </div>
               <div>
                 <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
