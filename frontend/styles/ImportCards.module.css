@@ -1,0 +1,12 @@
+.paste-card-input {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    border-radius: 5px;
+    outline: none;
+}
+
+.paste-card-input:focus {
+    border: 2px solid #3377FF; /* theme.palette.primary.main */
+    padding: 10px;
+}
