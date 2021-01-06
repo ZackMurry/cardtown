@@ -1,3 +1,4 @@
+import { parse } from 'cookie'
 import { useEffect, useMemo, useState } from 'react'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
@@ -6,31 +7,10 @@ import theme from '../../components/utils/theme'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import { Grid, Tooltip, Typography } from '@material-ui/core'
 import BlackText from '../../components/utils/BlackText'
+import ErrorAlert from '../../components/utils/ErrorAlert'
 
-export default function all() {
-  const { width } = useWindowSize()
-  const [ cards, setCards ] = useState([])
-  const jwt = useMemo(() => Cookie.get('jwt'), [])
-  const router = useRouter()
-
-  const loadCards = async () => {
-    if (!jwt) {
-      router.push(`/login?redirect=${encodeURIComponent('/cards/all')}`)
-      return
-    }
-    const response = await fetch('/api/v1/cards', {
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
-    })
-    if (response.ok) {
-      setCards(await response.json())
-    } else {
-      console.warn(response.status + ': ' + response.statusText)
-    }
-  }
-
-  useEffect(() => {
-    loadCards()
-  }, [ ])
+export default function AllCards({ jwt, cards, errorText }) {
+  const width = useWindowSize()?.width ?? 1920
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto' }}>
@@ -141,6 +121,43 @@ export default function all() {
           })
         }
       </div>
+      {
+        errorText && <ErrorAlert text={errorText} disableClose />
+      }
     </div>
   )
+}
+
+export async function getServerSideProps({ req, res }) {
+  let jwt
+  if (req.headers?.cookie) {
+    jwt = parse(req.headers?.cookie)?.jwt
+  }
+  if (!jwt) {
+    redirectToLogin()
+    return
+  }
+  
+  const dev = process.env.NODE_ENV !== 'production'
+  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + '/api/v1/cards', {
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
+  })
+  let cards = null
+  let errorText = null
+  if (response.ok) {
+    cards = await response.json()
+  } else if (response.status === 500) {
+    errorText = 'There was a server error. Please try again in a few minutes'
+  } else if (response.status === 406) {
+    errorText = 'Account not found. This is likely a bug and has been reported as such. Please try again'
+  } else {
+    errorText = 'There was an error finding the cards. Please try again'
+  }
+  return {
+    props: {
+      jwt,
+      cards,
+      errorText
+    }
+  }
 }

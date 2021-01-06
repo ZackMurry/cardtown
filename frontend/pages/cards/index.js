@@ -1,7 +1,6 @@
-import { Grid, Typography } from '@material-ui/core'
-import { useEffect, useMemo } from 'react'
-import Cookie from 'js-cookie'
+import { parse } from 'cookie'
 import { useRouter } from 'next/router'
+import { Grid, Typography } from '@material-ui/core'
 import styles from '../../styles/Cards.module.css'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
@@ -10,17 +9,10 @@ import CardCount from '../../components/cards/CardCount'
 import NewCard from '../../components/cards/NewCard'
 import ImportCard from '../../components/cards/ImportCard'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
+import redirectToLogin from '../../components/utils/redirectToLogin'
 
-export default function Cards() {
-  const { width } = useWindowSize()
-  const jwt = useMemo(() => Cookie.get('jwt'), [])
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!jwt) {
-      router.push(`/login?redirect=${'/cards'}`)
-    }
-  }, [])
+export default function Cards({ jwt }) {
+  const width = useWindowSize()?.width ?? 1920
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
@@ -104,4 +96,20 @@ export default function Cards() {
       </div>
     </div>
   )
+}
+
+export async function getServerSideProps({ req, res }) {
+  let jwt = null
+  if (req.headers?.cookie) {
+    jwt = parse(req.headers?.cookie)?.jwt
+  }
+  if (!jwt) {
+    redirectToLogin(res, '/cards')
+    return
+  }
+  return {
+    props: {
+      jwt
+    }
+  }
 }

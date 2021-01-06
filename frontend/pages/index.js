@@ -5,7 +5,7 @@ import LandingPageMobile from '../components/landing/mobile/LandingPageMobile'
 import LandingPageDesktop from '../components/landing/desktop/LandingPageDesktop'
 
 export default function Home() {
-  const { width } = useWindowSize()
+  const width = useWindowSize()?.width ?? 1920
 
   return (
     <>

@@ -33,13 +33,13 @@ public class WebRestControllerAdvice {
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String handleMalformedJwtException(MalformedJwtException exception, HttpServletResponse response) {
         return exception.getMessage();
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String handleExpiredJwtException(ExpiredJwtException exception, HttpServletResponse response) {
         return exception.getMessage();
     }

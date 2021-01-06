@@ -1,38 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
-import Cookie from 'js-cookie'
-import { useRouter } from 'next/router'
+import { parse } from 'cookie'
 import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import theme from '../../../components/utils/theme'
 import BlackText from '../../../components/utils/BlackText'
 import useWindowSize from '../../../components/utils/hooks/useWindowSize'
 import CardOptionsButton from '../../../components/cards/CardOptionsButton'
+import ErrorAlert from '../../../components/utils/ErrorAlert'
+import redirectToLogin from '../../../components/utils/redirectToLogin'
 
 // todo styling
-export default function ViewCard({ id }) {
-  const { width } = useWindowSize()
-  const [ card, setCard ] = useState(null)
-  const jwt = useMemo(() => Cookie.get('jwt'), [])
-  const router = useRouter()
-
-  const getCardData = async () => {
-    if (!jwt) {
-      router.push(`/login?redirect=${encodeURIComponent(`/cards/id/${id}`)}`)
-      return
-    }
-    console.log(encodeURIComponent(id))
-    const response = await fetch(`/api/v1/cards/${encodeURIComponent(id)}`, {
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
-    })
-    if (response.ok) {
-      setCard(await response.json())
-    } else {
-      console.warn(`${response.status}: ${response.statusText}`)
-    }
-  }
-
-  useEffect(() => {
-    getCardData()
-  }, [ ])
+export default function ViewCard({ id, errorText, card, jwt }) {
+  const width = useWindowSize()?.width ?? 1920
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto' }}>
@@ -69,14 +46,51 @@ export default function ViewCard({ id }) {
           )
         }
       </div>
+      {
+        errorText && <ErrorAlert disableClose text={errorText} />
+      }
     </div>
   )
 }
 
-export async function getServerSideProps({ query }) {
+export async function getServerSideProps({ query, req, res }) {
+  let errorText = null
+  let card = null
+  const { id } = query
+  let jwt
+  if (req.headers?.cookie) {
+    jwt = parse(req.headers?.cookie)?.jwt
+  }
+  if (!jwt) {
+    redirectToLogin()
+    return
+  }
+  const dev = process.env.NODE_ENV !== 'production'
+  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/cards/${encodeURIComponent(id)}`, {
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
+  })
+  if (response.ok) {
+    card = await response.json()
+  } else if (response.status === 404 || response.status === 400) {
+    // todo could probably make the error system look better, but whatever
+    errorText = 'Card not found'
+  } else if (response.status === 403) {
+    errorText = "You don't have access to this card"
+  } else if (response.status === 401) {
+    redirectToLogin()
+  } else if (response.status === 500) {
+    errorText = 'There was an unknown server error. Please try again later'
+  } else if (response.status === 406) {
+    errorText = 'The ID for this card is invalid.'
+  } else {
+    errorText = `There was an unrecognized error. Status: ${response.status}`
+  }
   return {
     props: {
-      id: query.id
+      id,
+      errorText,
+      card,
+      jwt
     }
   }
 }

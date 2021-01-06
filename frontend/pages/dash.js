@@ -5,7 +5,7 @@ import useWindowSize from '../components/utils/hooks/useWindowSize'
 import theme from '../components/utils/theme'
 
 export default function Dash() {
-  const { width } = useWindowSize()
+  const width = useWindowSize()?.width ?? 1920
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardSidebar pageName='Dashboard' windowWidth={width} />

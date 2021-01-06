@@ -60,9 +60,8 @@ public class CardService {
         UUID userId = optionalUserId.get();
         if (!userId.equals(cardEntity.getOwnerId())) {
             // todo sharing
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        // todo probably switch owner_id to the owner name (and eventually profile picture and such)
 
         try {
             final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
@@ -134,6 +133,7 @@ public class CardService {
         final UUID id = userService.getIdByEmail(email).orElse(null);
         if (id == null) {
             // probably won't happen, since the user has to be in the database to be authenticated
+            logger.warn("User authenticated, but later not found. Likely a bug. User email: {}", email);
             return new ResponseEntity<>(HttpStatus.GONE);
         }
         List<CardEntity> rawCards = cardDao.getCardsByUser(id);
@@ -180,7 +180,7 @@ public class CardService {
         }
 
         if (!principalId.equals(ownerId)) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(cardDao.deleteCardById(cardId));
     }

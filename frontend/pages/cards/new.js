@@ -63,7 +63,7 @@ const inlineStyles = {
 }
 
 export default function NewCard() {
-  const { width } = useWindowSize()
+  const width = useWindowSize()?.width ?? 1920
   
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')

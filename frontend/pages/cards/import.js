@@ -15,7 +15,7 @@ const IMPORT_SUCCESS_TEXT = 'Card successfully imported'
 // if the user wants to edit a card, ig a warning will be shown and it will be imported to
 // draft-js as plain text
 export default function ImportCards() {
-  const { width } = useWindowSize()
+  const width = useWindowSize()?.width ?? 1920
   const pasteInputRef = useRef()
   const [ pData, setPData ] = useState('')
   const [ tag, setTag ] = useState('')
