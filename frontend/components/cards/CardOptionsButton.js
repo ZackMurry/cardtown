@@ -1,3 +1,4 @@
+import EditIcon from '@material-ui/icons/Edit'
 import {
   Button, IconButton, MenuItem, Paper, Popover
 } from '@material-ui/core'
@@ -8,7 +9,7 @@ import { useState } from 'react'
 import ErrorAlert from '../utils/ErrorAlert'
 import styles from '../../styles/ViewCard.module.css'
 
-export default function CardOptionsButton({ id, jwt }) {
+export default function CardOptionsButton({ id, jwt, onEdit }) {
   const [ anchorEl, setAnchorEl ] = useState(null)
   const [ errorText, setErrorText ] = useState('')
 
@@ -44,15 +45,26 @@ export default function CardOptionsButton({ id, jwt }) {
                 onClick={handleDelete}
                 variant='contained'
                 color='secondary'
+                disableElevation
                 disableFocusRipple
                 startIcon={<DeleteIcon />}
-                style={{
-                  margin: 0,
-                  borderRadius: 0,
-                  textTransform: 'none'
-                }}
               >
                 Delete
+              </Button>
+            </MenuItem>
+            <MenuItem style={{ padding: 0, minHeight: 36 }}>
+              <Button
+                className={styles['card-context-menu-button']}
+                onClick={onEdit}
+                variant='contained'
+                color='secondary'
+                disableFocusRipple
+                startIcon={<EditIcon />}
+                style={{ justifyContent: 'flex-start' }}
+                disableElevation
+                fullWidth
+              >
+                Edit
               </Button>
             </MenuItem>
           </Paper>

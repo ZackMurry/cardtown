@@ -6,10 +6,20 @@ import useWindowSize from '../../../components/utils/hooks/useWindowSize'
 import CardOptionsButton from '../../../components/cards/CardOptionsButton'
 import ErrorAlert from '../../../components/utils/ErrorAlert'
 import redirectToLogin from '../../../components/utils/redirectToLogin'
+import { useState } from 'react'
+import EditCard from '../../../components/cards/EditCard'
 
 // todo styling
 export default function ViewCard({ id, errorText, card, jwt }) {
   const width = useWindowSize()?.width ?? 1920
+  const [ isEditing, setEditing ] = useState(false)
+
+  const handleEdit = () => {
+    if (card.bodyDraft !== 'IMPORTED CARD -- NO DRAFT BODY') {
+      setEditing(true)
+    }
+    // todo else show warning
+  }
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto' }}>
@@ -26,23 +36,29 @@ export default function ViewCard({ id, errorText, card, jwt }) {
       >
         {
           card && (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
-                  {card.tag}
-                </BlackText>
-                <CardOptionsButton id={id} jwt={jwt} />
-              </div>
-              <div>
-                <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
-                  {card.cite}
-                </BlackText>
-                <BlackText style={{ fontWeight: 'normal', fontSize: 11 }}>
-                  {card.citeInformation}
-                </BlackText>
-              </div>
-              <div dangerouslySetInnerHTML={{ __html: card.bodyHtml }} />
-            </>
+            isEditing
+              ? (
+                <EditCard jwt={jwt} card={card} id={id} windowWidth={width} />
+              )
+              : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
+                      {card.tag}
+                    </BlackText>
+                    <CardOptionsButton id={id} jwt={jwt} onEdit={handleEdit} />
+                  </div>
+                  <div>
+                    <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
+                      {card.cite}
+                    </BlackText>
+                    <BlackText style={{ fontWeight: 'normal', fontSize: 11 }}>
+                      {card.citeInformation}
+                    </BlackText>
+                  </div>
+                  <div dangerouslySetInnerHTML={{ __html: card.bodyHtml }} />
+                </>
+              )
           )
         }
       </div>
@@ -63,7 +79,7 @@ export async function getServerSideProps({ query, req, res }) {
   }
   if (!jwt) {
     redirectToLogin()
-    return
+    return {}
   }
   const dev = process.env.NODE_ENV !== 'production'
   const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/cards/${encodeURIComponent(id)}`, {

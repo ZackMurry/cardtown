@@ -27,20 +27,8 @@ const styleMap = {
   }
 }
 
-const styleToReadable = {
-  BOLD: 'bold',
-  HIGHLIGHT: 'highlight',
-  FONT_SIZE_6: 'font size 6',
-  FONT_SIZE_8: 'font size 8',
-  FONT_SIZE_9: 'font size 9',
-  FONT_SIZE_10: 'font size 10',
-  FONT_SIZE_11: 'font size 11',
-  UNDERLINE: 'underline',
-  ITALIC: 'italics',
-  OUTLINE: 'outline'
-}
 
-export default function NewCardBodyEditor({ editorState, setEditorState, windowWidth }) {
+export default function CardBodyEditor({ editorState, setEditorState, disableOutline }) {
 
   const handleChange = newState => {
     setEditorState(newState)
@@ -111,14 +99,6 @@ export default function NewCardBodyEditor({ editorState, setEditorState, windowW
     return getDefaultKeyBinding(e)
   }
 
-  let currentInlineStyles = []
-  for (let s of editorState.getCurrentInlineStyle()) {
-    if (s === 'FONT_SIZE_11') {
-      // don't show default font size
-      continue
-    }
-    currentInlineStyles.push(' ' + (styleToReadable[s] ?? s))
-  }
 
   return (
     // todo make this look more like the other inputs
@@ -128,7 +108,7 @@ export default function NewCardBodyEditor({ editorState, setEditorState, windowW
       <div
         style={{
           backgroundColor: theme.palette.secondary.main,
-          border: `1px solid rgba(0, 0, 0, 0.23)`,
+          border: disableOutline ? undefined : `1px solid rgba(0, 0, 0, 0.23)`,
           borderRadius: 3
         }}
         className={styles['editor-container']}
@@ -141,18 +121,6 @@ export default function NewCardBodyEditor({ editorState, setEditorState, windowW
           editorKey='newCardEditor'
           customStyleMap={styleMap}
         />
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <Typography color='textSecondary' style={{ fontSize: 11, marginTop: 5 }}>
-            *required field
-          </Typography>
-        </div>
-        <Typography color='textSecondary' style={{ fontSize: windowWidth >= theme.breakpoints.values.md ? 15 : 11, marginTop: 5 }}>
-          {
-            currentInlineStyles.toString()
-          }
-        </Typography>
       </div>
     </>
   )

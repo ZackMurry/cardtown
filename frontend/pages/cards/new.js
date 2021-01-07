@@ -2,27 +2,17 @@ import { Button, TextField, Typography } from '@material-ui/core'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 import Cookie from 'js-cookie'
+import { useRouter } from 'next/router'
 import { useMemo, useState } from 'react'
-import NewCardBodyEditor from '../../components/cards/NewCardBodyEditor'
+import mapStyleToReadable from '../../components/cards/mapStyleToReadable'
+import CardBodyEditor from '../../components/cards/CardBodyEditor'
 import NewCardFormattingPopover from '../../components/cards/NewCardFormattingPopover'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import BlackText from '../../components/utils/BlackText'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import theme from '../../components/utils/theme'
+import initializeDraftContentState from '../../components/cards/initializeDraftEditorState'
 
-//used because EditorState.createFromEmpty() was producing errors.
-//just an empty content state
-const emptyContentState = convertFromRaw({
-  entityMap: {},
-  blocks: [
-    {
-      text: '',
-      key: 'cardtown',
-      type: 'unstyled',
-      entityRanges: []
-    }
-  ]
-})
 
 const inlineStyles = {
   HIGHLIGHT: {
@@ -68,9 +58,10 @@ export default function NewCard() {
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')
   const [ citeInformation, setCiteInformation ] = useState('')
-  const [ bodyState, setBodyState ] = useState(() => EditorState.createWithContent(emptyContentState))
+  const [ bodyState, setBodyState ] = useState(initializeDraftContentState)
 
   const jwt = useMemo(() => Cookie.get('jwt'), [])
+  const router = useRouter()
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -91,9 +82,18 @@ export default function NewCard() {
         bodyDraft: JSON.stringify(bodyDraft)
       })
     })
-    console.log(response.status)
-    console.log(await response.text())
-    // todo redirect to card's page
+    if (response.ok) {
+      router.push(await response.text())
+    } // todo else show error
+  }
+
+  let currentInlineStyles = []
+  for (let s of bodyState.getCurrentInlineStyle()) {
+    if (s === 'FONT_SIZE_11') {
+      // don't show default font size
+      continue
+    }
+    currentInlineStyles.push(' ' + mapStyleToReadable(s))
   }
 
   return (
@@ -222,7 +222,19 @@ export default function NewCard() {
                 </span>
               </BlackText>
               <NewCardFormattingPopover />
-              <NewCardBodyEditor windowWidth={width} editorState={bodyState} setEditorState={setBodyState} />
+              <CardBodyEditor windowWidth={width} editorState={bodyState} setEditorState={setBodyState} />
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div>
+                  <Typography color='textSecondary' style={{ fontSize: 11, marginTop: 5 }}>
+                    *required field
+                  </Typography>
+                </div>
+                <Typography color='textSecondary' style={{ fontSize: width >= theme.breakpoints.values.md ? 15 : 11, marginTop: 5 }}>
+                  {
+                    currentInlineStyles.toString()
+                  }
+                </Typography>
+              </div>
             </div>
             <div style={{ marginTop: 10, marginBottom: -5 }}>
               <Button type='submit' variant='contained' color='primary' style={{ textTransform: 'none' }}>

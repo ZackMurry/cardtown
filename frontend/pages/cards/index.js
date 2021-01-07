@@ -105,7 +105,7 @@ export async function getServerSideProps({ req, res }) {
   }
   if (!jwt) {
     redirectToLogin(res, '/cards')
-    return
+    return {}
   }
   return {
     props: {

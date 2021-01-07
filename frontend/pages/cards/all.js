@@ -1,6 +1,4 @@
 import { parse } from 'cookie'
-import { useEffect, useMemo, useState } from 'react'
-import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
@@ -11,6 +9,7 @@ import ErrorAlert from '../../components/utils/ErrorAlert'
 
 export default function AllCards({ jwt, cards, errorText }) {
   const width = useWindowSize()?.width ?? 1920
+  const router = useRouter()
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto' }}>
@@ -76,7 +75,7 @@ export default function AllCards({ jwt, cards, errorText }) {
                   cursor: 'pointer'
                 }}
                 key={c.id}
-                onClick={() => router.push(`/cards/id/${c.id}`)}
+                onClick={() => router.push(`/cards/id/${encodeURIComponent(c.id)}`)}
               >
                 <Grid item xs={12} lg={3}>
                   {
@@ -135,7 +134,7 @@ export async function getServerSideProps({ req, res }) {
   }
   if (!jwt) {
     redirectToLogin()
-    return
+    return {}
   }
   
   const dev = process.env.NODE_ENV !== 'production'
