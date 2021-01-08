@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.dao.card;
 
 import com.zackmurry.cardtown.model.card.CardEntity;
+import com.zackmurry.cardtown.model.card.EncryptedCard;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -21,5 +22,7 @@ public interface CardDao {
     Optional<UUID> getOwnerIdByCardId(UUID cardId);
 
     HttpStatus deleteCardById(UUID id);
+
+    HttpStatus updateCardById(UUID id, EncryptedCard request);
 
 }

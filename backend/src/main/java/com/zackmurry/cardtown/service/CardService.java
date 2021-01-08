@@ -6,6 +6,7 @@ import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
+import com.zackmurry.cardtown.model.card.EncryptedCard;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.HtmlUtils;
 import com.zackmurry.cardtown.util.UUIDUtils;
@@ -183,5 +184,29 @@ public class CardService {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(cardDao.deleteCardById(cardId));
+    }
+
+    public ResponseEntity<Void> updateCardById(String id, EncryptedCard request) {
+        final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final UUID cardId = UUIDUtils.decompress(id);
+        final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);
+        if (ownerId == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (!principalId.equals(ownerId)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        // whitelisting html tags to prevent XSS
+        request.setBodyHtml(HtmlUtils.sanitizeHtml(request.getBodyHtml()));
+
+        final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
+        try {
+            request.encryptFields(secretKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(cardDao.updateCardById(cardId, request));
     }
 }

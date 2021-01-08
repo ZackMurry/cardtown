@@ -10,15 +10,29 @@ import { useState } from 'react'
 import EditCard from '../../../components/cards/EditCard'
 
 // todo styling
-export default function ViewCard({ id, errorText, card, jwt }) {
+export default function ViewCard({ id, fetchingErrorText, card, jwt }) {
   const width = useWindowSize()?.width ?? 1920
   const [ isEditing, setEditing ] = useState(false)
+  const [ errorText, setErrorText ] = useState('')
 
   const handleEdit = () => {
     if (card.bodyDraft !== 'IMPORTED CARD -- NO DRAFT BODY') {
       setEditing(true)
+    } else {
+      setErrorText('Only non-imported cards can be edited.')
+      // todo option to remove formatting from body and persist
     }
-    // todo else show warning
+  }
+
+  const handleDoneEditing = () => {
+    setEditing(false)
+  }
+  
+  const handleCancelEditing = errorMsg => {
+    if (errorMsg) {
+      setErrorText(errorMsg)
+    }
+    handleDoneEditing()
   }
 
   return (
@@ -38,7 +52,14 @@ export default function ViewCard({ id, errorText, card, jwt }) {
           card && (
             isEditing
               ? (
-                <EditCard jwt={jwt} card={card} id={id} windowWidth={width} />
+                <EditCard
+                  jwt={jwt}
+                  card={card}
+                  id={id}
+                  windowWidth={width}
+                  onDone={handleDoneEditing}
+                  onCancel={handleCancelEditing}
+                />
               )
               : (
                 <>
@@ -63,7 +84,7 @@ export default function ViewCard({ id, errorText, card, jwt }) {
         }
       </div>
       {
-        errorText && <ErrorAlert disableClose text={errorText} />
+        (fetchingErrorText || errorText) && <ErrorAlert disableClose text={fetchingErrorText || errorText} />
       }
     </div>
   )
@@ -104,7 +125,7 @@ export async function getServerSideProps({ query, req, res }) {
   return {
     props: {
       id,
-      errorText,
+      fetchingErrorText: errorText,
       card,
       jwt
     }

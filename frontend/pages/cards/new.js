@@ -12,45 +12,7 @@ import BlackText from '../../components/utils/BlackText'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import theme from '../../components/utils/theme'
 import initializeDraftContentState from '../../components/cards/initializeDraftEditorState'
-
-
-const inlineStyles = {
-  HIGHLIGHT: {
-    style: {
-      backgroundColor: 'rgb(255, 255, 0)'
-    }
-  },
-  FONT_SIZE_6: {
-    style: {
-      fontSize: '6pt'
-    }
-  },
-  FONT_SIZE_8: {
-    style: {
-      fontSize: '8pt'
-    }
-  },
-  FONT_SIZE_9: {
-    style: {
-      fontSize: '9pt'
-    }
-  },
-  FONT_SIZE_10: {
-    style: {
-      fontSize: '10pt'
-    }
-  },
-  FONT_SIZE_11: {
-    style: {
-      fontSize: '11pt'
-    }
-  },
-  OUTLINE: {
-    style: {
-      border: '2px solid black'
-    }
-  }
-}
+import draftExportHtmlOptions from '../../components/cards/draftExportHtmlOptions'
 
 export default function NewCard() {
   const width = useWindowSize()?.width ?? 1920
@@ -69,7 +31,7 @@ export default function NewCard() {
     const content = bodyState.getCurrentContent()
 
     const bodyDraft = convertToRaw(content)
-    const bodyHtml = stateToHTML(content, { inlineStyles })
+    const bodyHtml = stateToHTML(content, draftExportHtmlOptions)
 
     const response = await fetch('/api/v1/cards', {
       method: 'POST',
@@ -222,7 +184,12 @@ export default function NewCard() {
                 </span>
               </BlackText>
               <NewCardFormattingPopover />
-              <CardBodyEditor windowWidth={width} editorState={bodyState} setEditorState={setBodyState} />
+              <CardBodyEditor
+                windowWidth={width}
+                editorState={bodyState}
+                setEditorState={setBodyState}
+                style={{ padding: 10 }}
+              />
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <div>
                   <Typography color='textSecondary' style={{ fontSize: 11, marginTop: 5 }}>

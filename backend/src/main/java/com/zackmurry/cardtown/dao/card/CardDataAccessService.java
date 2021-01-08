@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.dao.card;
 
 import com.zackmurry.cardtown.model.card.CardEntity;
+import com.zackmurry.cardtown.model.card.EncryptedCard;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,6 +172,26 @@ public class CardDataAccessService implements CardDao {
         } catch (SQLException e) {
             e.printStackTrace();
             logger.warn("SQL exception occurred when deleting card {}", id);
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+    }
+
+    @Override
+    public HttpStatus updateCardById(@NonNull UUID id, @NonNull EncryptedCard request) {
+        String sql = "UPDATE cards SET tag = ?, cite = ?, cite_information = ?, body_html = ?, body_draft = ? WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setString(1, request.getTag());
+            preparedStatement.setString(2, request.getCite());
+            preparedStatement.setString(3, request.getCiteInformation());
+            preparedStatement.setString(4, request.getBodyHtml());
+            preparedStatement.setString(5, request.getBodyDraft());
+            preparedStatement.setObject(6, id);
+            preparedStatement.execute();
+            return HttpStatus.OK;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.warn("SQL exception occurred when editing card {}", id);
             return HttpStatus.INTERNAL_SERVER_ERROR;
         }
     }

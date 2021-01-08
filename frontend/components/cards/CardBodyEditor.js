@@ -1,4 +1,3 @@
-import { Typography } from '@material-ui/core'
 import { Editor, getDefaultKeyBinding, RichUtils } from 'draft-js'
 import styles from '../../styles/NewCard.module.css'
 import theme from '../utils/theme'
@@ -28,7 +27,7 @@ const styleMap = {
 }
 
 
-export default function CardBodyEditor({ editorState, setEditorState, disableOutline }) {
+export default function CardBodyEditor({ editorState, setEditorState, disableOutline, style }) {
 
   const handleChange = newState => {
     setEditorState(newState)
@@ -109,7 +108,8 @@ export default function CardBodyEditor({ editorState, setEditorState, disableOut
         style={{
           backgroundColor: theme.palette.secondary.main,
           border: disableOutline ? undefined : `1px solid rgba(0, 0, 0, 0.23)`,
-          borderRadius: 3
+          borderRadius: 3,
+          style
         }}
         className={styles['editor-container']}
       >

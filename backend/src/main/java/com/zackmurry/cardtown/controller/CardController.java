@@ -2,9 +2,9 @@ package com.zackmurry.cardtown.controller;
 
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
+import com.zackmurry.cardtown.model.card.EncryptedCard;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.service.CardService;
-import com.zackmurry.cardtown.util.EncryptionUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,10 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 
 @RequestMapping("/api/v1/cards")
@@ -37,8 +35,8 @@ public class CardController {
         if (encodedId == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        String id = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
-        return cardService.getResponseCardById(id);
+        String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
+        return cardService.getResponseCardById(decodedId);
     }
 
     /**
@@ -64,10 +62,20 @@ public class CardController {
     public ResponseEntity<Void> deleteCardById(HttpServletRequest request) {
         String compressedId = request.getRequestURI().split("/api/v1/cards/")[1];
         if (compressedId == null) {
-            System.out.println("encoded is null");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return cardService.deleteCardById(compressedId);
+        String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
+        return cardService.deleteCardById(decodedId);
+    }
+
+    @PutMapping("/**")
+    public ResponseEntity<Void> updateCardById(@RequestBody EncryptedCard cardUpdateRequest, HttpServletRequest servletRequest) {
+        String compressedId = servletRequest.getRequestURI().split("/api/v1/cards/")[1];
+        if (compressedId == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
+        return cardService.updateCardById(decodedId, cardUpdateRequest);
     }
 
 }
