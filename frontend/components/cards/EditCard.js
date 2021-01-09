@@ -40,6 +40,7 @@ export default function EditCard({
       onDone()
     } else {
       console.warn(response.status)
+      // todo show error here
     }
   }
 

@@ -19,4 +19,8 @@ CREATE TABLE IF NOT EXISTS cards (
     body_draft TEXT NOT NULL
 );
 
-
+CREATE TABLE IF NOT EXISTS arguments (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    owner_id UUID NOT NULL REFERENCES users ON DELETE CASCADE,
+    name VARCHAR(216) NOT NULL -- limited length: 128
+);

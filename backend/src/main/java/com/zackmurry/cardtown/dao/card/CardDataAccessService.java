@@ -38,7 +38,7 @@ public class CardDataAccessService implements CardDao {
     public Optional<UUID> createCard(@NonNull CardEntity card) {
         String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body_html, body_draft) VALUES (?, ?, ?, ?, ?, ?)";
         try {
-            String[] returnId = { "id" };
+            final String[] returnId = { "id" };
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
             preparedStatement.setObject(1, card.getOwnerId());
             preparedStatement.setString(2, card.getTag());
@@ -49,6 +49,7 @@ public class CardDataAccessService implements CardDao {
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 logger.warn("Card creation by {} didn't generate an id.", card.getOwnerId());
+                return Optional.empty();
             }
 
             ResultSet resultSet = preparedStatement.getGeneratedKeys();

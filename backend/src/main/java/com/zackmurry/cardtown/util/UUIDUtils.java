@@ -14,7 +14,6 @@ public class UUIDUtils {
         return Base64.getEncoder().encodeToString(array);
     }
 
-    // todo unit test for decompressing an invalid uuid
     public static UUID decompress(String compressed) {
         ByteBuffer byteBuffer = ByteBuffer.wrap(Base64.getDecoder().decode(compressed));
         return new UUID(byteBuffer.getLong(), byteBuffer.getLong());

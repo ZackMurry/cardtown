@@ -22,11 +22,7 @@ public class HtmlUtils {
      * @return html with the bad parts cut out
      */
     public static String sanitizeHtml(String html) {
-        String withSpaces = Jsoup.clean(html, WHITELIST);
-
-        // removing the styling that Jsoup does
-        // todo this might also affect formatting on cards so i defo want to check that out
-        return withSpaces.replaceAll("\\n\\s*", "");
+        return Jsoup.clean(html, WHITELIST);
     }
 
 }

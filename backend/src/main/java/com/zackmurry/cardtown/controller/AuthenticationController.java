@@ -35,6 +35,7 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@RequestBody AuthenticationRequest request) throws AuthenticationException {
+        System.out.println("rcv");
         if (request.getPassword() == null || request.getPassword().length() > 64 || request.getPassword().length() < 8) {
             return new ResponseEntity<>(HttpStatus.LENGTH_REQUIRED);
         }
