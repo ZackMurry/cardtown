@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.dao.arg;
 
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
+import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,29 @@ public class ArgumentDataAccessService implements ArgumentDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<ArgumentEntity> getArgument(@NonNull UUID id) {
+        String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ?";
+        try {
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(
+                        new ArgumentEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                UUID.fromString(resultSet.getString("owner_id")),
+                                resultSet.getString("name")
+                        )
+                );
+            }
+            return Optional.empty();
+        } catch(SQLException e) {
             e.printStackTrace();
             return Optional.empty();
         }
