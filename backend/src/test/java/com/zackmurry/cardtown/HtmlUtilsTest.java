@@ -35,7 +35,7 @@ public class HtmlUtilsTest {
     @Test
     public void testRealWorldHtml() {
         String value = "<div><p style=\"background-color: rgb(255, 255, 0);\">test</p></div>";
-        assertEquals(value, sanitizeHtml(value));
+        assertEquals("<div>\n <p style=\"background-color: rgb(255, 255, 0);\">test</p>\n</div>", sanitizeHtml(value));
         value = "<p>this is a <b>test</b></p>";
         assertEquals(value, sanitizeHtml(value));
     }
