@@ -4,9 +4,12 @@ import com.zackmurry.cardtown.dao.arg.ArgumentDao;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
+import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.model.card.CardEntity;
+import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.UUIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +18,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ArgumentService {
@@ -25,6 +30,9 @@ public class ArgumentService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CardService cardService;
 
     public ResponseEntity<String> createArgument(ArgumentCreateRequest request) {
         if (request == null || request.getName() == null || request.getOwnerId() == null) {
@@ -73,7 +81,18 @@ public class ArgumentService {
         if (owner == null) {
             return new ResponseEntity<>(HttpStatus.GONE);
         }
-        final ResponseArgument responseArgument = ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner));
+        final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentEntity.getId());
+        List<ResponseCard> responseCards = cardService.getResponseCardsByIds(argumentCardEntities.stream().map(ArgumentCardEntity::getCardId).collect(Collectors.toList()));
+        final ResponseArgument responseArgument = ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner), responseCards);
         return new ResponseEntity<>(responseArgument, HttpStatus.OK);
     }
+
+    public HttpStatus addCardToArgument(UUID cardId, UUID argumentId) {
+        return argumentDao.addCardToArgument(cardId, argumentId);
+    }
+
+    public HttpStatus addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument) {
+        return argumentDao.addCardToArgument(cardId, argumentId, indexInArgument);
+    }
+
 }

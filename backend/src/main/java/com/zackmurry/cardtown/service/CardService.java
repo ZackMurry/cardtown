@@ -15,8 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.BufferUnderflowException;
 import java.util.*;
@@ -33,25 +36,11 @@ public class CardService {
     @Autowired
     private CardDao cardDao;
 
-    public ResponseEntity<ResponseCard> getResponseCardById(String id) {
-        if (id == null) {
-            System.out.println("null id");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        UUID uuid;
-        try {
-            uuid = UUIDUtils.decompress(id);
-        } catch (BufferUnderflowException e) {
-            // this happens if there's an invalid UUID (too short)
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-        }
-
-        Optional<CardEntity> optionalCard = cardDao.getCardById(uuid);
-        if (optionalCard.isEmpty()) {
+    public ResponseEntity<ResponseCard> getResponseCardById(UUID id) {
+        CardEntity cardEntity = cardDao.getCardById(id).orElse(null);
+        if (cardEntity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        CardEntity cardEntity = optionalCard.get();
 
         String principalEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<UUID> optionalUserId = userService.getIdByEmail(principalEmail);
@@ -79,6 +68,15 @@ public class CardService {
 
         ResponseCard responseCard = ResponseCard.fromCard(cardEntity, ResponseUserDetails.fromUser(owner));
         return new ResponseEntity<>(responseCard, HttpStatus.OK);
+    }
+
+    public ResponseEntity<ResponseCard> getResponseCardById(@NonNull String id) {
+        try {
+            return getResponseCardById(UUIDUtils.decompress(id));
+        } catch (BufferUnderflowException e) {
+            // this happens if there's an invalid UUID (too short)
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        }
     }
 
     /**
@@ -208,6 +206,19 @@ public class CardService {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(cardDao.updateCardById(cardId, request));
+    }
+
+    public List<ResponseCard> getResponseCardsByIds(List<UUID> ids) {
+        List<ResponseCard> responseCards = new ArrayList<>();
+        for (UUID id : ids) {
+            ResponseEntity<ResponseCard> responseCardResponseEntity = getResponseCardById(id);
+            if (responseCardResponseEntity.getStatusCode().is2xxSuccessful()) {
+                responseCards.add(responseCardResponseEntity.getBody());
+            } else {
+                throw new ResponseStatusException(responseCardResponseEntity.getStatusCode());
+            }
+        }
+        return responseCards;
     }
 
 }
