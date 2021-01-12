@@ -3,6 +3,7 @@ package com.zackmurry.cardtown.service;
 import com.zackmurry.cardtown.dao.user.UserDao;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
+import com.zackmurry.cardtown.model.auth.AuthenticationRequest;
 import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -12,6 +13,8 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,6 +40,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
@@ -147,6 +153,27 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> getUserById(UUID userId) {
         return userDao.findById(userId);
+    }
+
+    public AuthenticationResponse createAuthenticationToken(@NonNull AuthenticationRequest request) {
+        if (request.getPassword() == null || request.getPassword().length() > 64 || request.getPassword().length() < 8) {
+            throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
+        }
+
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+        final UserDetails userDetails = loadUserByUsername(request.getEmail());
+        final Map<String, Object> claims = new HashMap<>();
+
+        // generate SHA-256 hash of password as their secret key (hash is 32 bytes)
+        String encryptionKey = EncryptionUtils.getSHA256HashBase64(request.getPassword());
+        if (encryptionKey == null) {
+            throw new InternalServerException();
+        }
+        claims.put("ek", encryptionKey);
+
+        String jwt = jwtUtil.createToken(claims, userDetails.getUsername());
+        return new AuthenticationResponse(jwt);
     }
 
 }

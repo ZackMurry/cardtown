@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown;
 
 import com.zackmurry.cardtown.dao.user.UserDao;
+import com.zackmurry.cardtown.model.auth.AuthenticationRequest;
 import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
 import com.zackmurry.cardtown.service.UserService;
 import com.zackmurry.cardtown.util.EncryptionUtils;
@@ -40,8 +41,6 @@ public class UserServiceTest {
     private String testEmail;
     private String testPassword;
 
-    private ResponseEntity<AuthenticationResponse> accountCreationResponse;
-
     @BeforeAll
     public void createTestUser() {
         testEmail = RandomStringUtils.randomAlphanumeric(12);
@@ -77,7 +76,7 @@ public class UserServiceTest {
     public void testSecretKey() {
         final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(testPassword.getBytes(StandardCharsets.UTF_8));
         assertNotNull(encryptionKey);
-        final AuthenticationResponse authRes = accountCreationResponse.getBody();
+        final AuthenticationResponse authRes = userService.createAuthenticationToken(new AuthenticationRequest(testEmail, testPassword));
         assertNotNull(authRes);
         final String jwt = authRes.getJwt();
         assertNotNull(jwt);
