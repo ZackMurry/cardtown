@@ -1,6 +1,8 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.user.UserDao;
+import com.zackmurry.cardtown.exception.InternalServerException;
+import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -9,13 +11,13 @@ import com.zackmurry.cardtown.util.JwtUtil;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -54,16 +56,16 @@ public class UserService implements UserDetailsService {
      * @param user user model to create in database. password should not be encoded
      * @return a <code>ResponseEntity</code> with an AuthenticationResponse. this represents the status and access token for the new user
      */
-    public ResponseEntity<AuthenticationResponse> createUserAccount(User user) {
+    public AuthenticationResponse createUserAccount(User user) {
         if (user == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         // yikes 0.0
         if ((user.getPassword() == null || user.getPassword().length() > 55) ||
                 (user.getFirstName() == null || user.getFirstName().length() > 32) ||
                 (user.getLastName() == null || user.getLastName().length() > 32) ||
                 (user.getEmail() == null || user.getEmail().length() > 320)) {
-            return new ResponseEntity<>(HttpStatus.LENGTH_REQUIRED);
+            throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
         }
         String plainTextPassword = user.getPassword();
         user.setPassword(encoder.encode(user.getPassword()));
@@ -72,7 +74,7 @@ public class UserService implements UserDetailsService {
         // todo salt encryptionKey with email or something
         final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(plainTextPassword.getBytes(StandardCharsets.UTF_8));
         if (encryptionKey == null) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerException();
         }
 
         SecretKey secretKey = EncryptionUtils.generateStrongAESKey(256);
@@ -82,18 +84,18 @@ public class UserService implements UserDetailsService {
             encryptedSecretKey = EncryptionUtils.encryptAES(secretKey.getEncoded(), encryptionKey);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerException();
         }
 
         UserModel userModel = new UserModel(user, encryptedSecretKey);
-        HttpStatus status = userDao.createAccount(userModel);
+        userDao.createAccount(userModel);
 
         // put username and encryption key into jwt
         final Map<String, Object> claims = new HashMap<>();
         claims.put("ek", Base64.encodeBase64String(encryptionKey));
         String jwt = jwtUtil.createToken(claims, user.getUsername());
 
-        return new ResponseEntity<>(new AuthenticationResponse(jwt), status);
+        return new AuthenticationResponse(jwt);
     }
 
     /**
@@ -105,7 +107,7 @@ public class UserService implements UserDetailsService {
      * @return a <code>ResponseEntity</code> with an AuthenticationResponse. this represents the status and access token for the new user
      * @see UserService#createUserAccount(User)
      */
-    public ResponseEntity<AuthenticationResponse> createUserAccount(String email, String firstName, String lastName, String password) {
+    public AuthenticationResponse createUserAccount(String email, String firstName, String lastName, String password) {
         return createUserAccount(new User(email, firstName, lastName, password));
     }
 
@@ -113,8 +115,13 @@ public class UserService implements UserDetailsService {
         return userDao.accountExists(email);
     }
 
-    public ResponseEntity<Void> deleteUserAccount(String email) {
-        return new ResponseEntity<>(userDao.deleteUser(email));
+    public void deleteUserAccount(String email) {
+        try {
+            userDao.deleteUser(email);
+        } catch (UserNotFoundException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
     }
 
     public String getUserSecretKey(@NonNull String email, @NonNull String encryptionKey) {

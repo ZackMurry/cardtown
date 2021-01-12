@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Base64;
 import java.util.UUID;
 
-public class UUIDUtils {
+public class UUIDCompressor {
 
     public static String compress(UUID uuid) {
         ByteBuffer bb = ByteBuffer.allocate(Long.BYTES * 2);

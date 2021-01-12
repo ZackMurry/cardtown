@@ -51,14 +51,13 @@ public class UserServiceTest {
             createTestUser();
         } else {
             testPassword = RandomStringUtils.randomAlphanumeric(12);
-            accountCreationResponse = userService.createUserAccount(testEmail, "__TEST__", "__USER__", testPassword);
-            assertEquals(HttpStatus.OK, accountCreationResponse.getStatusCode());
+            assertDoesNotThrow(() -> userService.createUserAccount(testEmail, "__TEST__", "__USER__", testPassword));
         }
     }
 
     @AfterAll
     public void deleteTestUser() {
-        assertEquals(HttpStatus.OK, userService.deleteUserAccount(testEmail).getStatusCode());
+        assertDoesNotThrow(() -> userService.deleteUserAccount(testEmail));
     }
 
     @DisplayName("Test if test account exists")

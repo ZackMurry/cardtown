@@ -1,7 +1,7 @@
 package com.zackmurry.cardtown.model.card;
 
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
-import com.zackmurry.cardtown.util.UUIDUtils;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,11 +39,11 @@ public class ResponseCard implements UUIDOwnerCard, ShortenedIdCard {
     }
 
     public static ResponseCard fromCard(CardEntity card, ResponseUserDetails responseUserDetails) {
-        return fromCard(card, responseUserDetails, UUIDUtils.compress(card.getId()));
+        return fromCard(card, responseUserDetails, UUIDCompressor.compress(card.getId()));
     }
 
     @Override
     public UUID getOwnerId() {
-        return UUIDUtils.decompress(owner.getId());
+        return UUIDCompressor.decompress(owner.getId());
     }
 }

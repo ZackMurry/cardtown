@@ -5,13 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static com.zackmurry.cardtown.util.HtmlUtils.sanitizeHtml;
+import static com.zackmurry.cardtown.util.HtmlSanitizer.sanitizeHtml;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
-public class HtmlUtilsTest {
+public class HtmlSanitizerTest {
 
     @DisplayName("Test removal of bad html tags")
     @Test

@@ -32,7 +32,7 @@ public class JwtUtilTest {
             createTestUser();
         } else {
             final String testPassword = RandomStringUtils.randomAlphanumeric(12);
-            assertEquals(HttpStatus.OK, userService.createUserAccount(testEmail, "__TEST__", "__USER__", testPassword).getStatusCode());
+            assertDoesNotThrow(() -> userService.createUserAccount(testEmail, "__TEST__", "__USER__", testPassword));
             userDetails = userService.loadUserByUsername(testEmail);
         }
 
@@ -40,7 +40,7 @@ public class JwtUtilTest {
 
     @AfterAll
     public void deleteTestUser() {
-        assertEquals(HttpStatus.OK, userService.deleteUserAccount(userDetails.getUsername()).getStatusCode());
+        assertDoesNotThrow(() -> userService.deleteUserAccount(userDetails.getUsername()));
     }
 
     @DisplayName("Test general jwt creation")

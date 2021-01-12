@@ -1,6 +1,10 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.card.CardDao;
+import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.exception.CardNotFoundException;
+import com.zackmurry.cardtown.exception.ForbiddenException;
+import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -8,8 +12,8 @@ import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.EncryptedCard;
 import com.zackmurry.cardtown.model.card.ResponseCard;
-import com.zackmurry.cardtown.util.HtmlUtils;
-import com.zackmurry.cardtown.util.UUIDUtils;
+import com.zackmurry.cardtown.util.HtmlSanitizer;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.BufferUnderflowException;
@@ -36,21 +39,21 @@ public class CardService {
     @Autowired
     private CardDao cardDao;
 
-    public ResponseEntity<ResponseCard> getResponseCardById(UUID id) {
+    public ResponseCard getResponseCardById(UUID id) {
         CardEntity cardEntity = cardDao.getCardById(id).orElse(null);
         if (cardEntity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new CardNotFoundException();
         }
 
         String principalEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<UUID> optionalUserId = userService.getIdByEmail(principalEmail);
         if (optionalUserId.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED);
         }
         UUID userId = optionalUserId.get();
         if (!userId.equals(cardEntity.getOwnerId())) {
             // todo sharing
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
         }
 
         try {
@@ -58,24 +61,24 @@ public class CardService {
             cardEntity.decryptFields(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
         User owner = userService.getUserById(userId).orElse(null);
         if (owner == null) {
             logger.warn("Owner of card not found in users database. Owner id: {}, card id: {}", userId, cardEntity.getId());
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerException();
         }
 
         ResponseCard responseCard = ResponseCard.fromCard(cardEntity, ResponseUserDetails.fromUser(owner));
-        return new ResponseEntity<>(responseCard, HttpStatus.OK);
+        return responseCard;
     }
 
-    public ResponseEntity<ResponseCard> getResponseCardById(@NonNull String id) {
+    public ResponseCard getResponseCardById(@NonNull String id) {
         try {
-            return getResponseCardById(UUIDUtils.decompress(id));
+            return getResponseCardById(UUIDCompressor.decompress(id));
         } catch (BufferUnderflowException e) {
             // this happens if there's an invalid UUID (too short)
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
         }
     }
 
@@ -84,12 +87,12 @@ public class CardService {
      * @param request info of card to create
      * @return new card's shortened id or a fail value
      */
-    public ResponseEntity<String> createCard(CardCreateRequest request) {
+    public String createCard(CardCreateRequest request) {
         if (request.getOwnerEmail() == null ||
             request.getBodyHtml() == null ||
             request.getBodyDraft() == null ||
             request.getCite() == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
         if (request.getTag() == null) {
             request.setTag("");
@@ -100,15 +103,15 @@ public class CardService {
         }
 
         if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
-            return new ResponseEntity<>(HttpStatus.LENGTH_REQUIRED);
+            throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
         }
 
         // whitelisting html tags to prevent XSS
-        request.setBodyHtml(HtmlUtils.sanitizeHtml(request.getBodyHtml()));
+        request.setBodyHtml(HtmlSanitizer.sanitizeHtml(request.getBodyHtml()));
 
         Optional<UUID> optionalUserId = userService.getIdByEmail(request.getOwnerEmail());
         if (optionalUserId.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED);
         }
 
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
@@ -117,29 +120,21 @@ public class CardService {
             cardEntity.encryptFields(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
-        Optional<UUID> optionalCardId = cardDao.createCard(cardEntity);
-        if (optionalCardId.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        String shortenedCardId = UUIDUtils.compress(optionalCardId.get());
-        return new ResponseEntity<>(shortenedCardId, HttpStatus.OK);
+        UUID cardId = cardDao.createCard(cardEntity);
+        return UUIDCompressor.compress(cardId);
     }
 
-    public ResponseEntity<List<ResponseCard>> getAllCardsByUser() {
+    public List<ResponseCard> getAllCardsByUser() {
         final String email = SecurityContextHolder.getContext().getAuthentication().getName();
         final UUID id = userService.getIdByEmail(email).orElse(null);
         if (id == null) {
             // probably won't happen, since the user has to be in the database to be authenticated
             logger.warn("User authenticated, but later not found. Likely a bug. User email: {}", email);
-            return new ResponseEntity<>(HttpStatus.GONE);
+            throw new ResponseStatusException(HttpStatus.GONE);
         }
         List<CardEntity> rawCards = cardDao.getCardsByUser(id);
-        if (rawCards == null) {
-            // will happen if there's an SQLException
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
 
         try {
@@ -149,74 +144,68 @@ public class CardService {
         } catch (Exception e) {
             e.printStackTrace();
             // not sure if this would be the server's or user's fault tbh
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerException();
         }
         // probably use a HashMap<UUID, ResponseUserDetails> when i add sharing to greedily keep track of user details by UUID
         final User userEntity = userService.getUserById(id).orElse(null);
         if (userEntity == null) {
             logger.warn("Author of card not found in database -- author id: {}", id);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerException();
         }
         final ResponseUserDetails resUserDetails = ResponseUserDetails.fromUser(userEntity);
-        final List<ResponseCard> responseCards = rawCards.stream().map(c -> ResponseCard.fromCard(c, resUserDetails)).collect(Collectors.toList());
-        return new ResponseEntity<>(responseCards, HttpStatus.OK);
+        return rawCards.stream().map(c -> ResponseCard.fromCard(c, resUserDetails)).collect(Collectors.toList());
     }
 
-    public ResponseEntity<Integer> getNumberOfCardsByUser(String email) {
+    public int getNumberOfCardsByUser(String email) {
         final Optional<UUID> id = userService.getIdByEmail(email);
         if (id.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.GONE);
+            throw new ResponseStatusException(HttpStatus.GONE);
         }
         return cardDao.getNumberOfCardsByUser(id.get());
     }
 
-    public ResponseEntity<Void> deleteCardById(String id) {
+    public void deleteCardById(String id) {
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        final UUID cardId = UUIDUtils.decompress(id);
+        final UUID cardId = UUIDCompressor.decompress(id);
         final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);
         if (ownerId == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new CardNotFoundException();
         }
 
         if (!principalId.equals(ownerId)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
         }
-        return new ResponseEntity<>(cardDao.deleteCardById(cardId));
+        cardDao.deleteCardById(cardId);
     }
 
-    public ResponseEntity<Void> updateCardById(String id, EncryptedCard request) {
+    public void updateCardById(String id, EncryptedCard request) {
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        final UUID cardId = UUIDUtils.decompress(id);
+        final UUID cardId = UUIDCompressor.decompress(id);
         final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);
         if (ownerId == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new CardNotFoundException();
         }
 
         if (!principalId.equals(ownerId)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
         }
         // whitelisting html tags to prevent XSS
-        request.setBodyHtml(HtmlUtils.sanitizeHtml(request.getBodyHtml()));
+        request.setBodyHtml(HtmlSanitizer.sanitizeHtml(request.getBodyHtml()));
 
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
         try {
             request.encryptFields(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new InternalServerException();
         }
-        return new ResponseEntity<>(cardDao.updateCardById(cardId, request));
+        cardDao.updateCardById(cardId, request);
     }
 
     public List<ResponseCard> getResponseCardsByIds(List<UUID> ids) {
         List<ResponseCard> responseCards = new ArrayList<>();
         for (UUID id : ids) {
-            ResponseEntity<ResponseCard> responseCardResponseEntity = getResponseCardById(id);
-            if (responseCardResponseEntity.getStatusCode().is2xxSuccessful()) {
-                responseCards.add(responseCardResponseEntity.getBody());
-            } else {
-                throw new ResponseStatusException(responseCardResponseEntity.getStatusCode());
-            }
+            responseCards.add(getResponseCardById(id));
         }
         return responseCards;
     }

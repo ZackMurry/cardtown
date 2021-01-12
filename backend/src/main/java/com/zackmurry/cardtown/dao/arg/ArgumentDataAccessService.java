@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -45,7 +46,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 logger.warn("Argument creation by {} didn't generate an id.", request.getOwnerId());
-                return Optional.empty();
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -53,12 +54,11 @@ public class ArgumentDataAccessService implements ArgumentDao {
                 return Optional.of(UUID.fromString(resultSet.getString("id")));
             } else {
                 logger.warn("Argument creation by {} didn't return a result set with values", request.getOwnerId());
-                return Optional.empty();
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return Optional.empty();
         }
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
             return Optional.empty();
         } catch(SQLException e) {
             e.printStackTrace();
-            return Optional.empty();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -98,7 +98,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
             return list;
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -114,16 +114,13 @@ public class ArgumentDataAccessService implements ArgumentDao {
             return 0;
         } catch (SQLException e) {
             e.printStackTrace();
-            return -1;
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
-    public HttpStatus addCardToArgument(@NonNull UUID cardId, @NonNull UUID argumentId) {
+    public void addCardToArgument(@NonNull UUID cardId, @NonNull UUID argumentId) {
         short index = getFirstOpenIndexInArgument(argumentId);
-        if (index == -1) {
-            return HttpStatus.INTERNAL_SERVER_ERROR;
-        }
         String sql = "INSERT INTO argument_cards (argument_id, card_id, index_in_argument) VALUES (?, ?, ?)";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -131,15 +128,14 @@ public class ArgumentDataAccessService implements ArgumentDao {
             preparedStatement.setObject(2, cardId);
             preparedStatement.setShort(3, index);
             preparedStatement.execute();
-            return HttpStatus.OK;
         } catch (SQLException e) {
             e.printStackTrace();
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @Override
-    public HttpStatus addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument) {
+    public void addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument) {
         if (indexInArgument > getFirstOpenIndexInArgument(argumentId)) {
             throw new IllegalArgumentException("Expected index of new card in argument to be <= current argument size");
         } else if (indexInArgument < 0) {
@@ -159,11 +155,9 @@ public class ArgumentDataAccessService implements ArgumentDao {
             insertStatement.setObject(2, cardId);
             insertStatement.setShort(3, indexInArgument);
             insertStatement.executeUpdate();
-
-            return HttpStatus.OK;
         } catch (SQLException e) {
             e.printStackTrace();
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

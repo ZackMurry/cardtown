@@ -1,14 +1,15 @@
 package com.zackmurry.cardtown.dao.card;
 
+import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.EncryptedCard;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -35,7 +36,7 @@ public class CardDataAccessService implements CardDao {
      * @return HttpStatus representing success
      */
     @Override
-    public Optional<UUID> createCard(@NonNull CardEntity card) {
+    public UUID createCard(@NonNull CardEntity card) {
         String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body_html, body_draft) VALUES (?, ?, ?, ?, ?, ?)";
         try {
             final String[] returnId = { "id" };
@@ -49,18 +50,17 @@ public class CardDataAccessService implements CardDao {
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 logger.warn("Card creation by {} didn't generate an id.", card.getOwnerId());
-                return Optional.empty();
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
             ResultSet resultSet = preparedStatement.getGeneratedKeys();
             if (resultSet.next()) {
-                return Optional.of(UUID.fromString(resultSet.getString("id")));
+                return UUID.fromString(resultSet.getString("id"));
             }
-            return Optional.empty();
         } catch(SQLException e) {
             e.printStackTrace();
-            return Optional.empty();
         }
+        throw new InternalServerException();
     }
 
     @Override
@@ -86,9 +86,9 @@ public class CardDataAccessService implements CardDao {
                     resultSet.getString("body_draft")
                 )
             );
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            return Optional.empty();
+            throw new InternalServerException();
         }
     }
 
@@ -117,25 +117,25 @@ public class CardDataAccessService implements CardDao {
             return cards;
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+            throw new InternalServerException();
         }
     }
 
     @Override
-    public ResponseEntity<Integer> getNumberOfCardsByUser(@NonNull UUID id) {
+    public int getNumberOfCardsByUser(@NonNull UUID id) {
         String sql = "SELECT COUNT(id) FROM cards WHERE owner_id = ?";
 
         try {
-            PreparedStatement ps = jdbcTemplate.getConnection().prepareStatement(sql);
-            ps.setObject(1, id);
-            ResultSet resultSet = ps.executeQuery();
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return ResponseEntity.ok(resultSet.getInt("count"));
+                return resultSet.getInt("count");
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new InternalServerException();
     }
 
     @Override
@@ -153,32 +153,31 @@ public class CardDataAccessService implements CardDao {
         } catch (SQLException e) {
             e.printStackTrace();
             logger.warn("SQL exception occurred when getting owner id from a card id. Card id: {}", cardId);
-            return Optional.empty();
+            throw new InternalServerException();
         }
     }
 
-    /**
-     * Delete a card from the database given the card's non-compressed id. Does not check if the card exists and does not care.
-     * @param id the card's id
-     * @return an <code>HttpStatus</code> representing the success of the operation
-     */
     @Override
-    public HttpStatus deleteCardById(@NonNull UUID id) {
+    public void deleteCardById(@NonNull UUID id) {
         String sql = "DELETE FROM cards WHERE id = ?";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            preparedStatement.execute();
-            return HttpStatus.OK;
+            int rowsChanged = preparedStatement.executeUpdate();
+            if (rowsChanged == 0) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            } else if (rowsChanged > 1) {
+                logger.warn("There were more than one rows changed in a statement to delete a card.");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             logger.warn("SQL exception occurred when deleting card {}", id);
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new InternalServerException();
         }
     }
 
     @Override
-    public HttpStatus updateCardById(@NonNull UUID id, @NonNull EncryptedCard request) {
+    public void updateCardById(@NonNull UUID id, @NonNull EncryptedCard request) {
         String sql = "UPDATE cards SET tag = ?, cite = ?, cite_information = ?, body_html = ?, body_draft = ? WHERE id = ?";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -189,11 +188,10 @@ public class CardDataAccessService implements CardDao {
             preparedStatement.setString(5, request.getBodyDraft());
             preparedStatement.setObject(6, id);
             preparedStatement.execute();
-            return HttpStatus.OK;
         } catch (SQLException e) {
             e.printStackTrace();
             logger.warn("SQL exception occurred when editing card {}", id);
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new InternalServerException();
         }
     }
 

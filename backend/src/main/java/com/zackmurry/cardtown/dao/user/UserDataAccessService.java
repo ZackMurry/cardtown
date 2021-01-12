@@ -1,12 +1,16 @@
 package com.zackmurry.cardtown.dao.user;
 
 
+import com.zackmurry.cardtown.exception.InternalServerException;
+import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -71,9 +75,9 @@ public class UserDataAccessService implements UserDao {
     }
 
     @Override
-    public HttpStatus createAccount(UserModel user) {
+    public void createAccount(UserModel user) {
         if (findByEmail(user.getEmail()).isPresent()) {
-            return HttpStatus.PRECONDITION_FAILED;
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "User with the email already exists");
         }
         String sql = "INSERT INTO users (email, first_name, last_name, password, encrypted_secret_key) VALUES (?, ?, ?, ?, ?)";
 
@@ -86,10 +90,9 @@ public class UserDataAccessService implements UserDao {
                     user.getPassword(), // hashed
                     Base64.encodeBase64String(user.getSecretKey()) // encrypted with AES by SHA-256 hash of password
             );
-            return HttpStatus.OK;
         } catch(SQLException e) {
             e.printStackTrace();
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new InternalServerException();
         }
 
     }
@@ -100,9 +103,9 @@ public class UserDataAccessService implements UserDao {
     }
 
     @Override
-    public HttpStatus deleteUser(String email) {
+    public void deleteUser(String email) throws UserNotFoundException {
         if (!accountExists(email)) {
-            return HttpStatus.NOT_FOUND;
+            throw new UserNotFoundException();
         }
         String sql = "DELETE FROM users WHERE email = ?";
         try {
@@ -110,10 +113,9 @@ public class UserDataAccessService implements UserDao {
                     sql,
                     email
             );
-            return HttpStatus.OK;
         } catch(SQLException e) {
             e.printStackTrace();
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new InternalServerException();
         }
     }
 
@@ -127,7 +129,7 @@ public class UserDataAccessService implements UserDao {
             );
         } catch(SQLException e) {
             e.printStackTrace();
-            return null;
+            throw new InternalServerException();
         }
     }
 
@@ -149,10 +151,11 @@ public class UserDataAccessService implements UserDao {
                         )
                 );
             }
+            return Optional.empty();
         } catch(SQLException e) {
             e.printStackTrace();
+            throw new InternalServerException();
         }
-        return Optional.empty();
     }
 
 }

@@ -11,18 +11,61 @@ import java.util.UUID;
 
 public interface CardDao {
 
-    Optional<UUID> createCard(CardEntity card);
+    /**
+     * creates a card in the database with the details of the <code>CardEntity</code>
+     * @param card details of the new card
+     * @return the id of the new card
+     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     */
+    UUID createCard(CardEntity card);
 
+    /**
+     * gets a card from the database with the specified id
+     * @param id id of card to get
+     * @return if found: an optional containing the card; if not: <code>Optional.empty()</code>
+     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     * @throws org.springframework.web.server.ResponseStatusException if there is a failed expectation within the server
+     */
     Optional<CardEntity> getCardById(UUID id);
 
+    /**
+     * gets all of the cards that are by the user with the specified id
+     * @param id id of user
+     * @return a list of cards that the user owns
+     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     */
     List<CardEntity> getCardsByUser(UUID id);
 
-    ResponseEntity<Integer> getNumberOfCardsByUser(UUID id);
+    /**
+     * gets the number of cards that the user owns
+     * @param id id of the user
+     * @return the number of cards that the user owns
+     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     */
+    int getNumberOfCardsByUser(UUID id);
 
+    /**
+     * gets the id of the owner of a card
+     * @param cardId id of the card
+     * @return if found: an optional containing the id; if not found: <code>Optional.empty()</code>
+     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     */
     Optional<UUID> getOwnerIdByCardId(UUID cardId);
 
-    HttpStatus deleteCardById(UUID id);
+    /**
+     * deletes a card with the given id
+     * @param id id of card to delete
+     * @throws com.zackmurry.cardtown.exception.InternalServerException if there is an <code>SQLException</code>
+     * @throws com.zackmurry.cardtown.exception.CardNotFoundException if the card is not found
+     */
+    void deleteCardById(UUID id);
 
-    HttpStatus updateCardById(UUID id, EncryptedCard request);
+    /**
+     * updates a card with the given id and details
+     * @param id id of card to update
+     * @param request new information for the card to contain
+     * @throws com.zackmurry.cardtown.exception.InternalServerException if there is an <code>SQLException</code>
+     */
+    void updateCardById(UUID id, EncryptedCard request);
 
 }

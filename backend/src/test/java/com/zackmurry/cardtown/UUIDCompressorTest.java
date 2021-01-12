@@ -1,7 +1,5 @@
 package com.zackmurry.cardtown;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,12 +10,12 @@ import java.nio.BufferUnderflowException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static com.zackmurry.cardtown.util.UUIDUtils.*;
+import static com.zackmurry.cardtown.util.UUIDCompressor.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
-public class UUIDUtilsTest {
+public class UUIDCompressorTest {
 
     @DisplayName("Test invalid and valid UUIDs")
     @Test

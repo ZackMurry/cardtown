@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown.controller;
 
+import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.EncryptedCard;
@@ -30,10 +31,10 @@ public class CardController {
     }
 
     @GetMapping("/**")
-    public ResponseEntity<ResponseCard> getCardById(HttpServletRequest request) {
+    public ResponseCard getCardById(HttpServletRequest request) {
         String encodedId = request.getRequestURI().split("/api/v1/cards/")[1];
         if (encodedId == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
         String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
         return cardService.getResponseCardById(decodedId);
@@ -43,39 +44,39 @@ public class CardController {
      * @return the shortened id of the new card
      */
     @PostMapping("")
-    public ResponseEntity<String> createCard(@RequestBody CardCreateRequest request) {
+    public String createCard(@RequestBody CardCreateRequest request) {
         request.setOwnerEmail(SecurityContextHolder.getContext().getAuthentication().getName());
         return cardService.createCard(request);
     }
 
     @GetMapping("")
-    public ResponseEntity<List<ResponseCard>> getAllCardsByUser() {
+    public List<ResponseCard> getAllCardsByUser() {
         return cardService.getAllCardsByUser();
     }
 
     @GetMapping("/count")
-    public ResponseEntity<Integer> getNumberOfCardsByUser() {
+    public int getNumberOfCardsByUser() {
         return cardService.getNumberOfCardsByUser(SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @DeleteMapping("/**")
-    public ResponseEntity<Void> deleteCardById(HttpServletRequest request) {
+    public void deleteCardById(HttpServletRequest request) {
         String compressedId = request.getRequestURI().split("/api/v1/cards/")[1];
         if (compressedId == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
         String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
-        return cardService.deleteCardById(decodedId);
+        cardService.deleteCardById(decodedId);
     }
 
     @PutMapping("/**")
-    public ResponseEntity<Void> updateCardById(@RequestBody EncryptedCard cardUpdateRequest, HttpServletRequest servletRequest) {
+    public void updateCardById(@RequestBody EncryptedCard cardUpdateRequest, HttpServletRequest servletRequest) {
         String compressedId = servletRequest.getRequestURI().split("/api/v1/cards/")[1];
         if (compressedId == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
         String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
-        return cardService.updateCardById(decodedId, cardUpdateRequest);
+        cardService.updateCardById(decodedId, cardUpdateRequest);
     }
 
 }

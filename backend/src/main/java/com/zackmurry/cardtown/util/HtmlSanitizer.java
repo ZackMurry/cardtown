@@ -3,7 +3,7 @@ package com.zackmurry.cardtown.util;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 
-public class HtmlUtils {
+public class HtmlSanitizer {
 
     private static final Whitelist WHITELIST = Whitelist.basic()
             .addTags("h1", "h2", "h3", "h4", "h5", "h6", "div")

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RequestMapping("/api/v1/users")
 @RestController
@@ -16,10 +17,10 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("")
-    public ResponseEntity<AuthenticationResponse> createUserAccount(@RequestBody User user) {
+    public AuthenticationResponse createUserAccount(@RequestBody User user) {
         // reserved for unit tests
         if (user.getFirstName().equals("__TEST__") && user.getLastName().equals("__USER__")) {
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
         }
         return userService.createUserAccount(user);
     }

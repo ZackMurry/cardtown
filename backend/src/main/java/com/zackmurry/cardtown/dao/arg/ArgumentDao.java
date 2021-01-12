@@ -3,7 +3,7 @@ package com.zackmurry.cardtown.dao.arg;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,9 +21,9 @@ public interface ArgumentDao {
      * inserts a card into an argument at the first open spot
      * @param cardId card to add to argument
      * @param argumentId argument to link to
-     * @return <code>HttpStatus</code> representing success value
+     * @throws ResponseStatusException if there's a SQLException
      */
-    HttpStatus addCardToArgument(UUID cardId, UUID argumentId);
+    void addCardToArgument(UUID cardId, UUID argumentId);
 
     /**
      * inserts a card into an argument and the specified index (0-based).
@@ -31,10 +31,10 @@ public interface ArgumentDao {
      * @param cardId card to add to argument. must already be in the database
      * @param argumentId argument to add to. must already be in the database
      * @param indexInArgument the desired zero-based index to set the card at
-     * @return <code>HttpStatus</code> representing success value
      * @throws IllegalArgumentException if the index would create a gap between two cards
      * @throws IllegalArgumentException if the index is negative
+     * @throws ResponseStatusException if there's a SQLException
      */
-    HttpStatus addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument);
+    void addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument);
 
 }

@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown.controller;
 
+import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -26,20 +27,28 @@ public class ArgumentController {
      * @return a string containing the id of the new card (compressed in base64)
      */
     @PostMapping("")
-    public ResponseEntity<String> createArgument(@RequestBody ArgumentCreateRequest request) {
+    public String createArgument(@RequestBody ArgumentCreateRequest request) {
        final UUID userId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
        request.setOwnerId(userId);
        return argumentService.createArgument(request);
     }
 
     @GetMapping("/**")
-    public ResponseEntity<ResponseArgument> getArgumentById(HttpServletRequest request) {
-        String encodedId = request.getRequestURI().split("/api/v1/arguments/")[1];
+    public ResponseArgument getArgumentById(HttpServletRequest request) {
+        final String encodedId = request.getRequestURI().split("/api/v1/arguments/")[1];
         if (encodedId == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
-        String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
+        final String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
         return argumentService.getResponseArgumentById(decodedId);
+    }
+
+    @PostMapping("/**/cards")
+    public void addCardToArgument(@RequestBody String cardId, HttpServletRequest request) {
+        final String relevantPath = request.getRequestURI().split("/api/v1/arguments/")[1];
+        final String encodedArgId = relevantPath.split("/")[0];
+        final String argId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
+        argumentService.addCardToArgument(cardId, argId);
     }
 
 }

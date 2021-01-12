@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown.dao.user;
 
+import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import org.springframework.http.HttpStatus;
@@ -15,11 +16,11 @@ public interface UserDao {
 
     Optional<UUID> getIdByEmail(String email);
 
-    HttpStatus createAccount(UserModel user);
+    void createAccount(UserModel user);
 
     boolean accountExists(String email);
 
-    HttpStatus deleteUser(String email);
+    void deleteUser(String email) throws UserNotFoundException;
 
     String getEncryptedSecretKey(String email);
 

@@ -2,7 +2,7 @@ package com.zackmurry.cardtown.model.arg;
 
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.card.ResponseCard;
-import com.zackmurry.cardtown.util.UUIDUtils;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ public class ResponseArgument {
     // todo list of cards
 
     public static ResponseArgument fromArgumentEntity(ArgumentEntity argumentEntity, ResponseUserDetails userDetails, List<ResponseCard> cards) {
-        return new ResponseArgument(UUIDUtils.compress(argumentEntity.getId()), userDetails, argumentEntity.getName(), cards);
+        return new ResponseArgument(UUIDCompressor.compress(argumentEntity.getId()), userDetails, argumentEntity.getName(), cards);
     }
 
 }

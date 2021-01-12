@@ -1,6 +1,6 @@
 package com.zackmurry.cardtown.model.auth;
 
-import com.zackmurry.cardtown.util.UUIDUtils;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +25,7 @@ public class ResponseUserDetails {
 
     public ResponseUserDetails(FirstLastName name, UUID id) {
         this.name = name;
-        this.id = UUIDUtils.compress(id);
+        this.id = UUIDCompressor.compress(id);
     }
 
     public static ResponseUserDetails fromUser(User u) {
@@ -34,7 +34,7 @@ public class ResponseUserDetails {
                         u.getFirstName(),
                         u.getLastName()
                 ),
-                UUIDUtils.compress(u.getId())
+                UUIDCompressor.compress(u.getId())
         );
     }
 
