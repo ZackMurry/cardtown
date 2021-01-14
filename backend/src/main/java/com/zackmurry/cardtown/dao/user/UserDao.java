@@ -12,6 +12,11 @@ import java.util.UUID;
 @Repository
 public interface UserDao {
 
+    /**
+     * finds a user with the given email
+     * @param email email of user
+     * @return if found: optional containing <code>User</code>; if not found: <code>Optional.empty()</code>
+     */
     Optional<User> findByEmail(String email);
 
     Optional<UUID> getIdByEmail(String email);

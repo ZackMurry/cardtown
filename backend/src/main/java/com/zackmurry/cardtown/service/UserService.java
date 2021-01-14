@@ -3,10 +3,7 @@ package com.zackmurry.cardtown.service;
 import com.zackmurry.cardtown.dao.user.UserDao;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
-import com.zackmurry.cardtown.model.auth.AuthenticationRequest;
-import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
-import com.zackmurry.cardtown.model.auth.User;
-import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.model.auth.*;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -174,6 +171,14 @@ public class UserService implements UserDetailsService {
 
         String jwt = jwtUtil.createToken(claims, userDetails.getUsername());
         return new AuthenticationResponse(jwt);
+    }
+
+    public ResponseUserDetails getResponseUserDetailsById(@NonNull UUID id) throws UserNotFoundException {
+        final User user = userDao.findById(id).orElse(null);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+        return ResponseUserDetails.fromUser(user);
     }
 
 }

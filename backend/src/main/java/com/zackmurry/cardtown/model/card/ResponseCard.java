@@ -16,7 +16,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseCard implements UUIDOwnerCard, ShortenedIdCard {
+public class ResponseCard implements ShortenedIdCard {
 
     private String id;
     private ResponseUserDetails owner;
@@ -42,8 +42,4 @@ public class ResponseCard implements UUIDOwnerCard, ShortenedIdCard {
         return fromCard(card, responseUserDetails, UUIDCompressor.compress(card.getId()));
     }
 
-    @Override
-    public UUID getOwnerId() {
-        return UUIDCompressor.decompress(owner.getId());
-    }
 }

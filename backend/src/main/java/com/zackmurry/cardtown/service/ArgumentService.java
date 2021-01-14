@@ -1,6 +1,8 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
+import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
@@ -8,6 +10,7 @@ import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -62,7 +66,7 @@ public class ArgumentService {
         final byte[] secretKey = principal.getSecretKey();
 
         final UUID uuidId = UUIDCompressor.decompress(id);
-        final ArgumentEntity argumentEntity = argumentDao.getArgument(uuidId).orElse(null);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(uuidId).orElse(null);
         if (argumentEntity == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -86,7 +90,8 @@ public class ArgumentService {
     }
 
     public void addCardToArgument(UUID cardId, UUID argumentId) {
-        argumentDao.addCardToArgument(cardId, argumentId);
+        short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
+        addCardToArgument(cardId, argumentId, index);
     }
 
     public void addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument) {
@@ -100,4 +105,37 @@ public class ArgumentService {
         addCardToArgument(decompressedCardId, decompressedArgId);
     }
 
+    public List<ResponseArgument> getArgumentsByUser() {
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final UUID userId = principal.getId();
+        final byte[] secretKey = principal.getSecretKey();
+        List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByUser(userId);
+        List<ResponseArgument> responseArguments = new ArrayList<>();
+        for (ArgumentEntity argumentEntity : argumentEntities) {
+            try {
+                argumentEntity.decryptFields(secretKey);
+            } catch (Exception e) {
+                // probably something wrong with the card
+                e.printStackTrace();
+                throw new BadRequestException();
+            }
+            List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentEntity.getId());
+            List<ResponseCard> responseCards = new ArrayList<>();
+            for (ArgumentCardEntity argumentCardEntity : argumentCardEntities) {
+                ResponseCard responseCard = cardService.getResponseCardById(argumentCardEntity.getCardId());
+                responseCards.add(responseCard);
+            }
+
+            ResponseUserDetails responseUserDetails;
+            try {
+                responseUserDetails = userService.getResponseUserDetailsById(argumentEntity.getOwnerId());
+            } catch (UserNotFoundException exception) {
+                exception.printStackTrace();
+                throw new BadRequestException();
+            }
+            ResponseArgument responseArgument = ResponseArgument.fromArgumentEntity(argumentEntity, responseUserDetails, responseCards);
+            responseArguments.add(responseArgument);
+        }
+        return responseArguments;
+    }
 }

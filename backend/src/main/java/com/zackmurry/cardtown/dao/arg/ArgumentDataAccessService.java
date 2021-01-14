@@ -1,8 +1,12 @@
 package com.zackmurry.cardtown.dao.arg;
 
+import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
+import com.zackmurry.cardtown.model.arg.ArgumentEntityWithCardIds;
+import com.zackmurry.cardtown.model.arg.ArgumentEntityWithCards;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +66,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public Optional<ArgumentEntity> getArgument(@NonNull UUID id) {
+    public Optional<ArgumentEntity> getArgumentEntity(@NonNull UUID id) {
         String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ?";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -102,7 +106,8 @@ public class ArgumentDataAccessService implements ArgumentDao {
         }
     }
 
-    private short getFirstOpenIndexInArgument(@NonNull UUID argumentId) {
+    @Override
+    public short getFirstOpenIndexInArgument(@NonNull UUID argumentId) {
         String sql = "SELECT index_in_argument FROM argument_cards WHERE argument_id = ? ORDER BY index_in_argument DESC";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -119,18 +124,26 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void addCardToArgument(@NonNull UUID cardId, @NonNull UUID argumentId) {
-        short index = getFirstOpenIndexInArgument(argumentId);
-        String sql = "INSERT INTO argument_cards (argument_id, card_id, index_in_argument) VALUES (?, ?, ?)";
+    public List<ArgumentEntity> getArgumentsByUser(UUID id) {
+        String sql = "SELECT id, name FROM arguments WHERE owner_id = ?";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
-            preparedStatement.setObject(1, argumentId);
-            preparedStatement.setObject(2, cardId);
-            preparedStatement.setShort(3, index);
-            preparedStatement.execute();
+            preparedStatement.setObject(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<ArgumentEntity> args = new ArrayList<>();
+            while (resultSet.next()) {
+                args.add(
+                        new ArgumentEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                id,
+                                resultSet.getString("name")
+                        )
+                );
+            }
+            return args;
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerException();
         }
     }
 

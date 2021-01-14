@@ -26,4 +26,8 @@ public class ArgumentEntityWithCards extends EncryptedArgument {
         this.cards = cards;
     }
 
+    public static ArgumentEntityWithCards fromArgumentEntity(ArgumentEntity entity, List<CardEntity> cards) {
+        return new ArgumentEntityWithCards(entity.getId(), entity.getOwnerId(), entity.getName(), cards);
+    }
+
 }

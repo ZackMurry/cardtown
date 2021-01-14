@@ -27,6 +27,6 @@ CREATE TABLE IF NOT EXISTS arguments (
 
 CREATE TABLE IF NOT EXISTS argument_cards (
     argument_id UUID NOT NULL REFERENCES arguments ON DELETE CASCADE,
-    card_id UUID NOT NULL REFERENCES users ON DELETE CASCADE,
+    card_id UUID NOT NULL REFERENCES cards ON DELETE CASCADE,
     index_in_argument SMALLINT DEFAULT 0 NOT NULL -- 0-based signed short (limit of 32767)
 );

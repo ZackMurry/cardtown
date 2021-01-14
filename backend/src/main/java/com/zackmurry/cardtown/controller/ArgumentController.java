@@ -3,17 +3,20 @@ package com.zackmurry.cardtown.controller;
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
+import com.zackmurry.cardtown.model.arg.card.AddCardToArgumentRequest;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.service.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 @RequestMapping("/api/v1/arguments")
@@ -44,11 +47,16 @@ public class ArgumentController {
     }
 
     @PostMapping("/**/cards")
-    public void addCardToArgument(@RequestBody String cardId, HttpServletRequest request) {
-        final String relevantPath = request.getRequestURI().split("/api/v1/arguments/")[1];
+    public void addCardToArgument(@NonNull @RequestBody AddCardToArgumentRequest addRequest, HttpServletRequest servletRequest) {
+        final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/")[1];
         final String encodedArgId = relevantPath.split("/")[0];
         final String argId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
-        argumentService.addCardToArgument(cardId, argId);
+        argumentService.addCardToArgument(addRequest.getCardId(), argId);
+    }
+
+    @GetMapping("")
+    public List<ResponseArgument> getArgumentsByUser() {
+        return argumentService.getArgumentsByUser();
     }
 
 }

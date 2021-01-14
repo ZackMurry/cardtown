@@ -2,8 +2,8 @@ package com.zackmurry.cardtown.dao.arg;
 
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
+import com.zackmurry.cardtown.model.arg.ArgumentEntityWithCards;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,17 +13,9 @@ public interface ArgumentDao {
 
     Optional<UUID> createArgument(ArgumentCreateRequest request);
 
-    Optional<ArgumentEntity> getArgument(UUID id);
+    Optional<ArgumentEntity> getArgumentEntity(UUID id);
 
     List<ArgumentCardEntity> getCardsByArgumentId(UUID argumentId);
-
-    /**
-     * inserts a card into an argument at the first open spot
-     * @param cardId card to add to argument
-     * @param argumentId argument to link to
-     * @throws ResponseStatusException if there's a SQLException
-     */
-    void addCardToArgument(UUID cardId, UUID argumentId);
 
     /**
      * inserts a card into an argument and the specified index (0-based).
@@ -33,8 +25,12 @@ public interface ArgumentDao {
      * @param indexInArgument the desired zero-based index to set the card at
      * @throws IllegalArgumentException if the index would create a gap between two cards
      * @throws IllegalArgumentException if the index is negative
-     * @throws ResponseStatusException if there's a SQLException
+     * @throws com.zackmurry.cardtown.exception.InternalServerException if there is a <code>SQLException</code>
      */
     void addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument);
+
+    short getFirstOpenIndexInArgument(UUID id);
+
+    List<ArgumentEntity> getArgumentsByUser(UUID id);
 
 }

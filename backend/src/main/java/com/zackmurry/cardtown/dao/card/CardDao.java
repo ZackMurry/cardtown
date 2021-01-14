@@ -15,7 +15,7 @@ public interface CardDao {
      * creates a card in the database with the details of the <code>CardEntity</code>
      * @param card details of the new card
      * @return the id of the new card
-     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     * @throws com.zackmurry.cardtown.exception.InternalServerException if there is a <code>SQLException</code>
      */
     UUID createCard(CardEntity card);
 
@@ -23,7 +23,7 @@ public interface CardDao {
      * gets a card from the database with the specified id
      * @param id id of card to get
      * @return if found: an optional containing the card; if not: <code>Optional.empty()</code>
-     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     * @throws com.zackmurry.cardtown.exception.InternalServerException if there is a <code>SQLException</code>
      * @throws org.springframework.web.server.ResponseStatusException if there is a failed expectation within the server
      */
     Optional<CardEntity> getCardById(UUID id);
@@ -32,7 +32,7 @@ public interface CardDao {
      * gets all of the cards that are by the user with the specified id
      * @param id id of user
      * @return a list of cards that the user owns
-     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     * @throws com.zackmurry.cardtown.exception.InternalServerException if there is a <code>SQLException</code>
      */
     List<CardEntity> getCardsByUser(UUID id);
 
@@ -40,7 +40,7 @@ public interface CardDao {
      * gets the number of cards that the user owns
      * @param id id of the user
      * @return the number of cards that the user owns
-     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     * @throws com.zackmurry.cardtown.exception.InternalServerException if there is a <code>SQLException</code>
      */
     int getNumberOfCardsByUser(UUID id);
 
@@ -48,7 +48,7 @@ public interface CardDao {
      * gets the id of the owner of a card
      * @param cardId id of the card
      * @return if found: an optional containing the id; if not found: <code>Optional.empty()</code>
-     * @throws org.springframework.web.server.ResponseStatusException if there is an SQLException
+     * @throws com.zackmurry.cardtown.exception.InternalServerException if a <code>SQLException</code> occurs
      */
     Optional<UUID> getOwnerIdByCardId(UUID cardId);
 
