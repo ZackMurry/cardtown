@@ -4,16 +4,22 @@ import {
 } from '@material-ui/core'
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import VisibilityIcon from '@material-ui/icons/Visibility'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Cookie from 'js-cookie'
+import { NextPage } from 'next'
 import BlackText from '../components/utils/BlackText'
 import ToggleIcon from '../components/utils/ToggleIcon'
 import ErrorAlert from '../components/utils/ErrorAlert'
 import theme from '../components/utils/theme'
 
-export default function Signup({ redirect, initialEmail }) {
+interface Props {
+  redirect?: string
+  initialEmail?: string
+}
+
+const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
   const [ email, setEmail ] = useState(initialEmail)
   const [ first, setFirst ] = useState('')
   const [ last, setLast ] = useState('')
@@ -24,7 +30,7 @@ export default function Signup({ redirect, initialEmail }) {
 
   const router = useRouter()
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!first) {
@@ -95,7 +101,7 @@ export default function Signup({ redirect, initialEmail }) {
   }
 
   // since the only field w built-in validation is email, we know that email is invalid
-  const handleInvalid = e => {
+  const handleInvalid = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setErrorText('Please enter a valid email address.')
   }
@@ -191,6 +197,8 @@ export default function Signup({ redirect, initialEmail }) {
     </div>
   )
 }
+
+export default Signup
 
 export async function getServerSideProps({ query }) {
   return {

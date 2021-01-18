@@ -1,11 +1,12 @@
+import { FC } from 'react'
 import { Typography } from '@material-ui/core'
 import DashboardSidebar from '../components/dash/DashboardSidebar'
 import BlackText from '../components/utils/BlackText'
 import useWindowSize from '../components/utils/hooks/useWindowSize'
 import theme from '../components/utils/theme'
 
-export default function Dash() {
-  const width = useWindowSize()?.width ?? 1920
+const Dash: FC = () => {
+  const { width } = useWindowSize(1920, 1080)
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardSidebar pageName='Dashboard' windowWidth={width} />
@@ -35,3 +36,5 @@ export default function Dash() {
     </div>
   )
 }
+
+export default Dash

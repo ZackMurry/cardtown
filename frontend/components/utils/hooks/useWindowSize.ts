@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 // from https://usehooks.com/useWindowSize/
-export default function useWindowSize(initialWidth, initialHeight) {
+const useWindowSize = (initialWidth: number, initialHeight: number) => {
   const [ windowSize, setWindowSize ] = useState({
     width: initialWidth,
     height: initialHeight
@@ -21,3 +21,5 @@ export default function useWindowSize(initialWidth, initialHeight) {
 
   return windowSize
 }
+
+export default useWindowSize

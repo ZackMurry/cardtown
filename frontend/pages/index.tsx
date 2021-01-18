@@ -1,11 +1,12 @@
 import Head from 'next/head'
+import { FC } from 'react'
 import theme from '../components/utils/theme'
 import useWindowSize from '../components/utils/hooks/useWindowSize'
 import LandingPageMobile from '../components/landing/mobile/LandingPageMobile'
 import LandingPageDesktop from '../components/landing/desktop/LandingPageDesktop'
 
-export default function Home() {
-  const width = useWindowSize()?.width ?? 1920
+const Home: FC = () => {
+  const { width } = useWindowSize(1920, 1080)
 
   return (
     <>
@@ -21,3 +22,5 @@ export default function Home() {
     </>
   )
 }
+
+export default Home

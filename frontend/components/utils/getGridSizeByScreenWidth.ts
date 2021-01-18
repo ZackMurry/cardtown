@@ -1,6 +1,6 @@
 import theme from './theme'
 
-const getGridSizeByScreenWidth = width => {
+const getGridSizeByScreenWidth = (width: number) => {
   if (width === undefined || width === null) {
     return 'xl'
   }

@@ -10,9 +10,6 @@ const theme = createMuiTheme({
     secondary: {
       main: '#FEFEFE'
     },
-    black: {
-      main: '#2E3032'
-    },
     error: {
       main: red.A400
     },
@@ -22,22 +19,6 @@ const theme = createMuiTheme({
     action: {
       disabled: '#2d323e'
     },
-    lightBlue: {
-      main: '#f9fbfd'
-    },
-    darkGrey: {
-      main: '#6e84a3'
-    },
-    lightGrey: {
-      main: '#e3ebf6',
-      translucent: 'rgba(227, 235, 246, 0.5)'
-    },
-    darkBlue: {
-      main: '#5B8AE9'
-    },
-    blueBlack: {
-      main: '#12263F'
-    },
     text: {
       primary: '#2E3032',
       secondary: '#869AB8'
@@ -45,4 +26,32 @@ const theme = createMuiTheme({
   }
 })
 
-export default theme
+const colors = {
+  lightBlue: {
+    main: '#f9fbfd'
+  },
+  darkGrey: {
+    main: '#6e84a3'
+  },
+  lightGrey: {
+    main: '#e3ebf6',
+    translucent: 'rgba(227, 235, 246, 0.5)'
+  },
+  darkBlue: {
+    main: '#5B8AE9'
+  },
+  blueBlack: {
+    main: '#12263F'
+  },
+  black: {
+    main: '#2E3032'
+  }
+}
+
+export default {
+  ...theme,
+  palette: {
+    ...theme.palette,
+    ...colors
+  }
+}

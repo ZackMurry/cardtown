@@ -3,7 +3,7 @@
     "browser": true,
     "es6": true
   },
-  "parser": "babel-eslint",
+  "parser": "@typescript-eslint/parser",
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
@@ -22,14 +22,15 @@
     "sourceType": "module"
   },
   "plugins": [
-    "react"
+    "react",
+    "@typescript-eslint"
   ],
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "react/jsx-filename-extension": [1, {"extensions": [".js", ".jsx"]}],
+    "react/jsx-filename-extension": [1, {"extensions": [".js", ".jsx", ".tsx"]}],
     "linebreak-style": 0,
     "react/no-unescaped-entities": 0,
-    "indent": ["error", 2, {"ignoredNodes": ["JSXElement"]}],
+    "@typescript-eslint/indent": ["error", 2, {"ignoredNodes": ["JSXElement"]}],
     "react/jsx-indent": "off",
     "semi": [2, "never"],
     "react/jsx-indent-props": "off",
@@ -46,6 +47,11 @@
     "max-len": ["error", 150],
     "jsx-a11y/no-static-element-interactions": "off",
     "jsx-a11y/click-events-have-key-events": "off",
-    "jsx-a11y/label-has-associated-control": "off"
+    "jsx-a11y/label-has-associated-control": "off",
+    // it looks like these things just don't work with typescript
+    "import/no-unresolved": "off",
+    "import/extensions": "off",
+    "no-use-before-define": "off",
+    "indent": "off"
   }
 }
