@@ -3,7 +3,7 @@ import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
-import { useMemo, useState } from 'react'
+import { FC, FormEvent, useMemo, useState } from 'react'
 import mapStyleToReadable from '../../components/cards/mapStyleToReadable'
 import CardBodyEditor from '../../components/cards/CardBodyEditor'
 import NewCardFormattingPopover from '../../components/cards/NewCardFormattingPopover'
@@ -14,8 +14,8 @@ import theme from '../../components/utils/theme'
 import initializeDraftContentState from '../../components/cards/initializeDraftEditorState'
 import draftExportHtmlOptions from '../../components/cards/draftExportHtmlOptions'
 
-export default function NewCard() {
-  const width = useWindowSize()?.width ?? 1920
+const NewCard: FC = () => {
+  const { width } = useWindowSize(1920, 1080)
   
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')
@@ -25,7 +25,7 @@ export default function NewCard() {
   const jwt = useMemo(() => Cookie.get('jwt'), [])
   const router = useRouter()
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     console.log(JSON.stringify(convertToRaw(bodyState.getCurrentContent())))
     const content = bodyState.getCurrentContent()
@@ -50,7 +50,7 @@ export default function NewCard() {
   }
 
   let currentInlineStyles = []
-  for (let s of bodyState.getCurrentInlineStyle()) {
+  for (const s of bodyState.getCurrentInlineStyle()) {
     if (s === 'FONT_SIZE_11') {
       // don't show default font size
       continue
@@ -185,7 +185,6 @@ export default function NewCard() {
               </BlackText>
               <NewCardFormattingPopover />
               <CardBodyEditor
-                windowWidth={width}
                 editorState={bodyState}
                 setEditorState={setBodyState}
                 style={{ padding: 10 }}
@@ -216,3 +215,5 @@ export default function NewCard() {
     </div>
   )
 }
+
+export default NewCard

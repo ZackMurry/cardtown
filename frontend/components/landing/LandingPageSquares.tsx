@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, FC } from 'react'
 import { Grid, Typography } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import BuildIcon from '@material-ui/icons/Build'
@@ -14,7 +14,7 @@ import styles from '../../styles/Home.module.css'
 import ToggleIcon from '../utils/ToggleIcon'
 
 // todo maybe have the icons' animations automatically trigger once every ~15 secs (independently)
-export default function LandingPageSquares() {
+const LandingPageSquares: FC = () => {
   const [ lockState, setLockState ] = useState(false)
 
   return (
@@ -153,3 +153,5 @@ export default function LandingPageSquares() {
     </>
   )
 }
+
+export default LandingPageSquares

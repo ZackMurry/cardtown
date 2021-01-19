@@ -1,6 +1,6 @@
 import { Button, TextField, Typography } from '@material-ui/core'
 import Cookie from 'js-cookie'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { FC, useEffect, useMemo, useRef, useState } from 'react'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
@@ -14,9 +14,9 @@ const IMPORT_SUCCESS_TEXT = 'Card successfully imported'
 // this simply doesn't support exporting to draft-js, and it'd be hard to make it
 // if the user wants to edit a card, ig a warning will be shown and it will be imported to
 // draft-js as plain text
-export default function ImportCards() {
-  const width = useWindowSize()?.width ?? 1920
-  const pasteInputRef = useRef()
+const ImportCards: FC = () => {
+  const { width } = useWindowSize(1920, 1080)
+  const pasteInputRef = useRef(null)
   const [ pData, setPData ] = useState('')
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')
@@ -59,7 +59,7 @@ export default function ImportCards() {
       }
 
       const savedContent = document.createDocumentFragment()
-      while (pasteInputRef.current.childNodes.length > 0) {
+      while (pasteInputRef?.current?.childNodes?.length) {
         savedContent.appendChild(pasteInputRef.current.childNodes[0])
       }
 
@@ -283,3 +283,5 @@ export default function ImportCards() {
     </div>
   )
 }
+
+export default ImportCards

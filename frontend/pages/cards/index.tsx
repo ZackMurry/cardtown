@@ -10,9 +10,14 @@ import NewCard from '../../components/cards/NewCard'
 import ImportCard from '../../components/cards/ImportCard'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../components/utils/redirectToLogin'
+import { NextPage } from 'next'
 
-export default function Cards({ jwt }) {
-  const width = useWindowSize()?.width ?? 1920
+interface Props {
+  jwt?: string
+}
+
+const Cards: NextPage<Props> = ({ jwt }) => {
+  const { width } = useWindowSize(1920, 1080)
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
@@ -98,14 +103,18 @@ export default function Cards({ jwt }) {
   )
 }
 
-export async function getServerSideProps({ req, res }) {
-  let jwt = null
+export default Cards
+
+export const getServerSideProps = async ({ req, res }) => {
+  let jwt: string | null = null
   if (req.headers?.cookie) {
     jwt = parse(req.headers?.cookie)?.jwt
   }
   if (!jwt) {
     redirectToLogin(res, '/cards')
-    return {}
+    return {
+      props: {}
+    }
   }
   return {
     props: {

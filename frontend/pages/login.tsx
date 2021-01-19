@@ -1,10 +1,13 @@
 import {
   Button,
-  IconButton, InputAdornment, TextField, Typography
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography
 } from '@material-ui/core'
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import VisibilityIcon from '@material-ui/icons/Visibility'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Cookie from 'js-cookie'
@@ -12,8 +15,13 @@ import BlackText from '../components/utils/BlackText'
 import ToggleIcon from '../components/utils/ToggleIcon'
 import ErrorAlert from '../components/utils/ErrorAlert'
 import theme from '../components/utils/theme'
+import { GetServerSideProps, NextPage } from 'next'
 
-export default function Login({ redirect }) {
+interface Props {
+  redirect: string
+}
+
+const Login: NextPage<Props> = ({ redirect }) => {
   const [ email, setEmail ] = useState('')
   const [ password, setPassword ] = useState('')
 
@@ -22,7 +30,7 @@ export default function Login({ redirect }) {
 
   const router = useRouter()
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const response = await fetch('/api/v1/auth/login', {
@@ -123,10 +131,12 @@ export default function Login({ redirect }) {
   )
 }
 
-export async function getServerSideProps({ query }) {
-  return {
-    props: {
-      redirect: query?.redirect || null
-    }
+export default Login
+
+export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => ({
+  props: {
+    redirect: (typeof query?.redirect === 'string'
+      ? query?.redirect
+      : query?.redirect[0]) || null
   }
-}
+})

@@ -1,9 +1,9 @@
-import { useRef } from 'react'
+import { FC, useRef } from 'react'
 import LandingPageSquares from '../LandingPageSquares'
 import LandingPageHero from './LandingPageHero'
 import LandingPageNavbar from './LandingPageNavbar'
 
-export default function LandingPageDesktop() {
+const LandingPageDesktop: FC = () => {
   const tilesSectionRef = useRef(null)
 
   return (
@@ -28,3 +28,5 @@ export default function LandingPageDesktop() {
     </>
   )
 }
+
+export default LandingPageDesktop

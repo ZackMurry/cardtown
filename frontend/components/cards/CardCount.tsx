@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import { Typography } from '@material-ui/core'
-import { useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import theme from '../utils/theme'
 
-export default function CardCount({ jwt }) {
+interface Props {
+  jwt: string
+}
 
+const CardCount: FC<Props> = ({ jwt }) => {
   const [ cardCount, setCardCount ] = useState(null)
 
   const getCardCount = async () => {
@@ -19,11 +22,20 @@ export default function CardCount({ jwt }) {
     }
   }
 
-  useEffect(() => getCardCount(), [ ])
+  useEffect(() => { getCardCount() }, [ ])
 
   return (
     <Link href='/cards/all' passHref>
-      <a style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '100%' }}>
+      <a
+        href='/cards/all'
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          height: '100%'
+        }}
+      >
         <Typography variant='h5' style={{ fontSize: 22, color: theme.palette.blueBlack.main }}>
           <span style={{ fontWeight: 500, paddingRight: 5 }}>
             { cardCount }
@@ -58,3 +70,5 @@ export default function CardCount({ jwt }) {
     </Link>
   )
 }
+
+export default CardCount

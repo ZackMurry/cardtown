@@ -1,26 +1,35 @@
 import CloseIcon from '@material-ui/icons/Close'
 import DoneIcon from '@material-ui/icons/Done'
-import { IconButton, Tooltip, Typography } from '@material-ui/core'
+import { stateToHTML } from 'draft-js-export-html'
+import { IconButton, Tooltip } from '@material-ui/core'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
-import { useState } from 'react'
+import React, { FC, useState } from 'react'
 import theme from '../utils/theme'
 import CardBodyEditor from './CardBodyEditor'
-import { stateToHTML } from 'draft-js-export-html'
 import draftExportHtmlOptions from './draftExportHtmlOptions'
+import ResponseCard from '../types/ResponseCard'
 
-export default function EditCard({
+interface Props {
+  jwt: string
+  onCancel: (message: string) => void
+  onDone: (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => void
+  card: ResponseCard
+  windowWidth: number
+}
+
+const EditCard: FC<Props> = ({
   jwt, onCancel, onDone, card, windowWidth
-}) {
+}) => {
   const [ tag, setTag ] = useState(card.tag)
   const [ cite, setCite ] = useState(card.cite)
   const [ citeInformation, setCiteInformation ] = useState(card.citeInformation)
   const [ bodyState, setBodyState ] = useState(() => EditorState.createWithContent(convertFromRaw(JSON.parse(card.bodyDraft))))
 
-  const handleDone = async () => {
+  const handleDone = async (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     if (!jwt) {
       onCancel('You need to be signed in to do this')
     }
-    
+
     const bodyHtml = stateToHTML(bodyState.getCurrentContent(), draftExportHtmlOptions)
     const bodyDraft = convertToRaw(bodyState.getCurrentContent())
 
@@ -35,9 +44,9 @@ export default function EditCard({
         bodyDraft: JSON.stringify(bodyDraft)
       })
     })
-    
+
     if (response.ok) {
-      onDone()
+      onDone(e)
     } else {
       console.warn(response.status)
       // todo show error here
@@ -48,7 +57,6 @@ export default function EditCard({
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <textarea
-          type='text'
           value={tag}
           onChange={e => setTag(e.target.value)}
           style={{
@@ -70,7 +78,7 @@ export default function EditCard({
             </IconButton>
           </Tooltip>
           <Tooltip title='Cancel'>
-            <IconButton onClick={() => onCancel()}>
+            <IconButton onClick={() => onCancel('')}>
               <CloseIcon />
             </IconButton>
           </Tooltip>
@@ -91,7 +99,6 @@ export default function EditCard({
         }}
       />
       <textarea
-        type='text'
         value={citeInformation}
         onChange={e => setCiteInformation(e.target.value)}
         style={{
@@ -114,3 +121,5 @@ export default function EditCard({
     </div>
   )
 }
+
+export default EditCard

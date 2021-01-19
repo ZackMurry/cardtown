@@ -20,15 +20,23 @@ export default function DashSidebarDesktop({ pageName }) {
       }}
       role='navigation'
     >
-      <BlackText variant='h3' style={{ fontSize: 28, fontWeight: 500, padding: '3vh 0', width: '50%' }}>
+      <BlackText
+        variant='h3'
+        style={{
+          fontSize: 28,
+          fontWeight: 500,
+          padding: '3vh 0',
+          width: '50%'
+        }}
+      >
         card
         <span style={{ color: theme.palette.primary.main }}>
           town
         </span>
       </BlackText>
       <div style={{ width: '50%' }}>
-        <Link href='/dash' passHref>
-          <a>
+        <Link href='/dash'>
+          <a href='/dash'>
             <Typography
               style={{
                 color: pageName === 'Dashboard' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -40,9 +48,8 @@ export default function DashSidebarDesktop({ pageName }) {
             </Typography>
           </a>
         </Link>
-        
-        <Link href='/cards' passHref>
-          <a>
+        <Link href='/cards'>
+          <a href='/cards'>
             <Typography
               style={{
                 color: pageName === 'Cards' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -54,9 +61,8 @@ export default function DashSidebarDesktop({ pageName }) {
             </Typography>
           </a>
         </Link>
-        
-        <Link href='/arguments' passHref>
-          <a>
+        <Link href='/arguments'>
+          <a href='/arguments'>
             <Typography
               style={{
                 color: pageName === 'Arguments' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -68,9 +74,8 @@ export default function DashSidebarDesktop({ pageName }) {
             </Typography>
           </a>
         </Link>
-        
-        <Link href='/speeches' passHref>
-          <a>
+        <Link href='/speeches'>
+          <a href='/rounds'>
             <Typography
               style={{
                 color: pageName === 'Speeches' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -82,9 +87,8 @@ export default function DashSidebarDesktop({ pageName }) {
             </Typography>
           </a>
         </Link>
-        
         <Link href='/rounds'>
-          <a>
+          <a href='/rounds'>
             <Typography
               style={{
                 color: pageName === 'Rounds' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,

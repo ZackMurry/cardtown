@@ -1,15 +1,15 @@
 import { Button, Typography } from '@material-ui/core'
-import { useState } from 'react'
+import { FC, FormEvent, useState } from 'react'
 import { useRouter } from 'next/router'
 import theme from '../../utils/theme'
 
-export default function LandingPageJoinBeta() {
+const LandingPageJoinBetaMobile: FC = () => {
   const [ email, setEmail ] = useState('')
   const [ invalid, setInvalid ] = useState(false)
 
   const router = useRouter()
 
-  const handleSubmit = e => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setInvalid(false)
     if (email === '') {
@@ -35,6 +35,7 @@ export default function LandingPageJoinBeta() {
             outline: 'none',
             padding: 15,
             fontSize: 16,
+            maxWidth: '60%',
             border: '2px solid #CBCEDA',
             borderRadius: '10px 0 0 10px',
             color: theme.palette.black.main
@@ -51,10 +52,11 @@ export default function LandingPageJoinBeta() {
           style={{
             borderRadius: '0 10px 10px 0',
             boxShadow: 'none',
-            textTransform: 'none'
+            textTransform: 'none',
+            width: 200
           }}
         >
-          <Typography variant='h5' style={{ fontWeight: 500, fontSize: 18 }}>
+          <Typography variant='h5' style={{ fontWeight: 500, fontSize: 15 }}>
             Join the beta
           </Typography>
         </Button>
@@ -74,3 +76,5 @@ export default function LandingPageJoinBeta() {
     </>
   )
 }
+
+export default LandingPageJoinBetaMobile

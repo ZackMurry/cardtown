@@ -1,13 +1,13 @@
 import { Grow } from '@material-ui/core'
-import { FC, ReactElement } from 'react'
+import React, { FC, ReactElement } from 'react'
 
 interface Props {
   on: boolean
   onIcon: ReactElement<any, any>
   offIcon: ReactElement<any, any>
   timeout: number
-  onMouseEnter?: (e: MouseEvent<HTMLDivElement>) => void
-  onMouseLeave?: (e: MouseEvent<HTMLDivElement>) => void
+  onMouseEnter?: (e: React.MouseEvent<HTMLDivElement>) => void
+  onMouseLeave?: (e: React.MouseEvent<HTMLDivElement>) => void
 }
 
 const ToggleIcon: FC<Props> = ({

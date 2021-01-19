@@ -6,9 +6,18 @@ import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import { Grid, Tooltip, Typography } from '@material-ui/core'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
+import ResponseCard from '../../components/types/ResponseCard'
+import { GetServerSideProps, NextPage } from 'next'
+import redirectToLogin from '../../components/utils/redirectToLogin'
 
-export default function AllCards({ jwt, cards, errorText }) {
-  const width = useWindowSize()?.width ?? 1920
+interface Props {
+  jwt?: string
+  cards?: ResponseCard[]
+  errorText?: string
+}
+
+const AllCards: NextPage<Props> = ({ jwt, cards, errorText }) => {
+  const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
 
   return (
@@ -127,22 +136,26 @@ export default function AllCards({ jwt, cards, errorText }) {
   )
 }
 
-export async function getServerSideProps({ req, res }) {
+export default AllCards
+
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
   let jwt
   if (req.headers?.cookie) {
     jwt = parse(req.headers?.cookie)?.jwt
   }
   if (!jwt) {
-    redirectToLogin()
-    return {}
+    redirectToLogin(res, '/cards/all')
+    return {
+      props: {}
+    }
   }
   
   const dev = process.env.NODE_ENV !== 'production'
   const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + '/api/v1/cards', {
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
   })
-  let cards = null
-  let errorText = null
+  let cards: ResponseCard[] | null = null
+  let errorText: string | null = null
   if (response.ok) {
     cards = await response.json()
   } else if (response.status === 500) {

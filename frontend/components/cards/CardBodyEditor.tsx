@@ -1,4 +1,5 @@
 import { Editor, getDefaultKeyBinding, RichUtils } from 'draft-js'
+import { CSSProperties, FC } from 'react'
 import styles from '../../styles/NewCard.module.css'
 import theme from '../utils/theme'
 
@@ -26,9 +27,16 @@ const styleMap = {
   }
 }
 
+interface Props {
+  editorState: any
+  setEditorState: (newEditorState: any) => void
+  disableOutline?: boolean
+  style?: CSSProperties
+}
 
-export default function CardBodyEditor({ editorState, setEditorState, disableOutline, style }) {
-
+const CardBodyEditor: FC<Props> = ({
+  editorState, setEditorState, disableOutline, style: customStyles = {}
+}) => {
   const handleChange = newState => {
     setEditorState(newState)
   }
@@ -36,9 +44,10 @@ export default function CardBodyEditor({ editorState, setEditorState, disableOut
   const handleKeyCommand = command => {
     if (command.startsWith('FONT_SIZE_')) {
       let newEditorState = editorState
-      for (let style of newEditorState.getCurrentInlineStyle()) {
-        if (style.startsWith('FONT_SIZE_')) {
-          newEditorState = RichUtils.toggleInlineStyle(newEditorState, style)
+      // eslint-disable-next-line no-restricted-syntax
+      for (const inlineStyle of newEditorState.getCurrentInlineStyle()) {
+        if (inlineStyle.startsWith('FONT_SIZE_')) {
+          newEditorState = RichUtils.toggleInlineStyle(newEditorState, inlineStyle)
         }
       }
       handleChange(RichUtils.toggleInlineStyle(newEditorState, command))
@@ -98,7 +107,6 @@ export default function CardBodyEditor({ editorState, setEditorState, disableOut
     return getDefaultKeyBinding(e)
   }
 
-
   return (
     // todo make this look more like the other inputs
     // todo get user's preferred formatting
@@ -107,9 +115,9 @@ export default function CardBodyEditor({ editorState, setEditorState, disableOut
       <div
         style={{
           backgroundColor: theme.palette.secondary.main,
-          border: disableOutline ? undefined : `1px solid rgba(0, 0, 0, 0.23)`,
+          border: disableOutline ? undefined : '1px solid rgba(0, 0, 0, 0.23)',
           borderRadius: 3,
-          style
+          ...customStyles
         }}
         className={styles['editor-container']}
       >
@@ -126,4 +134,4 @@ export default function CardBodyEditor({ editorState, setEditorState, disableOut
   )
 }
 
-
+export default CardBodyEditor

@@ -11,6 +11,6 @@ const styleToReadable = {
   OUTLINE: 'outline'
 }
 
-export default function mapStyleToReadable(s) {
+export default function mapStyleToReadable(s: string) {
   return styleToReadable[s] ?? s
 }

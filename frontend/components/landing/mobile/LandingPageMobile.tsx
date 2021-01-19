@@ -1,10 +1,10 @@
-import { useRef } from 'react'
+import { FC, useRef } from 'react'
 import LandingPageSquares from '../LandingPageSquares'
 import LandingPageMobileHero from './LandingPageMobileHero'
 import LandingPageMobileNav from './LandingPageMobileNav'
 
 // todo need to add login somewhere on mobile
-export default function LandingPageMobile() {
+const LandingPageMobile: FC = () => {
   const tilesSectionRef = useRef(null)
   return (
     <>
@@ -28,3 +28,5 @@ export default function LandingPageMobile() {
     </>
   )
 }
+
+export default LandingPageMobile

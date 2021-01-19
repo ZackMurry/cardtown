@@ -4,7 +4,7 @@ import { FC } from 'react'
 
 interface Props {
   text: string
-  onClose: () => void
+  onClose?: () => void
   disableClose?: boolean
 }
 

@@ -1,10 +1,10 @@
 import { Popover, Typography } from '@material-ui/core'
-import { useState } from 'react'
+import { FC, useState } from 'react'
 import BlackText from '../utils/BlackText'
 import theme from '../utils/theme'
 
 // todo make this look a bit better
-export default function NewCardFormattingPopover() {
+const NewCardFormattingPopover: FC = () => {
   const [ anchorEl, setAnchorEl ] = useState(null)
   const open = Boolean(anchorEl)
 
@@ -110,3 +110,5 @@ export default function NewCardFormattingPopover() {
     </div>
   )
 }
+
+export default NewCardFormattingPopover

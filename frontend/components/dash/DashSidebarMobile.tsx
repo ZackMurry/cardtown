@@ -1,11 +1,16 @@
 import { Collapse, IconButton, Typography } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 import Link from 'next/link'
-import { useState } from 'react'
+import { FC, useState } from 'react'
 import BlackText from '../utils/BlackText'
 import theme from '../utils/theme'
+import PageName from './PageName'
 
-export default function DashSidebarMobile({ pageName }) {
+interface Props {
+  pageName: PageName
+}
+
+const DashSidebarMobile: FC<Props> = ({ pageName }) => {
   const [ isExpanded, setExpanded ] = useState(false)
 
   return (
@@ -25,7 +30,15 @@ export default function DashSidebarMobile({ pageName }) {
           <MenuIcon style={{ width: 35, height: 35 }} />
         </IconButton>
         <div style={{ marginRight: 10 }}>
-          <BlackText variant='h3' style={{ fontSize: 22, fontWeight: 500, padding: '3vh 0', width: '50%' }}>
+          <BlackText
+            variant='h3'
+            style={{
+              fontSize: 22,
+              fontWeight: 500,
+              padding: '3vh 0',
+              width: '50%'
+            }}
+          >
             card
             <span style={{ color: theme.palette.primary.main }}>
               town
@@ -41,8 +54,8 @@ export default function DashSidebarMobile({ pageName }) {
         }}
       >
         <div style={{ width: '80%', margin: '0 auto' }}>
-          <Link href='/dash' passHref>
-            <a>
+          <Link href='/dash'>
+            <a href='/dash'>
               <Typography
                 style={{
                   color: pageName === 'Dashboard' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -54,9 +67,8 @@ export default function DashSidebarMobile({ pageName }) {
               </Typography>
             </a>
           </Link>
-          
-          <Link href='/cards' passHref>
-            <a>
+          <Link href='/cards'>
+            <a href='/cards'>
               <Typography
                 style={{
                   color: pageName === 'Cards' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -68,9 +80,8 @@ export default function DashSidebarMobile({ pageName }) {
               </Typography>
             </a>
           </Link>
-          
-          <Link href='/arguments' passHref>
-            <a>
+          <Link href='/arguments'>
+            <a href='/arguments'>
               <Typography
                 style={{
                   color: pageName === 'Arguments' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -82,9 +93,8 @@ export default function DashSidebarMobile({ pageName }) {
               </Typography>
             </a>
           </Link>
-          
-          <Link href='/speeches' passHref>
-            <a>
+          <Link href='/speeches'>
+            <a href='/rounds'>
               <Typography
                 style={{
                   color: pageName === 'Speeches' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -96,9 +106,8 @@ export default function DashSidebarMobile({ pageName }) {
               </Typography>
             </a>
           </Link>
-          
           <Link href='/rounds'>
-            <a>
+            <a href='/rounds'>
               <Typography
                 style={{
                   color: pageName === 'Rounds' ? theme.palette.darkBlue.main : theme.palette.darkGrey.main,
@@ -115,3 +124,5 @@ export default function DashSidebarMobile({ pageName }) {
     </div>
   )
 }
+
+export default DashSidebarMobile

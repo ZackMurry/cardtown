@@ -1,9 +1,9 @@
 import { Button, Typography } from '@material-ui/core'
-import { useState } from 'react'
+import { FC, useState } from 'react'
 import { useRouter } from 'next/router'
 import theme from '../../utils/theme'
 
-export default function LandingPageJoinBetaMobile() {
+const LandingPageJoinBeta: FC = () => {
   const [ email, setEmail ] = useState('')
   const [ invalid, setInvalid ] = useState(false)
 
@@ -35,7 +35,6 @@ export default function LandingPageJoinBetaMobile() {
             outline: 'none',
             padding: 15,
             fontSize: 16,
-            maxWidth: '60%',
             border: '2px solid #CBCEDA',
             borderRadius: '10px 0 0 10px',
             color: theme.palette.black.main
@@ -52,11 +51,10 @@ export default function LandingPageJoinBetaMobile() {
           style={{
             borderRadius: '0 10px 10px 0',
             boxShadow: 'none',
-            textTransform: 'none',
-            width: 200
+            textTransform: 'none'
           }}
         >
-          <Typography variant='h5' style={{ fontWeight: 500, fontSize: 15 }}>
+          <Typography variant='h5' style={{ fontWeight: 500, fontSize: 18 }}>
             Join the beta
           </Typography>
         </Button>
@@ -76,3 +74,5 @@ export default function LandingPageJoinBetaMobile() {
     </>
   )
 }
+
+export default LandingPageJoinBeta

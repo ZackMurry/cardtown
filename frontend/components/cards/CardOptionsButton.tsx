@@ -5,11 +5,17 @@ import {
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { useRouter } from 'next/router'
 import DeleteIcon from '@material-ui/icons/Delete'
-import { useState } from 'react'
+import { FC, useState } from 'react'
 import ErrorAlert from '../utils/ErrorAlert'
 import styles from '../../styles/ViewCard.module.css'
 
-export default function CardOptionsButton({ id, jwt, onEdit }) {
+interface Props {
+  id: string
+  jwt: string
+  onEdit: () => void
+}
+
+const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
   const [ anchorEl, setAnchorEl ] = useState(null)
   const [ errorText, setErrorText ] = useState('')
 
@@ -78,3 +84,5 @@ export default function CardOptionsButton({ id, jwt, onEdit }) {
     </div>
   )
 }
+
+export default CardOptionsButton
