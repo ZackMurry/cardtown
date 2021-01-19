@@ -98,6 +98,8 @@ const ViewCard: NextPage<Props> = ({ id, fetchingErrorText, card, jwt }) => {
   )
 }
 
+export default ViewCard
+
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req, res }) => {
   let errorText: string | null = null
   let card: ResponseCard | null = null

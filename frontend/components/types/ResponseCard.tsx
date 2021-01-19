@@ -8,4 +8,5 @@ export default interface ResponseCard {
   citeInformation: string
   bodyHtml: string
   bodyDraft: any
+  bodyText: string
 }

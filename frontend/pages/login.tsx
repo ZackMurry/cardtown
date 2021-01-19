@@ -18,7 +18,7 @@ import theme from '../components/utils/theme'
 import { GetServerSideProps, NextPage } from 'next'
 
 interface Props {
-  redirect: string
+  redirect?: string
 }
 
 const Login: NextPage<Props> = ({ redirect }) => {
@@ -133,10 +133,17 @@ const Login: NextPage<Props> = ({ redirect }) => {
 
 export default Login
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => ({
-  props: {
-    redirect: (typeof query?.redirect === 'string'
-      ? query?.redirect
-      : query?.redirect[0]) || null
+export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) => {
+  if (!query?.redirect) {
+    return {
+      props: {}
+    }
   }
-})
+  return {
+    props: {
+      redirect: (typeof query.redirect === 'string'
+        ? query?.redirect
+        : query?.redirect[0]) || null
+    }
+  }
+}

@@ -19,6 +19,7 @@ public class CardCreateRequest implements EmailOwnerCard {
     private String citeInformation;
     private String bodyHtml;
     private String bodyDraft;
+    private String bodyText;
 
     public CardEntity toCardEntity(UUID ownerId) {
         return new CardEntity(
@@ -27,7 +28,8 @@ public class CardCreateRequest implements EmailOwnerCard {
                 cite,
                 citeInformation,
                 bodyHtml,
-                bodyDraft
+                bodyDraft,
+                bodyText
         );
     }
 

@@ -1,6 +1,6 @@
 import { Button, TextField, Typography } from '@material-ui/core'
 import Cookie from 'js-cookie'
-import { FC, useEffect, useMemo, useRef, useState } from 'react'
+import { FC, FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
@@ -72,7 +72,7 @@ const ImportCards: FC = () => {
     return () => pasteInputRef.current?.removeEventListener('paste', handlePaste)
   }, [ ])
 
-  const handleKeyDown = e => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     e.preventDefault()
     console.log('k')
     if (e.key === 't') {
@@ -91,13 +91,18 @@ const ImportCards: FC = () => {
     }
   }
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (tag === '' || cite === '' || bodyHtml === '') {
       setFeedbackText('Your card must contain a tag, a cite, and a body.')
       return
     }
+
+    const bodyText = new DOMParser()
+      .parseFromString(bodyHtml, 'text/html')
+      .documentElement.textContent
+    console.log(bodyText)
 
     const response = await fetch('/api/v1/cards', {
       method: 'POST',
@@ -107,7 +112,8 @@ const ImportCards: FC = () => {
         cite,
         citeInformation,
         bodyHtml,
-        bodyDraft: 'IMPORTED CARD -- NO DRAFT BODY'
+        bodyDraft: 'IMPORTED CARD -- NO DRAFT BODY',
+        bodyText
       }) 
     })
     if (response.ok) {

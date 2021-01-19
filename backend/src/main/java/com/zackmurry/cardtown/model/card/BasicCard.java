@@ -12,4 +12,6 @@ public interface BasicCard {
 
     String getBodyDraft();
 
+    String getBodyText();
+
 }

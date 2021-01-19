@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS cards (
     cite VARCHAR(216) NOT NULL, -- limited length: 128
     cite_information VARCHAR(2776) DEFAULT '', -- limited length: 2048
     body_html TEXT NOT NULL,
-    body_draft TEXT NOT NULL
+    body_draft TEXT NOT NULL DEFAULT '',
+    body_text TEXT NOT NULL DEFAULT '' -- just the raw text of the card -- no styling
 );
 
 CREATE TABLE IF NOT EXISTS arguments (

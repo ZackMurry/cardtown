@@ -69,8 +69,7 @@ public class CardService {
             throw new InternalServerException();
         }
 
-        ResponseCard responseCard = ResponseCard.fromCard(cardEntity, ResponseUserDetails.fromUser(owner));
-        return responseCard;
+        return ResponseCard.fromCard(cardEntity, ResponseUserDetails.fromUser(owner));
     }
 
     public ResponseCard getResponseCardById(@NonNull String id) {
@@ -91,7 +90,8 @@ public class CardService {
         if (request.getOwnerEmail() == null ||
             request.getBodyHtml() == null ||
             request.getBodyDraft() == null ||
-            request.getCite() == null) {
+            request.getCite() == null ||
+            request.getBodyText() == null) {
             throw new BadRequestException();
         }
         if (request.getTag() == null) {

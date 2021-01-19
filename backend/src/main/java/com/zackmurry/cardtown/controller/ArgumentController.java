@@ -7,8 +7,6 @@ import com.zackmurry.cardtown.model.arg.card.AddCardToArgumentRequest;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.service.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;

@@ -37,3 +37,5 @@ const App: FC<Props> = ({ Component, pageProps }) => {
     </>
   )
 }
+
+export default App

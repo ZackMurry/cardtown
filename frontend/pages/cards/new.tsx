@@ -32,6 +32,8 @@ const NewCard: FC = () => {
 
     const bodyDraft = convertToRaw(content)
     const bodyHtml = stateToHTML(content, draftExportHtmlOptions)
+    const bodyText = content.getPlainText('\u0001')
+    console.log(bodyText)
 
     const response = await fetch('/api/v1/cards', {
       method: 'POST',
@@ -41,11 +43,13 @@ const NewCard: FC = () => {
         cite,
         citeInformation,
         bodyHtml,
-        bodyDraft: JSON.stringify(bodyDraft)
+        bodyDraft: JSON.stringify(bodyDraft),
+        bodyText
       })
     })
     if (response.ok) {
-      router.push(await response.text())
+      const newCardId = await response.text()
+      router.push(`/cards/id/${newCardId}`)
     } // todo else show error
   }
 

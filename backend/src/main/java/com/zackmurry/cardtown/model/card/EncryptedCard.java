@@ -17,6 +17,7 @@ public class EncryptedCard {
     protected String citeInformation;
     protected String bodyHtml;
     protected String bodyDraft;
+    protected String bodyText;
 
     public void decryptFields(byte[] secretKey) throws Exception {
         tag = EncryptionUtils.decryptStringAES(tag, secretKey);
@@ -24,6 +25,7 @@ public class EncryptedCard {
         citeInformation = EncryptionUtils.decryptStringAES(citeInformation, secretKey);
         bodyHtml = EncryptionUtils.decryptStringAES(bodyHtml, secretKey);
         bodyDraft = EncryptionUtils.decryptStringAES(bodyDraft, secretKey);
+        bodyText = EncryptionUtils.decryptStringAES(bodyText, secretKey);
     }
 
     public void encryptFields(byte[] secretKey) throws Exception {
@@ -32,6 +34,7 @@ public class EncryptedCard {
         citeInformation = EncryptionUtils.encryptStringAES(citeInformation, secretKey);
         bodyHtml = EncryptionUtils.encryptStringAES(bodyHtml, secretKey);
         bodyDraft = EncryptionUtils.encryptStringAES(bodyDraft, secretKey);
+        bodyText = EncryptionUtils.encryptStringAES(bodyText, secretKey);
     }
 
 }
