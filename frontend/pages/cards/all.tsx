@@ -9,6 +9,8 @@ import ErrorAlert from '../../components/utils/ErrorAlert'
 import ResponseCard from '../../components/types/ResponseCard'
 import { GetServerSideProps, NextPage } from 'next'
 import redirectToLogin from '../../components/utils/redirectToLogin'
+import SearchCards from '../../components/cards/SearchCards'
+import { useState } from 'react'
 
 interface Props {
   jwt?: string
@@ -16,7 +18,8 @@ interface Props {
   errorText?: string
 }
 
-const AllCards: NextPage<Props> = ({ jwt, cards, errorText }) => {
+const AllCards: NextPage<Props> = ({ jwt, cards: initialCards, errorText }) => {
+  const [ cards, setCards ] = useState(initialCards)
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
 
@@ -44,6 +47,14 @@ const AllCards: NextPage<Props> = ({ jwt, cards, errorText }) => {
             width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
           }}
         />
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+          <SearchCards
+            cards={initialCards}
+            onResults={setCards}
+            onClear={() => setCards(initialCards)}
+            windowWidth={width}
+          />
+        </div>
         {
           width >= theme.breakpoints.values.lg && (
             <Grid container>

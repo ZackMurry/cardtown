@@ -49,7 +49,7 @@ const NewCard: FC = () => {
     })
     if (response.ok) {
       const newCardId = await response.text()
-      router.push(`/cards/id/${newCardId}`)
+      router.push(`/cards/id/${encodeURIComponent(newCardId)}`)
     } // todo else show error
   }
 
