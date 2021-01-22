@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.controller;
 
 import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.model.shared.CountResponse;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.arg.card.AddCardToArgumentRequest;
@@ -55,6 +56,12 @@ public class ArgumentController {
     @GetMapping("")
     public List<ResponseArgument> getArgumentsByUser() {
         return argumentService.getArgumentsByUser();
+    }
+
+    @GetMapping("/count")
+    public CountResponse getNumberOfArgsByUser() {
+        final int c = argumentService.getNumberOfArgsByUser();
+        return new CountResponse(c);
     }
 
 }

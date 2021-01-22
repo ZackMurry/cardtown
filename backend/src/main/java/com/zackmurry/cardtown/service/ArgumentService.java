@@ -138,4 +138,9 @@ public class ArgumentService {
         }
         return responseArguments;
     }
+
+    public int getNumberOfArgsByUser() {
+        final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        return argumentDao.getNumberOfCardsByUser(id);
+    }
 }

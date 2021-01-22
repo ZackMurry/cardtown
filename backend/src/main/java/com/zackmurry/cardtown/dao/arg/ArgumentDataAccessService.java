@@ -148,6 +148,23 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
+    public int getNumberOfCardsByUser(UUID id) {
+        final String sql = "SELECT COUNT(id) FROM arguments WHERE owner_id = ?";
+
+        try {
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new InternalServerException();
+    }
+
+    @Override
     public void addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument) {
         if (indexInArgument > getFirstOpenIndexInArgument(argumentId)) {
             throw new IllegalArgumentException("Expected index of new card in argument to be <= current argument size");

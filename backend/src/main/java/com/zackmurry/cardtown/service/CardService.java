@@ -156,12 +156,9 @@ public class CardService {
         return rawCards.stream().map(c -> ResponseCard.fromCard(c, resUserDetails)).collect(Collectors.toList());
     }
 
-    public int getNumberOfCardsByUser(String email) {
-        final Optional<UUID> id = userService.getIdByEmail(email);
-        if (id.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.GONE);
-        }
-        return cardDao.getNumberOfCardsByUser(id.get());
+    public int getNumberOfCardsByUser() {
+        final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        return cardDao.getNumberOfCardsByUser(id);
     }
 
     public void deleteCardById(String id) {

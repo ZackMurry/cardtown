@@ -33,4 +33,6 @@ public interface ArgumentDao {
 
     List<ArgumentEntity> getArgumentsByUser(UUID id);
 
+    int getNumberOfCardsByUser(UUID id);
+
 }

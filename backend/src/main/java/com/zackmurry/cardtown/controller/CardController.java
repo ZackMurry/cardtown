@@ -5,6 +5,7 @@ import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.EncryptedCard;
 import com.zackmurry.cardtown.model.card.ResponseCard;
+import com.zackmurry.cardtown.model.shared.CountResponse;
 import com.zackmurry.cardtown.service.CardService;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +56,9 @@ public class CardController {
     }
 
     @GetMapping("/count")
-    public int getNumberOfCardsByUser() {
-        return cardService.getNumberOfCardsByUser(SecurityContextHolder.getContext().getAuthentication().getName());
+    public CountResponse getNumberOfCardsByUser() {
+        final int c = cardService.getNumberOfCardsByUser();
+        return new CountResponse(c);
     }
 
     @DeleteMapping("/**")

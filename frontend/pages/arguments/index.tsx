@@ -1,29 +1,26 @@
+import { GetServerSideProps, NextPage } from 'next'
+import Link from 'next/link'
 import { parse } from 'cookie'
-import { useRouter } from 'next/router'
 import { Grid, Typography } from '@material-ui/core'
-import styles from '../../styles/Cards.module.css'
+import redirectToLogin from '../../components/utils/redirectToLogin'
+import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
 import BlackText from '../../components/utils/BlackText'
-import CardCount from '../../components/cards/CardCount'
-import NewCard from '../../components/cards/NewCard'
-import ImportCard from '../../components/cards/ImportCard'
-import useWindowSize from '../../components/utils/hooks/useWindowSize'
-import redirectToLogin from '../../components/utils/redirectToLogin'
-import { GetServerSideProps, NextPage } from 'next'
+import NewArgument from '../../components/arguments/NewArgument'
 
 interface Props {
   jwt?: string
-  cardCount?: number
   fetchErrorText?: string
+  argCount?: number
 }
 
-const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
+const ArgumentsPage: NextPage<Props> = ({ jwt, fetchErrorText, argCount }) => {
   const { width } = useWindowSize(1920, 1080)
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardSidebar windowWidth={width} pageName='Cards' />
+      <DashboardSidebar windowWidth={width} pageName='Arguments' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ?  '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{
@@ -37,7 +34,7 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
           Overview
         </Typography>
         <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
-          Cards
+          Arguments
         </BlackText>
         <div
           style={{
@@ -60,9 +57,53 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
               alignItems: 'center'
             }}
           >
-            <CardCount count={cardCount} />
+            <Link href='/arguments/all'>
+              <a
+                href='/arguments/all'
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  height: '100%'
+                }}
+              >
+                <Typography variant='h5' style={{ fontSize: 22, color: theme.palette.blueBlack.main }}>
+                  <span style={{ fontWeight: 500, paddingRight: 5 }}>
+                    { argCount }
+                  </span>
+                  argument
+                  {
+                    argCount !== 1 ? 's' : ''
+                  }
+                </Typography>
+                <div style={{ marginRight: 10 }}>
+                  <div
+                    style={{
+                      borderRadius: 5,
+                      border: `3px solid ${theme.palette.text.secondary}`,
+                      width: '1.75vw',
+                      minWidth: 20,
+                      height: '2.5vh',
+                      minHeight: 25
+                    }}
+                  />
+                  <div
+                    style={{
+                      marginLeft: 10,
+                      marginTop: -15,
+                      borderRadius: 5,
+                      border: `3px solid ${theme.palette.text.secondary}`,
+                      width: '1.75vw',
+                      minWidth: 20,
+                      height: '2.5vh',
+                      minHeight: 25
+                    }}
+                  />
+                </div>
+              </a>
+            </Link>
           </Grid>
-
           <Grid
             item
             xs={12}
@@ -78,34 +119,15 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
               padding: 20
             }}
           >
-            <NewCard />
+            <NewArgument />
           </Grid>
-
-          <Grid
-            item
-            xs={12}
-            md={6}
-            lg={3}
-            style={{
-              borderRadius: 10,
-              backgroundColor: theme.palette.secondary.main,
-              border: `1px solid ${theme.palette.lightGrey.main}`,
-              minHeight: '7.5vh',
-              display: 'flex',
-              alignItems: 'center',
-              padding: 20
-            }}
-          >
-            <ImportCard />
-          </Grid>
-
         </Grid>
       </div>
     </div>
   )
 }
 
-export default Cards
+export default ArgumentsPage
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
   let jwt: string | null = null
@@ -113,37 +135,32 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     jwt = parse(req.headers?.cookie)?.jwt
   }
   if (!jwt) {
-    redirectToLogin(res, '/cards')
+    redirectToLogin(res, '/arguments')
     return {
       props: {}
     }
   }
-
+  let argCount: number | null = null
   const domain = process.env.NODE_ENV !== 'production' ? 'http://localhost' : 'https://cardtown.co'
-  const response = await fetch(domain + '/api/v1/cards/count', {
-    headers: { Authorization: `Bearer ${jwt}`}
+  const response = await fetch(domain + '/api/v1/arguments/count', {
+    headers: { Authorization: `Bearer ${jwt}` }
   })
-  let cardCount: number | null = null
   if (response.ok) {
-    cardCount = (await response.json()).count
-  } else if (response.status === 401 || response.status === 403) {
-    redirectToLogin(res, '/cards')
-    return {
-      props: {}
-    }
+    argCount = (await response.json())?.count
   } else {
     return {
       props: {
         jwt,
-        fetchErrorText: `Error fetching card count. Response status: ${response.status}`
+        fetchErrorText: `Error fetching arguments. Status code: ${response.status}`
       }
     }
   }
-
   return {
     props: {
       jwt,
-      cardCount
+      argCount
     }
   }
+
 }
+
