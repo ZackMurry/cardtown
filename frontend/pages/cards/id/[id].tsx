@@ -1,5 +1,6 @@
 import { parse } from 'cookie'
 import { useState } from 'react'
+import { GetServerSideProps, NextPage } from 'next'
 import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import theme from '../../../components/utils/theme'
 import BlackText from '../../../components/utils/BlackText'
@@ -9,7 +10,6 @@ import ErrorAlert from '../../../components/utils/ErrorAlert'
 import redirectToLogin from '../../../components/utils/redirectToLogin'
 import EditCard from '../../../components/cards/EditCard'
 import ResponseCard from '../../../components/types/ResponseCard'
-import { GetServerSideProps, NextPage } from 'next'
 
 interface Props {
   id?: string
@@ -19,7 +19,9 @@ interface Props {
 }
 
 // todo styling
-const ViewCard: NextPage<Props> = ({ id, fetchingErrorText, card, jwt }) => {
+const ViewCard: NextPage<Props> = ({
+  id, fetchingErrorText, card, jwt
+}) => {
   const { width } = useWindowSize(1920, 1080)
   const [ isEditing, setEditing ] = useState(false)
   const [ errorText, setErrorText ] = useState('')
@@ -36,7 +38,7 @@ const ViewCard: NextPage<Props> = ({ id, fetchingErrorText, card, jwt }) => {
   const handleDoneEditing = () => {
     setEditing(false)
   }
-  
+
   const handleCancelEditing = errorMsg => {
     if (errorMsg) {
       setErrorText(errorMsg)
@@ -45,7 +47,10 @@ const ViewCard: NextPage<Props> = ({ id, fetchingErrorText, card, jwt }) => {
   }
 
   return (
-    <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto' }}>
+    <div style={{
+      width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
+    }}
+    >
       <DashboardSidebar windowWidth={width} pageName='Cards' />
       <div
         style={{
@@ -104,7 +109,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
   let errorText: string | null = null
   let card: ResponseCard | null = null
   const id: string = typeof query.id === 'string' ? query.id : query?.id[0]
-  
+
   if (!id) {
     return {
       props: {
@@ -124,7 +129,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
     }
   }
   const dev = process.env.NODE_ENV !== 'production'
-  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/cards/${encodeURIComponent(id)}`, {
+  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/cards/id/${encodeURIComponent(id)}`, {
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
   })
   if (response.ok) {

@@ -8,10 +8,7 @@ import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
-import com.zackmurry.cardtown.model.card.CardEntity;
-import com.zackmurry.cardtown.model.card.CardCreateRequest;
-import com.zackmurry.cardtown.model.card.EncryptedCard;
-import com.zackmurry.cardtown.model.card.ResponseCard;
+import com.zackmurry.cardtown.model.card.*;
 import com.zackmurry.cardtown.util.HtmlSanitizer;
 import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.slf4j.Logger;
@@ -127,13 +124,7 @@ public class CardService {
     }
 
     public List<ResponseCard> getAllCardsByUser() {
-        final String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        final UUID id = userService.getIdByEmail(email).orElse(null);
-        if (id == null) {
-            // probably won't happen, since the user has to be in the database to be authenticated
-            logger.warn("User authenticated, but later not found. Likely a bug. User email: {}", email);
-            throw new ResponseStatusException(HttpStatus.GONE);
-        }
+        final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         List<CardEntity> rawCards = cardDao.getCardsByUser(id);
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
 
@@ -147,7 +138,7 @@ public class CardService {
             throw new InternalServerException();
         }
         // probably use a HashMap<UUID, ResponseUserDetails> when i add sharing to greedily keep track of user details by UUID
-        final User userEntity = userService.getUserById(id).orElse(null);
+        final User userEntity = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userEntity == null) {
             logger.warn("Author of card not found in database -- author id: {}", id);
             throw new InternalServerException();
@@ -207,4 +198,21 @@ public class CardService {
         return responseCards;
     }
 
+    public List<CardPreview> getCardPreviewsByUser() {
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final List<CardEntity> rawCards = cardDao.getCardsByUser(principal.getId());
+        final ResponseUserDetails userDetails = ResponseUserDetails.fromUser(principal);
+        final byte[] secretKey = principal.getSecretKey();
+        final List<CardPreview> cardPreviews = new ArrayList<>();
+        for (CardEntity c : rawCards) {
+            final CardPreview cardPreview = CardPreview.of(c, userDetails);
+            try {
+                cardPreview.decryptFields(secretKey);
+            } catch (Exception e) {
+                throw new InternalServerException();
+            }
+            cardPreviews.add(cardPreview);
+        }
+        return cardPreviews;
+    }
 }

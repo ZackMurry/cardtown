@@ -1,6 +1,8 @@
 import { Button, TextField, Typography } from '@material-ui/core'
 import Cookie from 'js-cookie'
-import { FC, FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  FC, FormEvent, useEffect, useMemo, useRef, useState
+} from 'react'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
@@ -17,7 +19,7 @@ const IMPORT_SUCCESS_TEXT = 'Card successfully imported'
 const ImportCards: FC = () => {
   const { width } = useWindowSize(1920, 1080)
   const pasteInputRef = useRef(null)
-  const [ pData, setPData ] = useState('')
+  const [ pasteData, setPasteData ] = useState('')
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')
   const [ citeInformation, setCiteInformation ] = useState('')
@@ -29,12 +31,13 @@ const ImportCards: FC = () => {
 
   useEffect(() => {
     const processPaste = (elem, pastedData) => {
-      setPData(pastedData)
+      setPasteData(pastedData)
       elem.current.focus()
     }
     const waitForPastedData = (elem, savedContent) => {
       if (elem.childNodes && elem.childNodes.length > 0) {
         const pastedData = elem.innerHTML
+        // eslint-disable-next-line no-param-reassign
         elem.current.innerHTML = ''
         elem.current.appendChild(savedContent)
 
@@ -102,7 +105,6 @@ const ImportCards: FC = () => {
     const bodyText = new DOMParser()
       .parseFromString(bodyHtml, 'text/html')
       .documentElement.textContent
-    console.log(bodyText)
 
     const response = await fetch('/api/v1/cards', {
       method: 'POST',
@@ -114,17 +116,16 @@ const ImportCards: FC = () => {
         bodyHtml,
         bodyDraft: 'IMPORTED CARD -- NO DRAFT BODY',
         bodyText
-      }) 
+      })
     })
     if (response.ok) {
       setTag('')
       setCite('')
       setCiteInformation('')
       setBodyHtml('')
-      setPData('')
+      setPasteData('')
       setFeedbackText(IMPORT_SUCCESS_TEXT)
     }
-
   }
 
   return (
@@ -163,9 +164,10 @@ const ImportCards: FC = () => {
           <div>
             <Typography color='textSecondary' id='tagDescription' style={{ fontSize: 15, margin: '6px 0' }}>
               First, paste the card into the box below. If you're importing it from a program that supports styled copying and pasting,
-              the card will retain its formatting. With your mouse, select the tag of the card and then press 't' on your keyboard. This will automatically
-              set the selected text to the tag. You can do the same for the rest of the fields using 'c' for cite, 'i' for cite information, and 'b' for body.
-              You'll see their values in the input boxes below your card. You can edit the values of tag, cite, and cite information with the input boxes.
+              the card will retain its formatting. With your mouse, select the tag of the card and then press 't' on your keyboard.
+              This will automatically set the selected text to the tag. You can do the same for the rest of the fields using 'c' for cite,
+              'i' for cite information, and 'b' for body. You'll see their values in the input boxes below your card.
+              You can edit the values of tag, cite, and cite information with the input boxes.
             </Typography>
           </div>
           <div>
@@ -174,11 +176,11 @@ const ImportCards: FC = () => {
               type='text'
               placeholder='Paste here'
               className={styles['paste-card-input']}
-             />
+            />
             <div
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
-              dangerouslySetInnerHTML={{ __html: pData }}
+              dangerouslySetInnerHTML={{ __html: pasteData }}
               style={{ outline: 'none' }}
               onKeyDown={handleKeyDown}
             />

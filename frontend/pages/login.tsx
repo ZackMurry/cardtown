@@ -5,6 +5,7 @@ import {
   TextField,
   Typography
 } from '@material-ui/core'
+import { GetServerSideProps, NextPage } from 'next'
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import { FormEvent, useState } from 'react'
@@ -15,7 +16,6 @@ import BlackText from '../components/utils/BlackText'
 import ToggleIcon from '../components/utils/ToggleIcon'
 import ErrorAlert from '../components/utils/ErrorAlert'
 import theme from '../components/utils/theme'
-import { GetServerSideProps, NextPage } from 'next'
 
 interface Props {
   redirect?: string

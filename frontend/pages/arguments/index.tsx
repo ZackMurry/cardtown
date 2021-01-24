@@ -21,7 +21,7 @@ const ArgumentsPage: NextPage<Props> = ({ jwt, fetchErrorText, argCount }) => {
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardSidebar windowWidth={width} pageName='Arguments' />
-      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ?  '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
+      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{
             color: theme.palette.darkGrey.main,
@@ -161,6 +161,4 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
       argCount
     }
   }
-
 }
-

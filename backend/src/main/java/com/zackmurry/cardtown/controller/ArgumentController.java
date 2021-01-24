@@ -35,7 +35,7 @@ public class ArgumentController {
        return argumentService.createArgument(request);
     }
 
-    @GetMapping("/**")
+    @GetMapping("/id/**")
     public ResponseArgument getArgumentById(HttpServletRequest request) {
         final String encodedId = request.getRequestURI().split("/api/v1/arguments/")[1];
         if (encodedId == null) {
@@ -45,7 +45,7 @@ public class ArgumentController {
         return argumentService.getResponseArgumentById(decodedId);
     }
 
-    @PostMapping("/**/cards")
+    @PostMapping("/id/**/cards")
     public void addCardToArgument(@NonNull @RequestBody AddCardToArgumentRequest addRequest, HttpServletRequest servletRequest) {
         final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/")[1];
         final String encodedArgId = relevantPath.split("/")[0];

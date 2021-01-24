@@ -3,6 +3,7 @@ package com.zackmurry.cardtown.controller;
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
+import com.zackmurry.cardtown.model.card.CardPreview;
 import com.zackmurry.cardtown.model.card.EncryptedCard;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.model.shared.CountResponse;
@@ -31,7 +32,12 @@ public class CardController {
         return Base64.encodeBase64String(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey());
     }
 
-    @GetMapping("/**")
+    @GetMapping("/previews")
+    public List<CardPreview> getCardPreviewsByUser() {
+        return cardService.getCardPreviewsByUser();
+    }
+
+    @GetMapping("/id/**")
     public ResponseCard getCardById(HttpServletRequest request) {
         String encodedId = request.getRequestURI().split("/api/v1/cards/")[1];
         if (encodedId == null) {
@@ -61,7 +67,7 @@ public class CardController {
         return new CountResponse(c);
     }
 
-    @DeleteMapping("/**")
+    @DeleteMapping("/id/**")
     public void deleteCardById(HttpServletRequest request) {
         String compressedId = request.getRequestURI().split("/api/v1/cards/")[1];
         if (compressedId == null) {
@@ -71,7 +77,7 @@ public class CardController {
         cardService.deleteCardById(decodedId);
     }
 
-    @PutMapping("/**")
+    @PutMapping("/id/**")
     public void updateCardById(@RequestBody EncryptedCard cardUpdateRequest, HttpServletRequest servletRequest) {
         String compressedId = servletRequest.getRequestURI().split("/api/v1/cards/")[1];
         if (compressedId == null) {

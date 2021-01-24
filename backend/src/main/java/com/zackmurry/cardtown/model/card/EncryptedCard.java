@@ -8,9 +8,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class EncryptedCard {
+@AllArgsConstructor
+public abstract class EncryptedCard {
 
     protected String tag;
     protected String cite;

@@ -1,7 +1,6 @@
+import { GetServerSideProps, NextPage } from 'next'
 import { parse } from 'cookie'
-import { useRouter } from 'next/router'
 import { Grid, Typography } from '@material-ui/core'
-import styles from '../../styles/Cards.module.css'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
 import BlackText from '../../components/utils/BlackText'
@@ -10,7 +9,6 @@ import NewCard from '../../components/cards/NewCard'
 import ImportCard from '../../components/cards/ImportCard'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../components/utils/redirectToLogin'
-import { GetServerSideProps, NextPage } from 'next'
 
 interface Props {
   jwt?: string
@@ -24,7 +22,7 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardSidebar windowWidth={width} pageName='Cards' />
-      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ?  '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
+      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{
             color: theme.palette.darkGrey.main,
@@ -121,7 +119,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
 
   const domain = process.env.NODE_ENV !== 'production' ? 'http://localhost' : 'https://cardtown.co'
   const response = await fetch(domain + '/api/v1/cards/count', {
-    headers: { Authorization: `Bearer ${jwt}`}
+    headers: { Authorization: `Bearer ${jwt}` }
   })
   let cardCount: number | null = null
   if (response.ok) {

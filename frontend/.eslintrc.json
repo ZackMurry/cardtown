@@ -9,7 +9,7 @@
     "plugin:react/recommended",
     "airbnb",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typscript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended"
   ],
   "settings": {
     "react": {

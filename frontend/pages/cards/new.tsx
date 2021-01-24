@@ -1,9 +1,11 @@
 import { Button, TextField, Typography } from '@material-ui/core'
-import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
+import { convertToRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
-import { FC, FormEvent, useMemo, useState } from 'react'
+import {
+  FC, FormEvent, useMemo, useState
+} from 'react'
 import mapStyleToReadable from '../../components/cards/mapStyleToReadable'
 import CardBodyEditor from '../../components/cards/CardBodyEditor'
 import NewCardFormattingPopover from '../../components/cards/NewCardFormattingPopover'
@@ -16,7 +18,7 @@ import draftExportHtmlOptions from '../../components/cards/draftExportHtmlOption
 
 const NewCard: FC = () => {
   const { width } = useWindowSize(1920, 1080)
-  
+
   const [ tag, setTag ] = useState('')
   const [ cite, setCite ] = useState('')
   const [ citeInformation, setCiteInformation ] = useState('')
@@ -53,20 +55,20 @@ const NewCard: FC = () => {
     } // todo else show error
   }
 
-  let currentInlineStyles = []
+  const currentInlineStyles = []
+  // eslint-disable-next-line no-restricted-syntax
   for (const s of bodyState.getCurrentInlineStyle()) {
-    if (s === 'FONT_SIZE_11') {
-      // don't show default font size
-      continue
+    // don't show default font size
+    if (s !== 'FONT_SIZE_11') {
+      currentInlineStyles.push(' ' + mapStyleToReadable(s))
     }
-    currentInlineStyles.push(' ' + mapStyleToReadable(s))
   }
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardSidebar windowWidth={width} pageName='Cards' />
 
-      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ?  '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
+      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
           <div>
             <Typography

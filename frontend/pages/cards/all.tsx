@@ -1,16 +1,16 @@
 import { parse } from 'cookie'
+import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { Grid, Tooltip, Typography } from '@material-ui/core'
+import { GetServerSideProps, NextPage } from 'next'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
-import { Grid, Tooltip, Typography } from '@material-ui/core'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
 import ResponseCard from '../../components/types/ResponseCard'
-import { GetServerSideProps, NextPage } from 'next'
 import redirectToLogin from '../../components/utils/redirectToLogin'
 import SearchCards from '../../components/cards/SearchCards'
-import { useState } from 'react'
 
 interface Props {
   jwt?: string
@@ -24,7 +24,14 @@ const AllCards: NextPage<Props> = ({ jwt, cards: initialCards, errorText }) => {
   const router = useRouter()
 
   return (
-    <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto' }}>
+    <div
+      style={{
+        width: '100%',
+        backgroundColor: theme.palette.lightBlue.main,
+        minHeight: '100%',
+        overflow: 'auto'
+      }}
+    >
       <DashboardSidebar windowWidth={width} pageName='Cards' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
 
@@ -71,7 +78,7 @@ const AllCards: NextPage<Props> = ({ jwt, cards: initialCards, errorText }) => {
             </Grid>
           )
         }
-        
+
         {/* todo show information about the owner and make this expandable so that users can see the card body */}
         {
           cards.map(c => {
@@ -107,12 +114,12 @@ const AllCards: NextPage<Props> = ({ jwt, cards: initialCards, errorText }) => {
                       )
                       : (
                         <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
-                        <div>
-                          <BlackText style={{ fontWeight: 500 }}>
-                            {shortenedCite}
-                          </BlackText>
-                        </div>
-                      </Tooltip>
+                          <div>
+                            <BlackText style={{ fontWeight: 500 }}>
+                              {shortenedCite}
+                            </BlackText>
+                          </div>
+                        </Tooltip>
                       )
                   }
                 </Grid>
@@ -160,7 +167,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
       props: {}
     }
   }
-  
+
   const dev = process.env.NODE_ENV !== 'production'
   const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + '/api/v1/cards', {
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
