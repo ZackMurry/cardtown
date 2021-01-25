@@ -57,6 +57,13 @@ public class ArgumentService {
         if (argId == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
+        if (request.getCardIds() != null) {
+            List<UUID> cardIds = request.getCardIds().stream().map(UUIDCompressor::decompress).collect(Collectors.toList());
+            for (UUID cardId : cardIds) {
+                addCardToArgument(cardId, argId);
+            }
+        }
         return UUIDCompressor.compress(argId);
     }
 

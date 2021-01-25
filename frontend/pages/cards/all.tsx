@@ -8,17 +8,17 @@ import theme from '../../components/utils/theme'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
-import ResponseCard from '../../components/types/ResponseCard'
 import redirectToLogin from '../../components/utils/redirectToLogin'
 import SearchCards from '../../components/cards/SearchCards'
+import CardPreview from '../../components/types/CardPreview'
 
 interface Props {
   jwt?: string
-  cards?: ResponseCard[]
+  cards?: CardPreview[]
   errorText?: string
 }
 
-const AllCards: NextPage<Props> = ({ jwt, cards: initialCards, errorText }) => {
+const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
   const [ cards, setCards ] = useState(initialCards)
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
@@ -172,7 +172,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + '/api/v1/cards', {
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
   })
-  let cards: ResponseCard[] | null = null
+  let cards: CardPreview[] | null = null
   let errorText: string | null = null
   if (response.ok) {
     cards = await response.json()

@@ -26,8 +26,34 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (name.length > 128) {
+      setErrorText('Your argument\'s name cannot be more than 128 characters')
+      return
+    }
+
+    const cardIds = selectedCards.map(c => c.id)
+    const response = await fetch('/api/v1/arguments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
+      body: JSON.stringify({
+        name,
+        cardIds
+      })
+    })
+    if (response.ok) {
+      console.log(await response.text())
+    } else if (response.status === 400) {
+      setErrorText('Error creating argument')
+    } else if (response.status === 401 || response.status === 403) {
+      setErrorText('An authentication error occurred. Make sure you are logged in')
+    } else if (response.status === 500) {
+      setErrorText('A server error occurred during your request. Please try again')
+    } else {
+      setErrorText(`An unknown error occurred. Status code: ${response.status}`)
+    }
   }
 
   const fetchCards = async () => {
@@ -40,7 +66,6 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
     })
     if (response.ok) {
       const c = await response.json()
-      console.log(c)
       setUnselectedCards(c)
     } else {
       setErrorText(`Error fetching cards. Status code: ${response.status}`)
@@ -52,6 +77,26 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
   useEffect(() => {
     fetchCards()
   }, [])
+
+  const handleCardSelect = (id: string) => {
+    const filtered = unselectedCards.filter(c => c.id === id)
+    if (filtered.length === 0) {
+      setErrorText('Error selecting a card. Please try again')
+    }
+    const fullCard = filtered[0]
+    setSelectedCards([ ...selectedCards, fullCard ])
+    setUnselectedCards(unselectedCards.filter(c => c.id !== id))
+  }
+
+  const handleCardRemove = (id: string) => {
+    const filtered = selectedCards.filter(c => c.id === id)
+    if (filtered.length === 0) {
+      setErrorText('Error unselecting a card. Please try again')
+    }
+    const fullCard = filtered[0]
+    setUnselectedCards([ ...unselectedCards, fullCard ])
+    setSelectedCards(selectedCards.filter(c => c.id !== id))
+  }
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
@@ -134,8 +179,9 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
                   <ArgumentCardSelector
                     cardsInArgument={selectedCards}
                     cardsNotInArgument={unselectedCards}
-                    onCardSelect={console.log}
-                    onCardRemove={console.log}
+                    onCardSelect={handleCardSelect}
+                    onCardRemove={handleCardRemove}
+                    windowWidth={width}
                   />
                 )
               }
@@ -152,7 +198,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
         </div>
       </div>
       {
-        errorText && <ErrorAlert disableClose text={errorText} />
+        errorText && <ErrorAlert onClose={() => setErrorText('')} text={errorText} />
       }
     </div>
   )
