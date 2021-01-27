@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.controller;
 
 import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.model.arg.ArgumentPreview;
 import com.zackmurry.cardtown.model.shared.CountResponse;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
@@ -37,7 +38,7 @@ public class ArgumentController {
 
     @GetMapping("/id/**")
     public ResponseArgument getArgumentById(HttpServletRequest request) {
-        final String encodedId = request.getRequestURI().split("/api/v1/arguments/")[1];
+        final String encodedId = request.getRequestURI().split("/api/v1/arguments/id/")[1];
         if (encodedId == null) {
             throw new BadRequestException();
         }
@@ -47,15 +48,15 @@ public class ArgumentController {
 
     @PostMapping("/id/**/cards")
     public void addCardToArgument(@NonNull @RequestBody AddCardToArgumentRequest addRequest, HttpServletRequest servletRequest) {
-        final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/")[1];
+        final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
         final String encodedArgId = relevantPath.split("/")[0];
         final String argId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
         argumentService.addCardToArgument(addRequest.getCardId(), argId);
     }
 
     @GetMapping("")
-    public List<ResponseArgument> getArgumentsByUser() {
-        return argumentService.getArgumentsByUser();
+    public List<ArgumentPreview> getArgumentsByUser() {
+        return argumentService.listArgumentsByUser();
     }
 
     @GetMapping("/count")

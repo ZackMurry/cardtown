@@ -5,17 +5,16 @@ import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
+import com.zackmurry.cardtown.model.arg.ArgumentPreview;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
-import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -112,12 +111,12 @@ public class ArgumentService {
         addCardToArgument(decompressedCardId, decompressedArgId);
     }
 
-    public List<ResponseArgument> getArgumentsByUser() {
+    public List<ArgumentPreview> listArgumentsByUser() {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
         final byte[] secretKey = principal.getSecretKey();
         List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByUser(userId);
-        List<ResponseArgument> responseArguments = new ArrayList<>();
+        List<ArgumentPreview> argumentPreviews = new ArrayList<>();
         for (ArgumentEntity argumentEntity : argumentEntities) {
             try {
                 argumentEntity.decryptFields(secretKey);
@@ -126,12 +125,8 @@ public class ArgumentService {
                 e.printStackTrace();
                 throw new BadRequestException();
             }
-            List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentEntity.getId());
-            List<ResponseCard> responseCards = new ArrayList<>();
-            for (ArgumentCardEntity argumentCardEntity : argumentCardEntities) {
-                ResponseCard responseCard = cardService.getResponseCardById(argumentCardEntity.getCardId());
-                responseCards.add(responseCard);
-            }
+
+            int numCardsInArgument = argumentDao.getNumberOfCardsInArgument(argumentEntity.getId());
 
             ResponseUserDetails responseUserDetails;
             try {
@@ -140,14 +135,14 @@ public class ArgumentService {
                 exception.printStackTrace();
                 throw new BadRequestException();
             }
-            ResponseArgument responseArgument = ResponseArgument.fromArgumentEntity(argumentEntity, responseUserDetails, responseCards);
-            responseArguments.add(responseArgument);
+            final ArgumentPreview argumentPreview = ArgumentPreview.of(argumentEntity, responseUserDetails, numCardsInArgument);
+            argumentPreviews.add(argumentPreview);
         }
-        return responseArguments;
+        return argumentPreviews;
     }
 
     public int getNumberOfArgsByUser() {
         final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        return argumentDao.getNumberOfCardsByUser(id);
+        return argumentDao.getNumberOfArgumentsByUser(id);
     }
 }

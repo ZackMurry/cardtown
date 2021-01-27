@@ -48,7 +48,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
     } else if (response.status === 400) {
       setErrorText('Error creating argument')
     } else if (response.status === 401 || response.status === 403) {
-      setErrorText('An authentication error occurred. Make sure you are logged in')
+      setErrorText('An authentication error occurred. Make sure that you are logged in')
     } else if (response.status === 500) {
       setErrorText('A server error occurred during your request. Please try again')
     } else {

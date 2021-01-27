@@ -103,6 +103,11 @@ const ArgumentCardSelector: FC<Props> = ({
             })
           }
       </div>
+      <div
+        style={{
+          width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+        }}
+      />
       {/* todo: lazy load */}
       <div>
         <Typography variant='h5'>

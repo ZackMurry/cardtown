@@ -148,7 +148,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public int getNumberOfCardsByUser(UUID id) {
+    public int getNumberOfArgumentsByUser(UUID id) {
         final String sql = "SELECT COUNT(id) FROM arguments WHERE owner_id = ?";
 
         try {
@@ -191,4 +191,20 @@ public class ArgumentDataAccessService implements ArgumentDao {
         }
     }
 
+    @Override
+    public int getNumberOfCardsInArgument(UUID argumentId) {
+        final String sql = "SELECT COUNT(card_id) FROM argument_cards WHERE argument_id = ?";
+        try {
+            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argumentId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("count");
+            }
+            throw new InternalServerException();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
 }

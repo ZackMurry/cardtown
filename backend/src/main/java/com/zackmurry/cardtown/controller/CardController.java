@@ -39,11 +39,11 @@ public class CardController {
 
     @GetMapping("/id/**")
     public ResponseCard getCardById(HttpServletRequest request) {
-        String encodedId = request.getRequestURI().split("/api/v1/cards/")[1];
+        final String encodedId = request.getRequestURI().split("/api/v1/cards/id/")[1];
         if (encodedId == null) {
             throw new BadRequestException();
         }
-        String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
+        final String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
         return cardService.getResponseCardById(decodedId);
     }
 
@@ -69,21 +69,21 @@ public class CardController {
 
     @DeleteMapping("/id/**")
     public void deleteCardById(HttpServletRequest request) {
-        String compressedId = request.getRequestURI().split("/api/v1/cards/")[1];
+        final String compressedId = request.getRequestURI().split("/api/v1/cards/id/")[1];
         if (compressedId == null) {
             throw new BadRequestException();
         }
-        String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
+        final String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
         cardService.deleteCardById(decodedId);
     }
 
     @PutMapping("/id/**")
     public void updateCardById(@RequestBody EncryptedCard cardUpdateRequest, HttpServletRequest servletRequest) {
-        String compressedId = servletRequest.getRequestURI().split("/api/v1/cards/")[1];
+        final String compressedId = servletRequest.getRequestURI().split("/api/v1/cards/id/")[1];
         if (compressedId == null) {
             throw new BadRequestException();
         }
-        String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
+        final String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
         cardService.updateCardById(decodedId, cardUpdateRequest);
     }
 

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import { Grid, Tooltip, Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
+import Link from 'next/link'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
@@ -91,58 +92,60 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
               shortenedTag = c.tag.substring(0, 97) + '...'
             }
             return (
-              <Grid
-                container
-                style={{
-                  backgroundColor: theme.palette.secondary.main,
-                  padding: 20,
-                  border: `1px solid ${theme.palette.lightGrey.main}`,
-                  borderRadius: 5,
-                  margin: '15px 0',
-                  cursor: 'pointer'
-                }}
-                key={c.id}
-                onClick={() => router.push(`/cards/id/${encodeURIComponent(c.id)}`)}
-              >
-                <Grid item xs={12} lg={3}>
-                  {
-                    shortenedCite === c.cite
-                      ? (
-                        <BlackText style={{ fontWeight: 500 }}>
-                          {shortenedCite}
-                        </BlackText>
-                      )
-                      : (
-                        <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
-                          <div>
+              <Link href={`/cards/id/${encodeURIComponent(c.id)}`} passHref key={c.id}>
+                <a>
+                  <Grid
+                    container
+                    style={{
+                      backgroundColor: theme.palette.secondary.main,
+                      padding: 20,
+                      border: `1px solid ${theme.palette.lightGrey.main}`,
+                      borderRadius: 5,
+                      margin: '15px 0',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <Grid item xs={12} lg={3}>
+                      {
+                        shortenedCite === c.cite
+                          ? (
                             <BlackText style={{ fontWeight: 500 }}>
                               {shortenedCite}
                             </BlackText>
-                          </div>
-                        </Tooltip>
-                      )
-                  }
-                </Grid>
-                <Grid item xs={12} lg={6}>
-                  {
-                    shortenedTag === c.tag
-                      ? (
-                        <BlackText>
-                          {shortenedTag}
-                        </BlackText>
-                      )
-                      : (
-                        <Tooltip title={c.tag}>
-                          <div>
+                          )
+                          : (
+                            <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
+                              <div>
+                                <BlackText style={{ fontWeight: 500 }}>
+                                  {shortenedCite}
+                                </BlackText>
+                              </div>
+                            </Tooltip>
+                          )
+                      }
+                    </Grid>
+                    <Grid item xs={12} lg={6}>
+                      {
+                        shortenedTag === c.tag
+                          ? (
                             <BlackText>
                               {shortenedTag}
                             </BlackText>
-                          </div>
-                        </Tooltip>
-                      )
-                  }
-                </Grid>
-              </Grid>
+                          )
+                          : (
+                            <Tooltip title={c.tag}>
+                              <div>
+                                <BlackText>
+                                  {shortenedTag}
+                                </BlackText>
+                              </div>
+                            </Tooltip>
+                          )
+                      }
+                    </Grid>
+                  </Grid>
+                </a>
+              </Link>
             )
           })
         }
