@@ -173,12 +173,12 @@ public class UserService implements UserDetailsService {
         return new AuthenticationResponse(jwt);
     }
 
-    public ResponseUserDetails getResponseUserDetailsById(@NonNull UUID id) throws UserNotFoundException {
+    public Optional<ResponseUserDetails> getResponseUserDetailsById(@NonNull UUID id) {
         final User user = userDao.findById(id).orElse(null);
         if (user == null) {
-            throw new UserNotFoundException();
+            return Optional.empty();
         }
-        return ResponseUserDetails.fromUser(user);
+        return Optional.of(ResponseUserDetails.fromUser(user));
     }
 
 }

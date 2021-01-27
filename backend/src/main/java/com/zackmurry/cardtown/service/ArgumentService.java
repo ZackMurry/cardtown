@@ -2,6 +2,7 @@ package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
 import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
@@ -11,8 +12,12 @@ import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.model.card.CardEntity;
+import com.zackmurry.cardtown.model.card.CardHeader;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.UUIDCompressor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
@@ -22,11 +27,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class ArgumentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ArgumentService.class);
 
     @Autowired
     private ArgumentDao argumentDao;
@@ -126,16 +134,31 @@ public class ArgumentService {
                 throw new BadRequestException();
             }
 
-            int numCardsInArgument = argumentDao.getNumberOfCardsInArgument(argumentEntity.getId());
+            final List<CardEntity> cardEntities = getCardsInArgument(argumentEntity.getId());
+            final List<CardHeader> cardHeaders = new ArrayList<>();
+            for (CardEntity cardEntity : cardEntities) {
+                // todo greedily fetch ResponseUserDetails when sharing is implemented
+                final ResponseUserDetails responseUserDetails = userService.getResponseUserDetailsById(cardEntity.getOwnerId()).orElse(null);
+                if (responseUserDetails == null) {
+                    throw new BadRequestException();
+                }
+                final ResponseCard responseCard = ResponseCard.fromCard(cardEntity, responseUserDetails);
 
-            ResponseUserDetails responseUserDetails;
-            try {
-                responseUserDetails = userService.getResponseUserDetailsById(argumentEntity.getOwnerId());
-            } catch (UserNotFoundException exception) {
-                exception.printStackTrace();
+                final CardHeader cardHeader = CardHeader.of(responseCard);
+                try {
+                    cardHeader.decryptFields(secretKey);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new InternalServerException();
+                }
+                cardHeaders.add(cardHeader);
+            }
+
+            final ResponseUserDetails responseUserDetails = userService.getResponseUserDetailsById(argumentEntity.getOwnerId()).orElse(null);
+            if (responseUserDetails == null) {
                 throw new BadRequestException();
             }
-            final ArgumentPreview argumentPreview = ArgumentPreview.of(argumentEntity, responseUserDetails, numCardsInArgument);
+            final ArgumentPreview argumentPreview = ArgumentPreview.of(argumentEntity, responseUserDetails, cardHeaders);
             argumentPreviews.add(argumentPreview);
         }
         return argumentPreviews;
@@ -145,4 +168,24 @@ public class ArgumentService {
         final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         return argumentDao.getNumberOfArgumentsByUser(id);
     }
+
+    /**
+     * does not validate credentials!
+     * @param argumentId id of argument to search
+     * @return list of cards in argument
+     */
+    public List<CardEntity> getCardsInArgument(UUID argumentId) {
+        final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentId);
+        final List<CardEntity> cardEntities = new ArrayList<>();
+        for (ArgumentCardEntity argumentCardEntity : argumentCardEntities) {
+            final Optional<CardEntity> optionalCardEntity = cardService.getCardEntityById(argumentCardEntity.getCardId());
+            if (optionalCardEntity.isEmpty()) {
+                logger.warn("Card found in argument_cards but not found in cards");
+                continue;
+            }
+            cardEntities.add(optionalCardEntity.get());
+        }
+        return cardEntities;
+    }
+
 }

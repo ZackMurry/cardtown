@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { Grid, Typography } from '@material-ui/core'
 import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
-import { useRouter } from 'next/router'
 import { useState } from 'react'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import ArgumentPreview from '../../components/types/ArgumentPreview'
@@ -11,6 +10,7 @@ import ErrorAlert from '../../components/utils/ErrorAlert'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../components/utils/redirectToLogin'
 import theme from '../../components/utils/theme'
+import SearchArguments from '../../components/arguments/SearchArguments'
 
 interface Props {
   jwt?: string
@@ -18,10 +18,9 @@ interface Props {
   fetchErrorText?: string
 }
 
-const AllArguments: NextPage<Props> = ({ jwt, args: initialArgs, fetchErrorText }) => {
+const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) => {
   const [ args, setArgs ] = useState(initialArgs)
   const { width } = useWindowSize(1920, 1080)
-  const router = useRouter()
 
   return (
     <div
@@ -54,13 +53,18 @@ const AllArguments: NextPage<Props> = ({ jwt, args: initialArgs, fetchErrorText 
             width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
           }}
         />
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-          {/* <SearchCards
-            cards={initialCards}
-            onResults={setCards}
-            onClear={() => setCards(initialCards)}
+        <div
+          style={{
+            width: '100%', display: 'flex', justifyContent: 'flex-end', paddingBottom: 20
+          }}
+        >
+          {/* todo: sort by number of cards? */}
+          <SearchArguments
+            args={initialArgs}
+            onResults={setArgs}
+            onClear={() => setArgs(initialArgs)}
             windowWidth={width}
-          /> */}
+          />
         </div>
         {
           width >= theme.breakpoints.values.lg && (
@@ -81,7 +85,7 @@ const AllArguments: NextPage<Props> = ({ jwt, args: initialArgs, fetchErrorText 
 
         {/* todo show information about the owner and make this expandable so that users can see the card tags and click on indivual cards */}
         {
-          args.map(({ id, name, cardCount }) => (
+          args.map(({ id, name, cards }) => (
             <Link href={`/arguments/id/${id}`} passHref key={id}>
               <a>
                 <Grid
@@ -99,7 +103,7 @@ const AllArguments: NextPage<Props> = ({ jwt, args: initialArgs, fetchErrorText 
                     {name}
                   </Grid>
                   <Grid item xs={12} lg={3}>
-                    {`${cardCount} `}
+                    {`${cards.length} `}
                     cards
                   </Grid>
                 </Grid>

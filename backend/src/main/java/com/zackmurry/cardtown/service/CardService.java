@@ -215,4 +215,9 @@ public class CardService {
         }
         return cardPreviews;
     }
+
+    public Optional<CardEntity> getCardEntityById(@NonNull UUID cardId) {
+        return cardDao.getCardById(cardId);
+    }
+
 }
