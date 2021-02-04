@@ -166,7 +166,17 @@ public class CardService {
         cardDao.deleteCardById(cardId);
     }
 
-    public void updateCardById(String id, EncryptedCard request) {
+    public void updateCardById(String id, CardCreateRequest request) {
+        if (request.getBodyHtml() == null ||
+            request.getBodyDraft() == null ||
+            request.getCite() == null ||
+            request.getBodyText() == null) {
+            throw new BadRequestException();
+        }
+        if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
+            throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
+        }
+
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final UUID cardId = UUIDCompressor.decompress(id);
         final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);
@@ -174,20 +184,30 @@ public class CardService {
             throw new CardNotFoundException();
         }
 
-        if (!principalId.equals(ownerId)) {
+        if (!ownerId.equals(principalId)) {
             throw new ForbiddenException();
         }
         // whitelisting html tags to prevent XSS
         request.setBodyHtml(HtmlSanitizer.sanitizeHtml(request.getBodyHtml()));
 
+        final CardEntity cardEntity = new CardEntity(
+                ownerId,
+                request.getTag(),
+                request.getCite(),
+                request.getCiteInformation(),
+                request.getBodyHtml(),
+                request.getBodyDraft(),
+                request.getBodyText()
+        );
+
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
         try {
-            request.encryptFields(secretKey);
+            cardEntity.encryptFields(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
             throw new InternalServerException();
         }
-        cardDao.updateCardById(cardId, request);
+        cardDao.updateCardById(cardId, cardEntity);
     }
 
     public List<ResponseCard> getResponseCardsByIds(List<UUID> ids) {

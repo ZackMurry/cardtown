@@ -1,34 +1,31 @@
 import { parse } from 'cookie'
-import { useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
-import DashboardSidebar from '../../../components/dash/DashboardSidebar'
-import theme from '../../../components/utils/theme'
-import useWindowSize from '../../../components/utils/hooks/useWindowSize'
-import ErrorAlert from '../../../components/utils/ErrorAlert'
-import redirectToLogin from '../../../components/utils/redirectToLogin'
-import ResponseCard from '../../../components/types/ResponseCard'
+import { useState } from 'react'
 import CardDisplay from '../../../components/cards/CardDisplay'
+import DashboardSidebar from '../../../components/dash/DashboardSidebar'
+import ResponseArgument from '../../../components/types/ResponseArgument'
+import ErrorAlert from '../../../components/utils/ErrorAlert'
+import useWindowSize from '../../../components/utils/hooks/useWindowSize'
+import redirectToLogin from '../../../components/utils/redirectToLogin'
+import theme from '../../../components/utils/theme'
 
 interface Props {
   id?: string
   fetchingErrorText?: string
-  card?: ResponseCard
+  argument?: ResponseArgument
   jwt?: string
 }
 
-// todo styling
-const ViewCard: NextPage<Props> = ({
-  fetchingErrorText, card, jwt
-}) => {
-  const { width } = useWindowSize(1920, 1080)
+const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument, jwt }) => {
   const [ errorText, setErrorText ] = useState('')
+  const { width } = useWindowSize(1920, 1080)
 
   return (
     <div style={{
       width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
     }}
     >
-      <DashboardSidebar windowWidth={width} pageName='Cards' />
+      <DashboardSidebar windowWidth={width} pageName='Arguments' />
       <div
         style={{
           width: '50%',
@@ -40,14 +37,15 @@ const ViewCard: NextPage<Props> = ({
         }}
       >
         {
-          card && (
+          argument?.cards && argument.cards.map(card => (
             <CardDisplay
-              onError={setErrorText}
               card={card}
               jwt={jwt}
+              onError={setErrorText}
               windowWidth={width}
+              key={card.id}
             />
-          )
+          ))
         }
       </div>
       {
@@ -57,17 +55,17 @@ const ViewCard: NextPage<Props> = ({
   )
 }
 
-export default ViewCard
+export default ViewArgument
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req, res }) => {
   let errorText: string | null = null
-  let card: ResponseCard | null = null
+  let argument: ResponseArgument | null = null
   const id: string = typeof query.id === 'string' ? query.id : query?.id[0]
 
   if (!id) {
     return {
       props: {
-        fetchingErrorText: 'Invalid card id'
+        fetchingErrorText: 'Invalid argument id'
       }
     }
   }
@@ -83,25 +81,24 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
     }
   }
   const dev = process.env.NODE_ENV !== 'production'
-  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/cards/id/${encodeURIComponent(id)}`, {
+  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/arguments/id/${encodeURIComponent(id)}`, {
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
   })
   if (response.ok) {
-    card = await response.json()
+    argument = await response.json()
   } else if (response.status === 404 || response.status === 400) {
-    // todo could probably make the error system look better, but whatever
-    errorText = 'Card not found'
+    errorText = 'Argument not found'
   } else if (response.status === 403) {
-    errorText = "You don't have access to this card"
+    errorText = "You don't have access to this argument"
   } else if (response.status === 401) {
-    redirectToLogin(res, `/cards/id/${encodeURIComponent(id)}`)
+    redirectToLogin(res, `/arguments/id/${encodeURIComponent(id)}`)
     return {
       props: {}
     }
   } else if (response.status === 500) {
     errorText = 'There was an unknown server error. Please try again later'
   } else if (response.status === 406) {
-    errorText = 'The ID for this card is invalid.'
+    errorText = 'The ID for this argument is invalid.'
   } else {
     errorText = `There was an unrecognized error. Status: ${response.status}`
   }
@@ -109,7 +106,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
     props: {
       id,
       fetchingErrorText: errorText,
-      card,
+      argument,
       jwt
     }
   }

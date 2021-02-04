@@ -30,10 +30,12 @@ const EditCard: FC<Props> = ({
       onCancel('You need to be signed in to do this')
     }
 
-    const bodyHtml = stateToHTML(bodyState.getCurrentContent(), draftExportHtmlOptions)
+    const content = bodyState.getCurrentContent()
+    const bodyHtml = stateToHTML(content, draftExportHtmlOptions)
     const bodyDraft = convertToRaw(bodyState.getCurrentContent())
+    const bodyText = content.getPlainText('\u0001')
 
-    const response = await fetch(`/api/v1/cards/${encodeURIComponent(card.id)}`, {
+    const response = await fetch(`/api/v1/cards/id/${encodeURIComponent(card.id)}`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -41,7 +43,8 @@ const EditCard: FC<Props> = ({
         cite,
         citeInformation,
         bodyHtml,
-        bodyDraft: JSON.stringify(bodyDraft)
+        bodyDraft: JSON.stringify(bodyDraft),
+        bodyText
       })
     })
 

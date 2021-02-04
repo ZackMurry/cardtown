@@ -86,7 +86,7 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) =>
         {/* todo show information about the owner and make this expandable so that users can see the card tags and click on indivual cards */}
         {
           args.map(({ id, name, cards }) => (
-            <Link href={`/arguments/id/${id}`} passHref key={id}>
+            <Link href={`/arguments/id/${encodeURIComponent(id)}`} passHref key={id}>
               <a>
                 <Grid
                   container

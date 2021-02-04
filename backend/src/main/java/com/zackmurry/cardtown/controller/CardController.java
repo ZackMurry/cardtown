@@ -78,7 +78,7 @@ public class CardController {
     }
 
     @PutMapping("/id/**")
-    public void updateCardById(@RequestBody EncryptedCard cardUpdateRequest, HttpServletRequest servletRequest) {
+    public void updateCardById(@RequestBody CardCreateRequest cardUpdateRequest, HttpServletRequest servletRequest) {
         final String compressedId = servletRequest.getRequestURI().split("/api/v1/cards/id/")[1];
         if (compressedId == null) {
             throw new BadRequestException();

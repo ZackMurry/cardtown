@@ -29,13 +29,11 @@ const NewCard: FC = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log(JSON.stringify(convertToRaw(bodyState.getCurrentContent())))
     const content = bodyState.getCurrentContent()
 
     const bodyDraft = convertToRaw(content)
     const bodyHtml = stateToHTML(content, draftExportHtmlOptions)
     const bodyText = content.getPlainText('\u0001')
-    console.log(bodyText)
 
     const response = await fetch('/api/v1/cards', {
       method: 'POST',
@@ -57,7 +55,7 @@ const NewCard: FC = () => {
 
   const currentInlineStyles = []
   // eslint-disable-next-line no-restricted-syntax
-  for (const s of bodyState.getCurrentInlineStyle()) {
+  for (const s of bodyState.getCurrentInlineStyle().toArray()) {
     // don't show default font size
     if (s !== 'FONT_SIZE_11') {
       currentInlineStyles.push(' ' + mapStyleToReadable(s))

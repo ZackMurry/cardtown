@@ -6,7 +6,7 @@ import { ServerStyleSheets } from '@material-ui/core/styles'
 import theme from '../components/utils/theme'
 
 export default class MyDocument extends Document {
-  render() {
+  render(): React.ReactElement {
     return (
       <Html lang='en'>
         <Head>
