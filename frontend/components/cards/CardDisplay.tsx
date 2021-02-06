@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router'
 import { FC, useState } from 'react'
+import ArgumentCardOptionsButton from '../arguments/ArgumentCardOptionsButton'
 import ResponseCard from '../types/ResponseCard'
 import BlackText from '../utils/BlackText'
 import CardOptionsButton from './CardOptionsButton'
@@ -10,10 +11,11 @@ interface Props {
   jwt: string
   windowWidth: number
   onError: (msg: string) => void
+  argumentId?: string
 }
 
 const CardDisplay: FC<Props> = ({
-  card, jwt, windowWidth, onError
+  card, jwt, windowWidth, onError, argumentId
 }) => {
   const [ editing, setEditing ] = useState(false)
   const router = useRouter()
@@ -58,7 +60,14 @@ const CardDisplay: FC<Props> = ({
                 <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
                   {card.tag}
                 </BlackText>
-                <CardOptionsButton id={card.id} jwt={jwt} onEdit={handleEdit} />
+                {
+                  argumentId
+                    ? (
+                      <ArgumentCardOptionsButton argumentId={argumentId} cardId={card.id} jwt={jwt} onEdit={handleEdit} />
+                    ) : (
+                      <CardOptionsButton id={card.id} jwt={jwt} onEdit={handleEdit} />
+                    )
+                }
               </div>
               <div>
                 <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>

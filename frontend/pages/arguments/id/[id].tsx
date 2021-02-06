@@ -1,9 +1,11 @@
+import { Typography } from '@material-ui/core'
 import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { useState } from 'react'
 import CardDisplay from '../../../components/cards/CardDisplay'
 import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import ResponseArgument from '../../../components/types/ResponseArgument'
+import BlackText from '../../../components/utils/BlackText'
 import ErrorAlert from '../../../components/utils/ErrorAlert'
 import useWindowSize from '../../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../../components/utils/redirectToLogin'
@@ -16,7 +18,10 @@ interface Props {
   jwt?: string
 }
 
-const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument, jwt }) => {
+// todo adding cards
+const ViewArgument: NextPage<Props> = ({
+  fetchingErrorText, argument, jwt, id
+}) => {
   const [ errorText, setErrorText ] = useState('')
   const { width } = useWindowSize(1920, 1080)
 
@@ -29,24 +34,49 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument, jwt }) => 
       <div
         style={{
           width: '50%',
-          margin: '10vh auto',
-          backgroundColor: theme.palette.secondary.main,
-          border: `1px solid ${theme.palette.lightGrey.main}`,
-          borderRadius: 5,
-          padding: '3vh 3vw'
+          margin: '10vh auto'
         }}
       >
-        {
-          argument?.cards && argument.cards.map(card => (
-            <CardDisplay
-              card={card}
-              jwt={jwt}
-              onError={setErrorText}
-              windowWidth={width}
-              key={card.id}
-            />
-          ))
-        }
+        <Typography
+          style={{
+            color: theme.palette.darkGrey.main,
+            textTransform: 'uppercase',
+            fontSize: 11,
+            marginTop: 19,
+            letterSpacing: 0.5
+          }}
+        >
+          Argument
+        </Typography>
+        <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
+          {argument.name}
+        </BlackText>
+        <div
+          style={{
+            width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+          }}
+        />
+        <div
+          style={{
+            backgroundColor: theme.palette.secondary.main,
+            border: `1px solid ${theme.palette.lightGrey.main}`,
+            borderRadius: 5,
+            padding: '3vh 3vw'
+          }}
+        >
+          {
+            argument?.cards && argument.cards.map(card => (
+              <CardDisplay
+                card={card}
+                jwt={jwt}
+                onError={setErrorText}
+                windowWidth={width}
+                key={card.id}
+                argumentId={id}
+              />
+            ))
+          }
+        </div>
       </div>
       {
         (fetchingErrorText || errorText) && <ErrorAlert disableClose text={fetchingErrorText || errorText} />

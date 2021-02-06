@@ -36,72 +36,79 @@ const ArgumentCardSelector: FC<Props> = ({
         <Typography variant='h5'>
           Cards in argument
         </Typography>
-          {
-            cardsInArgument.map(c => {
-              let shortenedCite = c.cite
-              let shortenedTag = c.tag
-              if (c.cite.length > 50) {
-                shortenedCite = c.cite.substring(0, 47) + '...'
-              }
-              if (c.tag.length > 100) {
-                shortenedTag = c.tag.substring(0, 97) + '...'
-              }
-              return (
-                <Grid
-                  container
-                  style={{
-                    backgroundColor: theme.palette.secondary.main,
-                    padding: 10,
-                    border: `1px solid ${theme.palette.lightGrey.main}`,
-                    borderRadius: 5,
-                    margin: '15px 0',
-                    cursor: 'pointer'
-                  }}
-                  key={c.id}
-                  onClick={() => onCardRemove(c.id)}
-                >
-                  <Grid item xs={12} lg={3}>
-                    {
-                      shortenedCite === c.cite
-                        ? (
-                          <BlackText style={{ fontWeight: 500 }}>
-                            {shortenedCite}
-                          </BlackText>
-                        )
-                        : (
-                          <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
-                            <div>
-                              <BlackText style={{ fontWeight: 500 }}>
-                                {shortenedCite}
-                              </BlackText>
-                            </div>
-                          </Tooltip>
-                        )
-                    }
-                  </Grid>
-                  <Grid item xs={12} lg={6}>
-                    {
-                      shortenedTag === c.tag
-                        ? (
-                          <BlackText>
-                            {shortenedTag}
-                          </BlackText>
-                        )
-                        : (
-                          <Tooltip title={c.tag}>
-                            <div>
-                              <BlackText>
-                                {shortenedTag}
-                              </BlackText>
-                            </div>
-                          </Tooltip>
-                        )
-                    }
-                  </Grid>
+        {
+          !cardsInArgument?.length && (
+            <Typography color='textSecondary' style={{ margin: 25, fontSize: 16 }}>
+              When you add cards, they'll appear here
+            </Typography>
+          )
+        }
+        {
+          Boolean(cardsInArgument?.length) && cardsInArgument.map(c => {
+            let shortenedCite = c.cite
+            let shortenedTag = c.tag
+            if (c.cite.length > 50) {
+              shortenedCite = c.cite.substring(0, 47) + '...'
+            }
+            if (c.tag.length > 100) {
+              shortenedTag = c.tag.substring(0, 97) + '...'
+            }
+            return (
+              <Grid
+                container
+                style={{
+                  backgroundColor: theme.palette.secondary.main,
+                  padding: 10,
+                  border: `1px solid ${theme.palette.lightGrey.main}`,
+                  borderRadius: 5,
+                  margin: '15px 0',
+                  cursor: 'pointer'
+                }}
+                key={c.id}
+                onClick={() => onCardRemove(c.id)}
+              >
+                <Grid item xs={12} lg={3}>
+                  {
+                    shortenedCite === c.cite
+                      ? (
+                        <BlackText style={{ fontWeight: 500 }}>
+                          {shortenedCite}
+                        </BlackText>
+                      )
+                      : (
+                        <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
+                          <div>
+                            <BlackText style={{ fontWeight: 500 }}>
+                              {shortenedCite}
+                            </BlackText>
+                          </div>
+                        </Tooltip>
+                      )
+                  }
                 </Grid>
-              )
-            })
-          }
+                <Grid item xs={12} lg={6}>
+                  {
+                    shortenedTag === c.tag
+                      ? (
+                        <BlackText>
+                          {shortenedTag}
+                        </BlackText>
+                      )
+                      : (
+                        <Tooltip title={c.tag}>
+                          <div>
+                            <BlackText>
+                              {shortenedTag}
+                            </BlackText>
+                          </div>
+                        </Tooltip>
+                      )
+                  }
+                </Grid>
+              </Grid>
+            )
+          })
+        }
       </div>
       <div
         style={{
@@ -129,6 +136,13 @@ const ArgumentCardSelector: FC<Props> = ({
             marginTop: 10
           }}
         >
+          {
+            !cardsInSearch?.length && (
+              <Typography color='textSecondary' style={{ margin: 15, fontSize: 16 }}>
+                No cards found!
+              </Typography>
+            )
+          }
           {
             cardsInSearch.map(c => {
               let shortenedCite = c.cite

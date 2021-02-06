@@ -1,12 +1,10 @@
 package com.zackmurry.cardtown.dao.arg;
 
+import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
-import com.zackmurry.cardtown.model.arg.ArgumentEntityWithCardIds;
-import com.zackmurry.cardtown.model.arg.ArgumentEntityWithCards;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
-import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +25,7 @@ import java.util.UUID;
 /**
  * arguments are in a many-to-many relationship with cards.
  * there are two tables for arguments: arguments (meta-data about the argument) and argument_cards (links card ids to arguments, including the order they occur in)
+ * todo unit tests -_-
  */
 @Repository
 public class ArgumentDataAccessService implements ArgumentDao {
@@ -202,6 +201,47 @@ public class ArgumentDataAccessService implements ArgumentDao {
                 return resultSet.getInt("count");
             }
             throw new InternalServerException();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void removeCardFromArgument(UUID argumentId, UUID cardId) {
+        final short indexInArgument = getIndexOfCardInArgument(argumentId, cardId);
+        if (indexInArgument == -1) {
+            throw new CardNotFoundException("Card was not found in the specified argument");
+        }
+        final String removeSql = "DELETE FROM argument_cards WHERE argument_id = ? AND card_id = ?";
+        final String incrementIndexSql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(removeSql);
+            preparedStatement.setObject(1, argumentId);
+            preparedStatement.setObject(2, cardId);
+            preparedStatement.executeUpdate();
+            PreparedStatement incrementStatement = jdbcTemplate.getConnection().prepareStatement(incrementIndexSql);
+            incrementStatement.setObject(1, argumentId);
+            incrementStatement.setShort(2, indexInArgument);
+            incrementStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public short getIndexOfCardInArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
+        final String sql = "SELECT index_in_argument FROM argument_cards WHERE argument_id = ? AND card_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argumentId);
+            preparedStatement.setObject(2, cardId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getShort("index_in_argument");
+            }
+            return -1;
         } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();

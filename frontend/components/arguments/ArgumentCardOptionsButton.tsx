@@ -5,19 +5,21 @@ import {
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { useRouter } from 'next/router'
 import DeleteIcon from '@material-ui/icons/Delete'
-import { FC, useState } from 'react'
+import React, { FC, useState } from 'react'
 import ErrorAlert from '../utils/ErrorAlert'
 import styles from '../../styles/ViewCard.module.css'
 
 interface Props {
-  id: string
+  cardId: string
+  argumentId: string
   jwt: string
   onEdit: () => void
 }
 
-// todo: copy card
-const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
-  const [ anchorEl, setAnchorEl ] = useState<HTMLButtonElement | null>(null)
+const ArgumentCardOptionsButton: FC<Props> = ({
+  cardId, argumentId, jwt, onEdit
+}) => {
+  const [ anchorEl, setAnchorEl ] = useState(null)
   const [ errorText, setErrorText ] = useState('')
 
   const router = useRouter()
@@ -26,13 +28,14 @@ const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
     setAnchorEl(e.currentTarget)
   }
 
-  const handleDelete = async () => {
-    const response = await fetch(`/api/v1/cards/${encodeURIComponent(id)}`, {
+  const handleRemove = async () => {
+    const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argumentId)}/cards/${encodeURIComponent(cardId)}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwt}` }
     })
     if (response.ok) {
-      router.push('/cards')
+      // todo only remove this one card instead of reloading
+      router.reload()
     } else {
       setErrorText(`Error deleting card: ${response.status}`)
     }
@@ -49,14 +52,14 @@ const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
             <MenuItem style={{ padding: 0, minHeight: 36 }}>
               <Button
                 className={styles['card-context-menu-button']}
-                onClick={handleDelete}
+                onClick={handleRemove}
                 variant='contained'
                 color='secondary'
                 disableElevation
                 disableFocusRipple
                 startIcon={<DeleteIcon />}
               >
-                Delete
+                Remove
               </Button>
             </MenuItem>
             <MenuItem style={{ padding: 0, minHeight: 36 }}>
@@ -86,4 +89,4 @@ const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
   )
 }
 
-export default CardOptionsButton
+export default ArgumentCardOptionsButton

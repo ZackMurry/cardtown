@@ -1,9 +1,7 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
-import com.zackmurry.cardtown.exception.BadRequestException;
-import com.zackmurry.cardtown.exception.InternalServerException;
-import com.zackmurry.cardtown.exception.UserNotFoundException;
+import com.zackmurry.cardtown.exception.*;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentPreview;
@@ -188,4 +186,17 @@ public class ArgumentService {
         return cardEntities;
     }
 
+    public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId) {
+        final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
+        if (argumentEntity == null) {
+            throw new ArgumentNotFoundException();
+        }
+        final UUID userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        if (!argumentEntity.getOwnerId().equals(userId)) {
+            throw new ForbiddenException();
+        }
+        final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
+        argumentDao.removeCardFromArgument(decompressedArgId, decompressedCardId);
+    }
 }

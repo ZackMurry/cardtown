@@ -37,4 +37,13 @@ public interface ArgumentDao {
 
     int getNumberOfCardsInArgument(UUID argumentId);
 
+    /**
+     * removes a card from an argument and left-shifts other cards' indices
+     * @param argumentId argument id
+     * @param cardId card id
+     */
+    void removeCardFromArgument(UUID argumentId, UUID cardId);
+
+    short getIndexOfCardInArgument(UUID argumentId, UUID cardId);
+
 }

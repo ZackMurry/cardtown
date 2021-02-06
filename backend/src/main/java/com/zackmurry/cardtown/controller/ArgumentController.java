@@ -5,7 +5,7 @@ import com.zackmurry.cardtown.model.arg.ArgumentPreview;
 import com.zackmurry.cardtown.model.shared.CountResponse;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
-import com.zackmurry.cardtown.model.arg.card.AddCardToArgumentRequest;
+import com.zackmurry.cardtown.model.arg.card.CardIdHolder;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.service.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class ArgumentController {
     }
 
     @PostMapping("/id/**/cards")
-    public void addCardToArgument(@NonNull @RequestBody AddCardToArgumentRequest addRequest, HttpServletRequest servletRequest) {
+    public void addCardToArgument(@NonNull @RequestBody CardIdHolder addRequest, HttpServletRequest servletRequest) {
         final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
         final String encodedArgId = relevantPath.split("/")[0];
         final String argId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
@@ -63,6 +63,15 @@ public class ArgumentController {
     public CountResponse getNumberOfArgsByUser() {
         final int c = argumentService.getNumberOfArgsByUser();
         return new CountResponse(c);
+    }
+
+    @DeleteMapping("/id/**/cards/**")
+    public void removeCardFromArgument(HttpServletRequest servletRequest) {
+        final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
+        final String[] parts = relevantPath.split("/cards/");
+        final String argId = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
+        final String cardId = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+        argumentService.removeCardFromArgument(argId, cardId);
     }
 
 }

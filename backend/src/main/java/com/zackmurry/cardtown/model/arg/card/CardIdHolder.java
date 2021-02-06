@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddCardToArgumentRequest {
+public class CardIdHolder {
     private String cardId;
 }
