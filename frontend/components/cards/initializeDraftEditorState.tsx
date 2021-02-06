@@ -8,12 +8,16 @@ const emptyContentState = convertFromRaw({
       text: '',
       key: 'cardtown',
       type: 'unstyled',
-      entityRanges: []
+      entityRanges: [],
+      depth: 0,
+      inlineStyleRanges: []
     }
   ]
 })
 
 //used because EditorState.createFromEmpty() was producing errors.
-export default function initializeDraftContentState() {
-  return EditorState.createWithContent(emptyContentState)
-}
+const initializeDraftContentState = (): EditorState => (
+  EditorState.createWithContent(emptyContentState)
+)
+
+export default initializeDraftContentState
