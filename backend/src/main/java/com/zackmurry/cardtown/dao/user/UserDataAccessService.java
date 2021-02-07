@@ -8,7 +8,6 @@ import com.zackmurry.cardtown.model.auth.UserModel;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,10 +30,9 @@ public class UserDataAccessService implements UserDao {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        String sql = "SELECT * FROM users WHERE email= ?";
-
+        final String sql = "SELECT * FROM users WHERE email= ?";
         try {
-            List<User> users = jdbcTemplate.query(
+            final List<User> users = jdbcTemplate.query(
                     sql,
                     resultSet -> new User(
                             UUID.fromString(resultSet.getString("id")),
@@ -45,32 +43,32 @@ public class UserDataAccessService implements UserDao {
                     ),
                     email
             );
-            if (users.isEmpty()) {
-                return Optional.empty();
+            if (!users.isEmpty()) {
+                return Optional.of(users.get(0));
             }
-            return Optional.of(users.get(0));
+            return Optional.empty();
         } catch(SQLException e) {
             e.printStackTrace();
-            return Optional.empty();
+            throw new InternalServerException();
         }
     }
 
     @Override
     public Optional<UUID> getIdByEmail(String email) {
-        String sql = "SELECT id FROM users WHERE email = ?";
+        final String sql = "SELECT id FROM users WHERE email = ?";
         try {
-            List<Object> list = jdbcTemplate.query(
+            final List<Object> list = jdbcTemplate.query(
                     sql,
                     resultSet -> UUID.fromString(resultSet.getString("id")),
                     email
             );
-            if (list.isEmpty()) {
-                return Optional.empty();
+            if (!list.isEmpty()) {
+                return Optional.of((UUID) list.get(0));
             }
-            return Optional.of((UUID) list.get(0));
+            return Optional.empty();
         } catch(SQLException e) {
             e.printStackTrace();
-            return Optional.empty();
+            throw new InternalServerException();
         }
     }
 
@@ -79,7 +77,7 @@ public class UserDataAccessService implements UserDao {
         if (findByEmail(user.getEmail()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "User with the email already exists");
         }
-        String sql = "INSERT INTO users (email, first_name, last_name, password, encrypted_secret_key) VALUES (?, ?, ?, ?, ?)";
+        final String sql = "INSERT INTO users (email, first_name, last_name, password, encrypted_secret_key) VALUES (?, ?, ?, ?, ?)";
 
         try {
             jdbcTemplate.execute(
@@ -107,7 +105,7 @@ public class UserDataAccessService implements UserDao {
         if (!accountExists(email)) {
             throw new UserNotFoundException();
         }
-        String sql = "DELETE FROM users WHERE email = ?";
+        final String sql = "DELETE FROM users WHERE email = ?";
         try {
             jdbcTemplate.execute(
                     sql,
@@ -120,12 +118,14 @@ public class UserDataAccessService implements UserDao {
     }
 
     @Override
-    public String getEncryptedSecretKey(String email) {
-        String sql = "SELECT encrypted_secret_key FROM users WHERE email = ?";
+    public Optional<String> getEncryptedSecretKey(String email) {
+        final String sql = "SELECT encrypted_secret_key FROM users WHERE email = ?";
         try {
-            return jdbcTemplate.queryForString(
-                    sql,
-                    email
+            return Optional.of(
+                    jdbcTemplate.queryForString(
+                        sql,
+                        email
+                    )
             );
         } catch(SQLException e) {
             e.printStackTrace();
@@ -135,11 +135,11 @@ public class UserDataAccessService implements UserDao {
 
     @Override
     public Optional<User> findById(UUID id) {
-        String sql = "SELECT email, first_name, last_name, password FROM users WHERE id = ?";
+        final String sql = "SELECT email, first_name, last_name, password FROM users WHERE id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return Optional.of(
                         new User(

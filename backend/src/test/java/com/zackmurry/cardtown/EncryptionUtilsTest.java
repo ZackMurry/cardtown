@@ -1,8 +1,10 @@
 package com.zackmurry.cardtown;
 
+import com.zackmurry.cardtown.util.EncryptionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.nio.charset.StandardCharsets;
@@ -16,14 +18,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class EncryptionUtilsTest {
 
+    @Autowired
+    private EncryptionUtils encryptionUtils;
+
     @DisplayName("Test SHA-256")
     @Test
     public void testSHA256() {
-        assertEquals("nZbr3RH5tG7mntAV0QNW1Syznddn059DeXy3eMvuCbY=", getSHA256HashBase64("this is a test password"));
-        assertEquals("a9BFcBLFw47+oRD4nq17zXxmcFJRNDnX9J06EOQqd88=", getSHA256HashBase64("37495245a28916bab6766c133fd42a39b46fa839c2a05c3f9cae2ffc95197e30"));
-        assertEquals("STAfnSecd7xf8f+EkfBlwSdhlQlmJr1wMNRaodpAq8c=", getSHA256HashBase64("dakdsnadkdnsnklanksansadlm,nvcoiishiadhisadncjbnx"));
+        assertEquals("nZbr3RH5tG7mntAV0QNW1Syznddn059DeXy3eMvuCbY=", encryptionUtils.getSHA256HashBase64("this is a test password"));
+        assertEquals("a9BFcBLFw47+oRD4nq17zXxmcFJRNDnX9J06EOQqd88=", encryptionUtils.getSHA256HashBase64("37495245a28916bab6766c133fd42a39b46fa839c2a05c3f9cae2ffc95197e30"));
+        assertEquals("STAfnSecd7xf8f+EkfBlwSdhlQlmJr1wMNRaodpAq8c=", encryptionUtils.getSHA256HashBase64("dakdsnadkdnsnklanksansadlm,nvcoiishiadhisadncjbnx"));
         final String sameText = "this is the same hash";
-        assertEquals(getSHA256HashBase64(sameText), getSHA256HashBase64(sameText), "Two hashes of the same password should return the same result.");
+        assertEquals(encryptionUtils.getSHA256HashBase64(sameText), encryptionUtils.getSHA256HashBase64(sameText), "Two hashes of the same password should return the same result.");
     }
 
     @DisplayName("Test generation of AES key")

@@ -1,9 +1,9 @@
 package com.zackmurry.cardtown.controller;
 
 import com.zackmurry.cardtown.exception.BadRequestException;
-import com.zackmurry.cardtown.model.arg.ArgumentPreview;
-import com.zackmurry.cardtown.model.shared.CountResponse;
+import com.zackmurry.cardtown.model.CountResponse;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
+import com.zackmurry.cardtown.model.arg.ArgumentPreview;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.arg.card.CardIdHolder;
 import com.zackmurry.cardtown.model.auth.UserModel;

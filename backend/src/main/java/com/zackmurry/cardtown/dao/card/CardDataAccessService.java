@@ -37,10 +37,10 @@ public class CardDataAccessService implements CardDao {
      */
     @Override
     public UUID createCard(@NonNull CardEntity card) {
-        String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body_html, body_draft, body_text) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        final String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body_html, body_draft, body_text) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             final String[] returnId = { "id" };
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
             preparedStatement.setObject(1, card.getOwnerId());
             preparedStatement.setString(2, card.getTag());
             preparedStatement.setString(3, card.getCite());
@@ -48,13 +48,13 @@ public class CardDataAccessService implements CardDao {
             preparedStatement.setString(5, card.getBodyHtml());
             preparedStatement.setString(6, card.getBodyDraft());
             preparedStatement.setString(7, card.getBodyText());
-            int affectedRows = preparedStatement.executeUpdate();
+            final int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 logger.warn("Card creation by {} didn't generate an id.", card.getOwnerId());
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            final ResultSet resultSet = preparedStatement.getGeneratedKeys();
             if (resultSet.next()) {
                 return UUID.fromString(resultSet.getString("id"));
             }
@@ -66,11 +66,11 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public Optional<CardEntity> getCardById(@NonNull UUID id) {
-        String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text FROM cards WHERE id = ?";
+        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text FROM cards WHERE id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             // if card not found
             if (!resultSet.next()) {
@@ -96,13 +96,13 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public List<CardEntity> getCardsByUser(@NonNull UUID id) {
-        String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft, body_text FROM cards WHERE owner_id = ?";
+        final String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft, body_text FROM cards WHERE owner_id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
+            final ResultSet rs = preparedStatement.executeQuery();
 
-            List<CardEntity> cards = new ArrayList<>();
+            final List<CardEntity> cards = new ArrayList<>();
             while (rs.next()) {
                 cards.add(
                         new CardEntity(
@@ -126,12 +126,11 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public int getNumberOfCardsByUser(@NonNull UUID id) {
-        String sql = "SELECT COUNT(id) FROM cards WHERE owner_id = ?";
-
+        final String sql = "SELECT COUNT(id) FROM cards WHERE owner_id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt("count");
             }
@@ -143,11 +142,11 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public Optional<UUID> getOwnerIdByCardId(@NonNull UUID cardId) {
-        String sql = "SELECT owner_id FROM cards WHERE id = ?";
+        final String sql = "SELECT owner_id FROM cards WHERE id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, cardId);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return Optional.of(UUID.fromString(resultSet.getString("owner_id")));
             } else {
@@ -162,11 +161,11 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public void deleteCardById(@NonNull UUID id) {
-        String sql = "DELETE FROM cards WHERE id = ?";
+        final String sql = "DELETE FROM cards WHERE id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            int rowsChanged = preparedStatement.executeUpdate();
+            final int rowsChanged = preparedStatement.executeUpdate();
             if (rowsChanged == 0) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             } else if (rowsChanged > 1) {
@@ -181,9 +180,9 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public void updateCardById(@NonNull UUID id, @NonNull EncryptedCard request) {
-        String sql = "UPDATE cards SET tag = ?, cite = ?, cite_information = ?, body_html = ?, body_draft = ? WHERE id = ?";
+        final String sql = "UPDATE cards SET tag = ?, cite = ?, cite_information = ?, body_html = ?, body_draft = ? WHERE id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setString(1, request.getTag());
             preparedStatement.setString(2, request.getCite());
             preparedStatement.setString(3, request.getCiteInformation());

@@ -1,17 +1,14 @@
 package com.zackmurry.cardtown.controller;
 
 import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.model.CountResponse;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.CardPreview;
-import com.zackmurry.cardtown.model.card.EncryptedCard;
 import com.zackmurry.cardtown.model.card.ResponseCard;
-import com.zackmurry.cardtown.model.shared.CountResponse;
 import com.zackmurry.cardtown.service.CardService;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 

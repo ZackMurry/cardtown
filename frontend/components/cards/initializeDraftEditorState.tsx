@@ -15,7 +15,7 @@ const emptyContentState = convertFromRaw({
   ]
 })
 
-//used because EditorState.createFromEmpty() was producing errors.
+// used because EditorState.createFromEmpty() was producing errors.
 const initializeDraftContentState = (): EditorState => (
   EditorState.createWithContent(emptyContentState)
 )

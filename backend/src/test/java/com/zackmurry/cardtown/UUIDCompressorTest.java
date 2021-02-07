@@ -10,7 +10,8 @@ import java.nio.BufferUnderflowException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static com.zackmurry.cardtown.util.UUIDCompressor.*;
+import static com.zackmurry.cardtown.util.UUIDCompressor.compress;
+import static com.zackmurry.cardtown.util.UUIDCompressor.decompress;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

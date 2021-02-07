@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown;
 
 import com.zackmurry.cardtown.dao.user.UserDao;
+import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.AuthenticationRequest;
 import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
 import com.zackmurry.cardtown.service.UserService;
@@ -12,8 +13,6 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -37,6 +36,9 @@ public class UserServiceTest {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private EncryptionUtils encryptionUtils;
 
     private String testEmail;
     private String testPassword;
@@ -74,17 +76,24 @@ public class UserServiceTest {
     @DisplayName("Test secret key with account creation")
     @Test
     public void testSecretKey() {
-        final byte[] encryptionKey = EncryptionUtils.getSHA256Hash(testPassword.getBytes(StandardCharsets.UTF_8));
+        final byte[] encryptionKey = encryptionUtils.getSHA256Hash(testPassword.getBytes(StandardCharsets.UTF_8));
         assertNotNull(encryptionKey);
-        final AuthenticationResponse authRes = userService.createAuthenticationToken(new AuthenticationRequest(testEmail, testPassword));
+        final AuthenticationResponse authRes = userService.createAuthenticationToken(testEmail, testPassword);
         assertNotNull(authRes);
         final String jwt = authRes.getJwt();
         assertNotNull(jwt);
         final Claims claims = jwtUtil.extractAllClaims(jwt);
         assertEquals(testEmail, claims.getSubject());
         assertEquals(Base64.encodeBase64String(encryptionKey), jwtUtil.extractEncryptionKey(jwt));
-        final byte[] allegedSecretKey = userService.getUserSecretKey(testEmail, encryptionKey);
-        final String encryptedSecretKey = userDao.getEncryptedSecretKey(testEmail);
+        byte[] allegedSecretKey;
+        try {
+            allegedSecretKey = userService.getUserSecretKey(testEmail, encryptionKey);
+        } catch (UserNotFoundException ignored) {
+            fail("A secret key should be able to be retrieved");
+            return;
+        }
+        final String encryptedSecretKey = userDao.getEncryptedSecretKey(testEmail).orElse(null);
+        assertNotNull(encryptedSecretKey, "An encrypted secret key should not be null");
         try {
             byte[] actualSecretKey = EncryptionUtils.decryptAES(Base64.decodeBase64(encryptedSecretKey), encryptionKey);
             assertEquals(Arrays.toString(actualSecretKey), Arrays.toString(allegedSecretKey));

@@ -48,7 +48,7 @@ const ViewArgument: NextPage<Props> = ({
         >
           Argument
         </Typography>
-        <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
+        <BlackText style={{ fontSize: 24, fontWeight: 'bold', overflowWrap: 'break-word' }}>
           {argument.name}
         </BlackText>
         <div

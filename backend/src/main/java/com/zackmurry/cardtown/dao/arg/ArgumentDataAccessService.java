@@ -40,36 +40,37 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public Optional<UUID> createArgument(@NonNull ArgumentCreateRequest request) {
-        String sql = "INSERT INTO arguments (owner_id, name) VALUES (?, ?)";
+    public UUID createArgument(@NonNull ArgumentCreateRequest request) {
+        final String sql = "INSERT INTO arguments (owner_id, name) VALUES (?, ?)";
         try {
             final String[] returnId = { "id" };
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
             preparedStatement.setObject(1, request.getOwnerId());
             preparedStatement.setString(2, request.getName());
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
-                logger.warn("Argument creation by {} didn't generate an id.", request.getOwnerId());
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+                logger.warn("Argument creation by {} didn't generate an id", request.getOwnerId());
+                throw new InternalServerException();
             }
 
-            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            final ResultSet resultSet = preparedStatement.getGeneratedKeys();
             if (resultSet.next()) {
-                return Optional.of(UUID.fromString(resultSet.getString("id")));
+                return UUID.fromString(resultSet.getString("id"));
             } else {
                 logger.warn("Argument creation by {} didn't return a result set with values", request.getOwnerId());
+                throw new InternalServerException();
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new InternalServerException();
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
     public Optional<ArgumentEntity> getArgumentEntity(@NonNull UUID id) {
-        String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ?";
+        final String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
             final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -90,12 +91,12 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentCardEntity> getCardsByArgumentId(@NonNull UUID argumentId) {
-        String sql = "SELECT card_id, index_in_argument FROM argument_cards WHERE argument_id = ?";
+        final String sql = "SELECT card_id, index_in_argument FROM argument_cards WHERE argument_id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, argumentId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<ArgumentCardEntity> list = new ArrayList<>();
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ArgumentCardEntity> list = new ArrayList<>();
             while (resultSet.next()) {
                 list.add(new ArgumentCardEntity(argumentId, UUID.fromString(resultSet.getString("card_id")), resultSet.getShort("index_in_argument")));
             }
@@ -125,12 +126,12 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentEntity> getArgumentsByUser(UUID id) {
-        String sql = "SELECT id, name FROM arguments WHERE owner_id = ?";
+        final String sql = "SELECT id, name FROM arguments WHERE owner_id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            List<ArgumentEntity> args = new ArrayList<>();
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ArgumentEntity> args = new ArrayList<>();
             while (resultSet.next()) {
                 args.add(
                         new ArgumentEntity(
@@ -150,11 +151,10 @@ public class ArgumentDataAccessService implements ArgumentDao {
     @Override
     public int getNumberOfArgumentsByUser(UUID id) {
         final String sql = "SELECT COUNT(id) FROM arguments WHERE owner_id = ?";
-
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt("count");
             }
@@ -211,9 +211,6 @@ public class ArgumentDataAccessService implements ArgumentDao {
     @Override
     public void removeCardFromArgument(UUID argumentId, UUID cardId) {
         final short indexInArgument = getIndexOfCardInArgument(argumentId, cardId);
-        if (indexInArgument == -1) {
-            throw new CardNotFoundException("Card was not found in the specified argument");
-        }
         final String removeSql = "DELETE FROM argument_cards WHERE argument_id = ? AND card_id = ?";
         final String incrementIndexSql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ?";
         try {
@@ -221,7 +218,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
             preparedStatement.setObject(1, argumentId);
             preparedStatement.setObject(2, cardId);
             preparedStatement.executeUpdate();
-            PreparedStatement incrementStatement = jdbcTemplate.getConnection().prepareStatement(incrementIndexSql);
+            final PreparedStatement incrementStatement = jdbcTemplate.getConnection().prepareStatement(incrementIndexSql);
             incrementStatement.setObject(1, argumentId);
             incrementStatement.setShort(2, indexInArgument);
             incrementStatement.executeUpdate();
@@ -242,7 +239,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
             if (resultSet.next()) {
                 return resultSet.getShort("index_in_argument");
             }
-            return -1;
+            throw new CardNotFoundException();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();

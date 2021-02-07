@@ -19,7 +19,7 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public AuthenticationResponse createAuthenticationToken(@RequestBody AuthenticationRequest request) throws AuthenticationException {
-        return userService.createAuthenticationToken(request);
+        return userService.createAuthenticationToken(request.getEmail(), request.getPassword());
     }
 
 }

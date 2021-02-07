@@ -15,16 +15,19 @@ import java.security.SecureRandom;
 
 public class EncryptionUtils {
 
+    private final MessageDigest messageDigest;
+
+    public EncryptionUtils() throws NoSuchAlgorithmException {
+        this.messageDigest = MessageDigest.getInstance("SHA-256");
+    }
+
     /**
      * takes a user's plain-text text and generates and encryption key
      * @param text user's plain-text text
      * @return a base64-encoded SHA-256 hash of the text
      */
-    public static String getSHA256HashBase64(String text) {
-        byte[] bytes = getSHA256Hash(text.getBytes(StandardCharsets.UTF_8));
-        if (bytes == null) {
-            return null;
-        }
+    public String getSHA256HashBase64(String text) {
+        final byte[] bytes = getSHA256Hash(text.getBytes(StandardCharsets.UTF_8));
         return Base64.encodeBase64String(bytes);
     }
 
@@ -33,14 +36,7 @@ public class EncryptionUtils {
      * @param plainText user's plain-text text
      * @return a SHA-256 hash of the text
      */
-    public static byte[] getSHA256Hash(byte[] plainText) {
-        MessageDigest messageDigest;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public byte[] getSHA256Hash(byte[] plainText) {
         return messageDigest.digest(plainText);
     }
 

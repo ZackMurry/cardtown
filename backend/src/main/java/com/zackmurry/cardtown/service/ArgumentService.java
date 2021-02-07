@@ -1,7 +1,10 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
-import com.zackmurry.cardtown.exception.*;
+import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
+import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.exception.ForbiddenException;
+import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentPreview;
@@ -58,7 +61,7 @@ public class ArgumentService {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        final UUID argId = argumentDao.createArgument(request).orElse(null);
+        final UUID argId = argumentDao.createArgument(request);
         if (argId == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
