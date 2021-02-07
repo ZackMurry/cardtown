@@ -180,7 +180,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public void updateCardById(@NonNull UUID id, @NonNull EncryptedCard request) {
-        final String sql = "UPDATE cards SET tag = ?, cite = ?, cite_information = ?, body_html = ?, body_draft = ? WHERE id = ?";
+        final String sql = "UPDATE cards SET tag = ?, cite = ?, cite_information = ?, body_html = ?, body_draft = ?, body_text = ? WHERE id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setString(1, request.getTag());
@@ -188,7 +188,8 @@ public class CardDataAccessService implements CardDao {
             preparedStatement.setString(3, request.getCiteInformation());
             preparedStatement.setString(4, request.getBodyHtml());
             preparedStatement.setString(5, request.getBodyDraft());
-            preparedStatement.setObject(6, id);
+            preparedStatement.setString(6, request.getBodyText());
+            preparedStatement.setObject(7, id);
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();

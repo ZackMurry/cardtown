@@ -41,31 +41,36 @@ public class CardService {
     @Autowired
     private CardDao cardDao;
 
+    /**
+     * Returns a <code>ResponseCard</code> by its id.
+     * Checks if the principal has permission to access it.
+     * @param id Id of card
+     * @return A <code>ResponseCard</code> representing the card's data
+     * @throws CardNotFoundException If the card could not be found
+     * @throws ForbiddenException If the user doesn't have access to the requested card
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @throws InternalServerException If the owner of the card is not found in the users table
+     */
     public ResponseCard getResponseCardById(UUID id) {
-        CardEntity cardEntity = cardDao.getCardById(id).orElse(null);
+        final CardEntity cardEntity = cardDao.getCardById(id).orElse(null);
         if (cardEntity == null) {
             throw new CardNotFoundException();
         }
 
-        String principalEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<UUID> optionalUserId = userService.getIdByEmail(principalEmail);
-        if (optionalUserId.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED);
-        }
-        UUID userId = optionalUserId.get();
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final UUID userId = principal.getId();
         if (!userId.equals(cardEntity.getOwnerId())) {
             // todo sharing
             throw new ForbiddenException();
         }
 
         try {
-            final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
-            cardEntity.decryptFields(secretKey);
+            cardEntity.decryptFields(principal.getSecretKey());
         } catch (Exception e) {
             e.printStackTrace();
             throw new BadRequestException();
         }
-        User owner = userService.getUserById(userId).orElse(null);
+        final User owner = userService.getUserById(userId).orElse(null);
         if (owner == null) {
             logger.warn("Owner of card not found in users database. Owner id: {}, card id: {}", userId, cardEntity.getId());
             throw new InternalServerException();
@@ -74,21 +79,39 @@ public class CardService {
         return ResponseCard.fromCard(cardEntity, ResponseUserDetails.fromUser(owner));
     }
 
+    /**
+     * A helper method for converting a Base64 card id to a UUID and then finding the associated <code>ResponseCard</code>.
+     * This method also checks the principal's permission to the card before retrieving it
+     * @see CardService#getResponseCardById(UUID) For the method that is called after converting the Base64 to a UUID
+     * @param id Id of card in Base64
+     * @return A <code>ResponseCard</code> representing the card's data
+     * @throws CardNotFoundException If the card could not be found
+     * @throws ForbiddenException If the user doesn't have access to the requested card
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @throws InternalServerException If the owner of the card is not found in the users table
+     * @throws BadRequestException If the card has an invalid id
+     */
     public ResponseCard getResponseCardById(@NonNull String id) {
         try {
             return getResponseCardById(UUIDCompressor.decompress(id));
         } catch (BufferUnderflowException e) {
-            // this happens if there's an invalid UUID (too short)
-            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
+            // This happens if there's an invalid UUID (too short)
+            throw new BadRequestException();
         }
     }
 
     /**
-     * creates a card in the database and returns its shortened id
-     * @param request info of card to create
-     * @return new card's shortened id or a fail value
+     * Creates a card in the database and returns its id in Base64.
+     * If the card's tag or cite information are null, this will replace them with an empty <code>String</code>.
+     * This method also sanitizes the HTML found in the request's bodyHtml
+     * @see HtmlSanitizer#sanitizeHtml(String) For details about sanitization
+     * @param request Info of the card to create
+     * @return New card's id in Base64
+     * @throws BadRequestException If any of the following are null: ownerEmail, bodyHtml, bodyDraft, bodyText, cite
+     * @throws ResponseStatusException (Length required) If tag is more than 256 chars, cite is more than 128 chars, or cite information is more than 2048 chars
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
-    public String createCard(CardCreateRequest request) {
+    public String createCard(@NonNull CardCreateRequest request) {
         if (request.getOwnerEmail() == null ||
             request.getBodyHtml() == null ||
             request.getBodyDraft() == null ||
@@ -104,6 +127,7 @@ public class CardService {
             request.setCiteInformation("");
         }
 
+        // todo: impose some limit on length of body fields
         if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
             throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
         }
@@ -111,7 +135,7 @@ public class CardService {
         // whitelisting html tags to prevent XSS
         request.setBodyHtml(HtmlSanitizer.sanitizeHtml(request.getBodyHtml()));
 
-        Optional<UUID> optionalUserId = userService.getIdByEmail(request.getOwnerEmail());
+        final Optional<UUID> optionalUserId = userService.getIdByEmail(request.getOwnerEmail());
         if (optionalUserId.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED);
         }
@@ -124,13 +148,20 @@ public class CardService {
             e.printStackTrace();
             throw new BadRequestException();
         }
-        UUID cardId = cardDao.createCard(cardEntity);
+        final UUID cardId = cardDao.createCard(cardEntity);
         return UUIDCompressor.compress(cardId);
     }
 
+    /**
+     * Gets a list of (decrypted) <code>ResponseCard</code>s representing the principal's cards.
+     * @return The principal's cards
+     * @throws InternalServerException If there is an error decrypting the cards
+     * @throws InternalServerException If a card's owner cannot be found in the users table
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public List<ResponseCard> getAllCardsByUser() {
         final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        List<CardEntity> rawCards = cardDao.getCardsByUser(id);
+        final List<CardEntity> rawCards = cardDao.getCardsByUser(id);
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
 
         try {
@@ -139,7 +170,6 @@ public class CardService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // not sure if this would be the server's or user's fault tbh
             throw new InternalServerException();
         }
         // probably use a HashMap<UUID, ResponseUserDetails> when i add sharing to greedily keep track of user details by UUID
@@ -152,12 +182,25 @@ public class CardService {
         return rawCards.stream().map(c -> ResponseCard.fromCard(c, resUserDetails)).collect(Collectors.toList());
     }
 
+    /**
+     * Returns the amount of cards that the principal has access to. Does not check if the user exists
+     * @return The number of cards the principal has access to
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public int getNumberOfCardsByUser() {
         final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         return cardDao.getNumberOfCardsByUser(id);
     }
 
+    /**
+     * Deletes a card by its id. Before deleting, it checks if the principal has permission to delete the card
+     * @param id Id of card in Base64
+     * @throws CardNotFoundException If the card could not be found
+     * @throws ForbiddenException If the principal doesn't have permission to delete the card
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public void deleteCardById(String id) {
+        // todo probably make this internally call another method that takes a UUID param
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final UUID cardId = UUIDCompressor.decompress(id);
         final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);
@@ -171,12 +214,34 @@ public class CardService {
         cardDao.deleteCardById(cardId);
     }
 
+    /**
+     * Updates a card by its id. First checks if the principal has permission to edit the card. The <code>request</code> parameter must
+     * contain the full new card -- not just a partial card (except for tag and citeInformation, which will be replaced with an empty string
+     * if null). This method will also sanitize the incoming HTML
+     * @see HtmlSanitizer#sanitizeHtml(String) For the HTML sanitization method
+     * @param id The card's id in Base64
+     * @param request New information for card to have
+     * @throws BadRequestException If any of the following fields of <code>request</code> are null:
+     * bodyHtml, bodyText, bodyDraft, cite
+     * @throws ResponseStatusException (Length required) If tag is more than 256 chars, cite is more than 128 chars, or cite information is more than 2048 chars
+     * @throws CardNotFoundException If the card could not be found
+     * @throws ForbiddenException If the principal doesn't have permission to edit the requested card
+     * @throws InternalServerException If there is an error while encrypting the new card data
+     */
     public void updateCardById(String id, CardCreateRequest request) {
+        // todo extract this stuff into a validation method
         if (request.getBodyHtml() == null ||
             request.getBodyDraft() == null ||
             request.getCite() == null ||
             request.getBodyText() == null) {
             throw new BadRequestException();
+        }
+
+        if (request.getTag() == null) {
+            request.setTag("");
+        }
+        if (request.getCiteInformation() == null) {
+            request.setCiteInformation("");
         }
         if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
             throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
@@ -215,14 +280,26 @@ public class CardService {
         cardDao.updateCardById(cardId, cardEntity);
     }
 
+    /**
+     * Finds the response cards of a list of ids. Does not preserve order. Does not check if the principal has access to them
+     * @param ids Ids of cards to find
+     * @return A list of <code>ResponseCard</code>s that have the requested ids
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public List<ResponseCard> getResponseCardsByIds(List<UUID> ids) {
-        List<ResponseCard> responseCards = new ArrayList<>();
+        final List<ResponseCard> responseCards = new ArrayList<>();
         for (UUID id : ids) {
             responseCards.add(getResponseCardById(id));
         }
         return responseCards;
     }
 
+    /**
+     * Gets the (decrypted) <code>CardPreview</code>s of all of the cards that the user has access to
+     * @return The <code>CardPreview</code>s that the user has access to
+     * @throws InternalServerException If an error occurs while decrypting the cards
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public List<CardPreview> getCardPreviewsByUser() {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final List<CardEntity> rawCards = cardDao.getCardsByUser(principal.getId());
@@ -241,6 +318,12 @@ public class CardService {
         return cardPreviews;
     }
 
+    /**
+     * Gets a <code>CardEntity</code> by its id (in UUID form)
+     * @param cardId Id of card to find
+     * @return If card is found: an <code>Optional</code> containing the request card; if not found: <code>Optional.empty()</code>
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public Optional<CardEntity> getCardEntityById(@NonNull UUID cardId) {
         return cardDao.getCardById(cardId);
     }

@@ -7,15 +7,15 @@ import java.util.UUID;
 public class UUIDCompressor {
 
     public static String compress(UUID uuid) {
-        ByteBuffer bb = ByteBuffer.allocate(Long.BYTES * 2);
+        final ByteBuffer bb = ByteBuffer.allocate(Long.BYTES * 2);
         bb.putLong(uuid.getMostSignificantBits());
         bb.putLong(uuid.getLeastSignificantBits());
-        byte[] array = bb.array();
+        final byte[] array = bb.array();
         return Base64.getEncoder().encodeToString(array);
     }
 
     public static UUID decompress(String compressed) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(Base64.getDecoder().decode(compressed));
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(Base64.getDecoder().decode(compressed));
         return new UUID(byteBuffer.getLong(), byteBuffer.getLong());
     }
 

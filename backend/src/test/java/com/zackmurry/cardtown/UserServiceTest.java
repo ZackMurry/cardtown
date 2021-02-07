@@ -47,7 +47,7 @@ public class UserServiceTest {
     public void createTestUser() {
         testEmail = RandomStringUtils.randomAlphanumeric(12);
 
-        //create a new test user if this user already exists
+        // try again if this user already exists
         if (userService.accountExists(testEmail)) {
             createTestUser();
         } else {
