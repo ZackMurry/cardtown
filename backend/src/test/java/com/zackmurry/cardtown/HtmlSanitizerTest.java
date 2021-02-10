@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -58,6 +59,11 @@ public class HtmlSanitizerTest {
 
         value = "<p><b>A simple <i>combined</i> test</b></p>";
         assertEquals(value, sanitizeHtml(value));
+
+        for (int i = 0; i < 100; i++) {
+            value = "<h3>" + RandomStringUtils.randomAlphanumeric(25) + "</h3>";
+            assertEquals(value, sanitizeHtml(value));
+        }
     }
 
 }

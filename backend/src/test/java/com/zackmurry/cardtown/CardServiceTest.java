@@ -90,25 +90,29 @@ public class CardServiceTest {
     @DisplayName("Test creating and deleting cards")
     @Test
     public void testCreateAndDeleteCard() {
-        final String cardId = cardService.createCard(generateMockCard(testEmail));
-        assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
-        assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
+        for (int i = 0; i < 100; i++) {
+            final String cardId = cardService.createCard(generateMockCard(testEmail));
+            assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
+            assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
+        }
     }
 
     @DisplayName("Test card encryption")
     @Test
     public void testCardEncryption() {
-        final CardCreateRequest req = generateMockCard(testEmail);
-        final String cardId = cardService.createCard(req);
-        final ResponseCard returnedCard = cardService.getResponseCardById(cardId);
-        assertEquals(req.getTag(), returnedCard.getTag(), "The tag should not change after being stored in the database");
-        assertEquals(req.getCite(), returnedCard.getCite(), "The cite should not change after being stored in the database");
-        assertEquals(req.getCiteInformation(), returnedCard.getCiteInformation(), "The cite should not change after being stored in the database");
-        assertEquals(req.getBodyHtml(), returnedCard.getBodyHtml(), "The body html should not change after being stored in the database");
-        assertEquals(req.getBodyDraft(), returnedCard.getBodyDraft(), "The body draft should not change after being stored in the database");
-        assertEquals(req.getBodyText(), returnedCard.getBodyText(), "The body text should not change after being stored in the database");
-        assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
-        assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
+        for (int i = 0; i < 100; i++) {
+            final CardCreateRequest req = generateMockCard(testEmail);
+            final String cardId = cardService.createCard(req);
+            final ResponseCard returnedCard = cardService.getResponseCardById(cardId);
+            assertEquals(req.getTag(), returnedCard.getTag(), "The tag should not change after being stored in the database");
+            assertEquals(req.getCite(), returnedCard.getCite(), "The cite should not change after being stored in the database");
+            assertEquals(req.getCiteInformation(), returnedCard.getCiteInformation(), "The cite should not change after being stored in the database");
+            assertEquals(req.getBodyHtml(), returnedCard.getBodyHtml(), "The body html should not change after being stored in the database");
+            assertEquals(req.getBodyDraft(), returnedCard.getBodyDraft(), "The body draft should not change after being stored in the database");
+            assertEquals(req.getBodyText(), returnedCard.getBodyText(), "The body text should not change after being stored in the database");
+            assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
+            assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
+        }
     }
 
     @DisplayName("Test editing cards")

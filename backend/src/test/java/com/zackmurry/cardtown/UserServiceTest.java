@@ -70,7 +70,9 @@ public class UserServiceTest {
     @DisplayName("Test authentication")
     @Test
     public void testAuthentication() {
-        assertDoesNotThrow(() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(testEmail, testPassword)), "User should be authenticated if they enter the correct email and password. " + testEmail + "; " + testPassword);
+        for (int i = 0; i < 10; i++) {
+            assertDoesNotThrow(() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(testEmail, testPassword)), "User should be authenticated if they enter the correct email and password. " + testEmail + "; " + testPassword);
+        }
     }
 
     @DisplayName("Test secret key with account creation")

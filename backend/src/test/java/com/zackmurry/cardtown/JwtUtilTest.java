@@ -45,21 +45,25 @@ public class JwtUtilTest {
     @DisplayName("Test general jwt creation")
     @Test
     public void testJwtCreation() {
-        final String jwt = jwtUtil.generateToken(userDetails);
-        assertTrue(jwt.length() > 20, "Jwt should be sufficiently long.");
-        assertTrue(jwtUtil.validateToken(jwt, userDetails), "Jwt should be valid.");
-        assertEquals(userDetails.getUsername(), jwtUtil.extractSubject(jwt), "Subject should match email.");
+        for (int i = 0; i < 100; i++) {
+            final String jwt = jwtUtil.generateToken(userDetails);
+            assertTrue(jwt.length() > 20, "Jwt should be sufficiently long.");
+            assertTrue(jwtUtil.validateToken(jwt, userDetails), "Jwt should be valid.");
+            assertEquals(userDetails.getUsername(), jwtUtil.extractSubject(jwt), "Subject should match email.");
+        }
     }
 
     @DisplayName("Test signing")
     @Test
     public void testJwtSigning() {
-        final String jwt = jwtUtil.generateToken(userDetails);
-        assertTrue(jwtUtil.validateToken(jwt, userDetails), "JwtUtil should correctly validate a valid token.");
-        for (int i = 0; i < jwt.length(); i++) {
-            final char alteredChar = RandomStringUtils.randomAlphanumeric(1).charAt(0);
-            final String alteredJwt = jwt.substring(0, i) + (alteredChar != jwt.charAt(i) ? alteredChar : ((char) ((int) alteredChar) + 1)) + jwt.substring(i + 1);
-            assertThrows(Exception.class, () -> jwtUtil.validateToken(alteredJwt, userDetails), "JwtUtil should find that an altered JWT is invalid.");
+        for (int i = 0; i < 100; i++) {
+            final String jwt = jwtUtil.generateToken(userDetails);
+            assertTrue(jwtUtil.validateToken(jwt, userDetails), "JwtUtil should correctly validate a valid token.");
+            for (int j = 0; j < jwt.length(); j++) {
+                final char alteredChar = RandomStringUtils.randomAlphanumeric(1).charAt(0);
+                final String alteredJwt = jwt.substring(0, j) + (alteredChar != jwt.charAt(j) ? alteredChar : ((char) ((int) alteredChar) + 1)) + jwt.substring(j + 1);
+                assertThrows(Exception.class, () -> jwtUtil.validateToken(alteredJwt, userDetails), "JwtUtil should find that an altered JWT is invalid.");
+            }
         }
     }
 
