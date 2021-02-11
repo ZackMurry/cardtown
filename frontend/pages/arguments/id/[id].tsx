@@ -2,6 +2,7 @@ import { Typography } from '@material-ui/core'
 import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { useState } from 'react'
+import AddCardToArgumentButton from '../../../components/arguments/AddCardToArgumentButton'
 import CardDisplay from '../../../components/cards/CardDisplay'
 import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import ResponseArgument from '../../../components/types/ResponseArgument'
@@ -18,7 +19,7 @@ interface Props {
   jwt?: string
 }
 
-// todo adding cards
+// todo drag and drop to reorder
 const ViewArgument: NextPage<Props> = ({
   fetchingErrorText, argument, jwt, id
 }) => {
@@ -76,6 +77,14 @@ const ViewArgument: NextPage<Props> = ({
               />
             ))
           }
+        </div>
+        <div style={{ marginTop: 25 }}>
+          <AddCardToArgumentButton
+            jwt={jwt}
+            onError={setErrorText}
+            argId={argument.id}
+            windowWidth={width}
+          />
         </div>
       </div>
       {

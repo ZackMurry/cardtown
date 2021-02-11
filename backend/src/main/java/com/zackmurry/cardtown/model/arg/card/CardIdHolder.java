@@ -10,5 +10,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardIdHolder {
-    private String cardId;
+    private String id;
 }

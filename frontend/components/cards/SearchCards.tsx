@@ -27,6 +27,10 @@ const SearchCards: FC<Props> = ({
       return
     }
 
+    if (!cards) {
+      return
+    }
+
     const queryWords = query.split(' ')
 
     let searchPoints: SearchPoint[] = []

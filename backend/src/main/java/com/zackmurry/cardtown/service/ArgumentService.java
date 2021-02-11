@@ -106,17 +106,29 @@ public class ArgumentService {
 
     public void addCardToArgument(UUID cardId, UUID argumentId) {
         final short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
-        addCardToArgument(cardId, argumentId, index);
+        final CardEntity cardEntity = cardService.getCardEntityById(cardId).orElse(null);
+        if (cardEntity == null) {
+            throw new CardNotFoundException();
+        }
+        final UUID principalId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        if (!cardEntity.getOwnerId().equals(principalId)) {
+            throw new ForbiddenException();
+        }
+        argumentDao.addCardToArgument(cardId, argumentId, index);
     }
 
-    public void addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument) {
-        argumentDao.addCardToArgument(cardId, argumentId, indexInArgument);
-    }
-
-    public void addCardToArgument(String cardId, String argumentId) {
+    public void addCardToArgument(@NonNull String cardId, @NonNull String argumentId) {
         // todo check access to card
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
+        if (argumentEntity == null) {
+            throw new ArgumentNotFoundException();
+        }
+        final UUID principalId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        if (!argumentEntity.getOwnerId().equals(principalId)) {
+            throw new ForbiddenException();
+        }
         addCardToArgument(decompressedCardId, decompressedArgId);
     }
 

@@ -1,5 +1,7 @@
 import theme from './theme'
 
+type GridSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+
 const getGridSizeByScreenWidth = (width: number) => {
   if (width === undefined || width === null) {
     return 'xl'

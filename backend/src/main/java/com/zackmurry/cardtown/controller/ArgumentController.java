@@ -49,7 +49,12 @@ public class ArgumentController {
         final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
         final String encodedArgId = relevantPath.split("/")[0];
         final String argId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
-        argumentService.addCardToArgument(addRequest.getCardId(), argId);
+
+        if (addRequest.getId() == null || argId == null) {
+            throw new BadRequestException();
+        }
+
+        argumentService.addCardToArgument(addRequest.getId(), argId);
     }
 
     @GetMapping("")

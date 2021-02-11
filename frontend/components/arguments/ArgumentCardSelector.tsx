@@ -117,17 +117,29 @@ const ArgumentCardSelector: FC<Props> = ({
       />
       {/* todo: lazy load */}
       <div>
-        <Typography variant='h5'>
-          Find more cards
-        </Typography>
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-          <SearchCards
-            cards={cardsNotInArgument}
-            onResults={setCardsInSearch}
-            onClear={() => setCardsInSearch(cardsNotInArgument)}
-            windowWidth={windowWidth}
-          />
-        </div>
+        <Grid container spacing={3} style={{ width: '100%' }}>
+          <Grid item xs={12} md={6}>
+            <Typography variant='h5'>
+              Find more cards
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            md={6}
+            style={{
+              display: 'flex',
+              justifyContent: windowWidth >= theme.breakpoints.values.md ? 'flex-end' : 'flex-start'
+            }}
+          >
+            <SearchCards
+              cards={cardsNotInArgument}
+              onResults={setCardsInSearch}
+              onClear={() => setCardsInSearch(cardsNotInArgument)}
+              windowWidth={windowWidth}
+            />
+          </Grid>
+        </Grid>
         <div
           style={{
             backgroundColor: theme.palette.secondary.main,
