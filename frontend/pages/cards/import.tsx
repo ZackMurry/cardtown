@@ -77,7 +77,6 @@ const ImportCards: FC = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     e.preventDefault()
-    console.log('k')
     if (e.key === 't') {
       setTag(window.getSelection().toString())
     } else if (e.key === 'c') {
@@ -138,7 +137,7 @@ const ImportCards: FC = () => {
       }}
     >
       <DashboardSidebar windowWidth={width} pageName='Cards' />
-      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
+      <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
           <div>
             <Typography
@@ -180,6 +179,7 @@ const ImportCards: FC = () => {
             <div
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
+              // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{ __html: pasteData }}
               style={{ outline: 'none' }}
               onKeyDown={handleKeyDown}
@@ -276,6 +276,7 @@ const ImportCards: FC = () => {
                   *
                 </span>
               </BlackText>
+              {/* eslint-disable-next-line react/no-danger */}
               <div dangerouslySetInnerHTML={{ __html: bodyHtml }} />
             </div>
           </form>

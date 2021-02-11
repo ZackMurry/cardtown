@@ -26,7 +26,6 @@ const AddCardToArgumentButton: FC<Props> = ({
   const handleClick = () => {
     setOpen(true)
     if (allCards === null) {
-      console.log('fetching...')
       fetchCards()
     }
   }
@@ -48,7 +47,6 @@ const AddCardToArgumentButton: FC<Props> = ({
   }
 
   const handleCardAdd = async id => {
-    console.log(id)
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argId)}/cards`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },

@@ -66,8 +66,8 @@ const NewCard: FC = () => {
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardSidebar windowWidth={width} pageName='Cards' />
 
-      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
-        <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
+      <div style={{ paddingLeft: 38, paddingRight: 38 }}>
+        <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '7.5vh auto' }}>
           <div>
             <Typography
               style={{

@@ -7,7 +7,7 @@ export default function DashSidebarDesktop({ pageName }) {
   return (
     <div
       style={{
-        position: 'fixed',
+        position: 'absolute',
         height: '100vh',
         width: '12.9vw',
         left: 0,

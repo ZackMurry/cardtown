@@ -12,7 +12,7 @@ interface Props {
 }
 
 const CardSearchMenu: FC<Props> = ({
-  jwt, onCardSelect, cards, windowWidth
+  onCardSelect, cards, windowWidth
 }) => {
   const [ cardsInSearch, setCardsInSearch ] = useState(cards)
 

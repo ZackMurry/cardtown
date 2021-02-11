@@ -103,7 +103,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
       <DashboardSidebar windowWidth={width} pageName='Arguments' />
 
       {/* todo probly want to center all of these on the page, ignoring the sidebar */}
-      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
+      <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
           <div>
             <Typography

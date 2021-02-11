@@ -2,7 +2,7 @@ import theme from './theme'
 
 type GridSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
-const getGridSizeByScreenWidth = (width: number) => {
+const getGridSizeByScreenWidth = (width: number): GridSize => {
   if (width === undefined || width === null) {
     return 'xl'
   }

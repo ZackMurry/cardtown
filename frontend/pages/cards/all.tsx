@@ -1,6 +1,5 @@
 import { parse } from 'cookie'
 import { useState } from 'react'
-import { useRouter } from 'next/router'
 import { Grid, Tooltip, Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
@@ -22,7 +21,6 @@ interface Props {
 const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
   const [ cards, setCards ] = useState(initialCards)
   const { width } = useWindowSize(1920, 1080)
-  const router = useRouter()
 
   return (
     <div
