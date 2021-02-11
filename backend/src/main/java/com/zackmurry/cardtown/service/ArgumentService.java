@@ -1,10 +1,7 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
-import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
-import com.zackmurry.cardtown.exception.BadRequestException;
-import com.zackmurry.cardtown.exception.ForbiddenException;
-import com.zackmurry.cardtown.exception.InternalServerException;
+import com.zackmurry.cardtown.exception.*;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentPreview;
@@ -46,12 +43,15 @@ public class ArgumentService {
     @Autowired
     private CardService cardService;
 
-    public String createArgument(ArgumentCreateRequest request) {
-        if (request == null || request.getName() == null || request.getOwnerId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    public String createArgument(@NonNull ArgumentCreateRequest request) {
+        request.setOwnerId(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+
+        if (request.getName() == null) {
+            throw new BadRequestException();
         }
+        // todo require name at least one character
         if (request.getName().length() > 128) {
-            throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED, "An argument's name must be <= 128 characters.");
+            throw new LengthRequiredException("An argument's name must be <= 128 characters.");
         }
 
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
@@ -59,15 +59,15 @@ public class ArgumentService {
             request.encryptFields(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new BadRequestException();
         }
         final UUID argId = argumentDao.createArgument(request);
         if (argId == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerException();
         }
 
-        if (request.getCardIds() != null) {
-            List<UUID> cardIds = request.getCardIds().stream().map(UUIDCompressor::decompress).collect(Collectors.toList());
+        if (request.getCardIds() != null && request.getCardIds().size() != 0) {
+            final List<UUID> cardIds = request.getCardIds().stream().map(UUIDCompressor::decompress).collect(Collectors.toList());
             for (UUID cardId : cardIds) {
                 addCardToArgument(cardId, argId);
             }
@@ -83,29 +83,29 @@ public class ArgumentService {
         final UUID uuidId = UUIDCompressor.decompress(id);
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(uuidId).orElse(null);
         if (argumentEntity == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ArgumentNotFoundException();
         }
         if (!argumentEntity.getOwnerId().equals(userId)) {
             // todo sharing
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ForbiddenException();
         }
         try {
             argumentEntity.decryptFields(secretKey);
         } catch (Exception e) {
             // this happens if the encoding is invalid for some reason
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new InternalServerException();
         }
         final User owner = userService.getUserById(argumentEntity.getOwnerId()).orElse(null);
         if (owner == null) {
-            throw new ResponseStatusException(HttpStatus.GONE);
+            throw new InternalServerException();
         }
         final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentEntity.getId());
-        List<ResponseCard> responseCards = cardService.getResponseCardsByIds(argumentCardEntities.stream().map(ArgumentCardEntity::getCardId).collect(Collectors.toList()));
+        final List<ResponseCard> responseCards = cardService.getResponseCardsByIds(argumentCardEntities.stream().map(ArgumentCardEntity::getCardId).collect(Collectors.toList()));
         return ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner), responseCards);
     }
 
     public void addCardToArgument(UUID cardId, UUID argumentId) {
-        short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
+        final short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
         addCardToArgument(cardId, argumentId, index);
     }
 
@@ -124,8 +124,8 @@ public class ArgumentService {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
         final byte[] secretKey = principal.getSecretKey();
-        List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByUser(userId);
-        List<ArgumentPreview> argumentPreviews = new ArrayList<>();
+        final List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByUser(userId);
+        final List<ArgumentPreview> argumentPreviews = new ArrayList<>();
         for (ArgumentEntity argumentEntity : argumentEntities) {
             try {
                 argumentEntity.decryptFields(secretKey);
@@ -202,4 +202,25 @@ public class ArgumentService {
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         argumentDao.removeCardFromArgument(decompressedArgId, decompressedCardId);
     }
+
+    /**
+     * Deletes an argument (including the argument_cards data)
+     * @param argumentId Id of argument to delete (in Base64)
+     * @throws ArgumentNotFoundException If the argument could not be found
+     * @throws ForbiddenException If the user does not have permission to delete the argument
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    public void deleteArgument(@NonNull String argumentId) {
+        final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
+        if (argumentEntity == null) {
+            throw new ArgumentNotFoundException();
+        }
+        final UUID userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        if (!argumentEntity.getOwnerId().equals(userId)) {
+            throw new ForbiddenException();
+        }
+        argumentDao.deleteArgument(decompressedArgId);
+    }
+
 }

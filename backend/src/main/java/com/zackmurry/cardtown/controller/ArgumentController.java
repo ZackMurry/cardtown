@@ -31,8 +31,6 @@ public class ArgumentController {
      */
     @PostMapping("")
     public String createArgument(@RequestBody ArgumentCreateRequest request) {
-       final UUID userId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-       request.setOwnerId(userId);
        return argumentService.createArgument(request);
     }
 

@@ -1,10 +1,7 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.card.CardDao;
-import com.zackmurry.cardtown.exception.BadRequestException;
-import com.zackmurry.cardtown.exception.CardNotFoundException;
-import com.zackmurry.cardtown.exception.ForbiddenException;
-import com.zackmurry.cardtown.exception.InternalServerException;
+import com.zackmurry.cardtown.exception.*;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -129,7 +126,7 @@ public class CardService {
 
         // todo: impose some limit on length of body fields
         if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
-            throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
+            throw new LengthRequiredException();
         }
 
         // whitelisting html tags to prevent XSS
@@ -137,7 +134,7 @@ public class CardService {
 
         final Optional<UUID> optionalUserId = userService.getIdByEmail(request.getOwnerEmail());
         if (optionalUserId.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED);
+            throw new InternalServerException();
         }
 
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
@@ -244,7 +241,7 @@ public class CardService {
             request.setCiteInformation("");
         }
         if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
-            throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
+            throw new LengthRequiredException();
         }
 
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();

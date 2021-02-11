@@ -66,6 +66,7 @@ public class WebRestControllerAdvice {
     @ExceptionHandler(InternalServerException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleInternalServerException(InternalServerException exception, HttpServletResponse response) {
+        exception.printStackTrace();
         return exception.getMessage();
     }
 

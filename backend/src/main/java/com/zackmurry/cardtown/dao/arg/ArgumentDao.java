@@ -96,7 +96,16 @@ public interface ArgumentDao {
      * @param cardId Card to find index for
      * @return The (0-based) position of the card in the argument
      * @throws com.zackmurry.cardtown.exception.CardNotFoundException If the card could not be found in the argument
+     * @throws InternalServerException If there is a <code>SQLException</code>
      */
     short getIndexOfCardInArgument(UUID argumentId, UUID cardId);
+
+    /**
+     * Deletes an argument (including the argument_cards data)
+     * @param argumentId Id of argument to delete
+     * @throws InternalServerException If there is a <code>SQLException</code>
+     * @throws com.zackmurry.cardtown.exception.ArgumentNotFoundException If the argument was not found
+     */
+    void deleteArgument(UUID argumentId);
 
 }

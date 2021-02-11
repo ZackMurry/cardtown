@@ -3,6 +3,7 @@ package com.zackmurry.cardtown.service;
 import com.zackmurry.cardtown.dao.user.UserDao;
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.InternalServerException;
+import com.zackmurry.cardtown.exception.LengthRequiredException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.*;
 import com.zackmurry.cardtown.util.EncryptionUtils;
@@ -95,7 +96,7 @@ public class UserService implements UserDetailsService {
             user.getFirstName().length() > 32 ||
             user.getLastName().length() > 32 ||
             user.getEmail().length() > 320) {
-            throw new ResponseStatusException(HttpStatus.LENGTH_REQUIRED);
+            throw new LengthRequiredException();
         }
         final String plainTextPassword = user.getPassword();
         user.setPassword(encoder.encode(user.getPassword()));

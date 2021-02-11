@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown.dao.arg;
 
+import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
 import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
@@ -240,6 +241,23 @@ public class ArgumentDataAccessService implements ArgumentDao {
                 return resultSet.getShort("index_in_argument");
             }
             throw new CardNotFoundException();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void deleteArgument(@NonNull UUID argumentId) {
+        // This will cascade to argument_cards
+        final String sql = "DELETE FROM arguments WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argumentId);
+            int rowsRemoved = preparedStatement.executeUpdate();
+            if (rowsRemoved == 0) {
+                throw new ArgumentNotFoundException();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();
