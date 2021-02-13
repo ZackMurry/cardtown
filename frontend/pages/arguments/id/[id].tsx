@@ -1,9 +1,11 @@
 import { Typography } from '@material-ui/core'
 import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
+import { useRouter } from 'next/router'
 import { useState } from 'react'
 import AddCardToArgumentButton from '../../../components/arguments/AddCardToArgumentButton'
 import ArgumentName from '../../../components/arguments/ArgumentName'
+import DeleteArgumentButton from '../../../components/arguments/DeleteArgumentButton'
 import CardDisplay from '../../../components/cards/CardDisplay'
 import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import ResponseArgument from '../../../components/types/ResponseArgument'
@@ -26,6 +28,7 @@ const ViewArgument: NextPage<Props> = ({
   const [ errorText, setErrorText ] = useState('')
   const [ name, setName ] = useState(argument?.name)
   const { width } = useWindowSize(1920, 1080)
+  const router = useRouter()
 
   return (
     <div style={{
@@ -50,13 +53,22 @@ const ViewArgument: NextPage<Props> = ({
         >
           Argument
         </Typography>
-        <ArgumentName
-          jwt={jwt}
-          name={name}
-          argumentId={argument.id}
-          onError={setErrorText}
-          onNameChange={setName}
-        />
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <ArgumentName
+            jwt={jwt}
+            name={name}
+            argumentId={argument.id}
+            onError={setErrorText}
+            onNameChange={setName}
+          />
+          <DeleteArgumentButton
+            jwt={jwt}
+            argumentId={argument.id}
+            argumentName={argument.name}
+            onError={setErrorText}
+            onDelete={() => router.push('/arguments/all')}
+          />
+        </div>
         <div
           style={{
             width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
@@ -93,7 +105,10 @@ const ViewArgument: NextPage<Props> = ({
         </div>
       </div>
       {
-        (fetchingErrorText || errorText) && <ErrorAlert disableClose text={fetchingErrorText || errorText} />
+        fetchingErrorText && <ErrorAlert disableClose text={fetchingErrorText} />
+      }
+      {
+        errorText && <ErrorAlert onClose={() => setErrorText('')} text={errorText} />
       }
     </div>
   )

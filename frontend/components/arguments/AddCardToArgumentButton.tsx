@@ -1,6 +1,7 @@
 import { FC, useState } from 'react'
 import AddIcon from '@material-ui/icons/Add'
-import { IconButton } from '@material-ui/core'
+import CloseIcon from '@material-ui/icons/Close'
+import { Grid, IconButton } from '@material-ui/core'
 import { useRouter } from 'next/router'
 import theme from '../utils/theme'
 import BlackText from '../utils/BlackText'
@@ -64,7 +65,6 @@ const AddCardToArgumentButton: FC<Props> = ({
   return (
     <div
       style={{
-        width: '100%',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -79,17 +79,25 @@ const AddCardToArgumentButton: FC<Props> = ({
       {
         isOpen
           ? (
-            <div style={{ width: '75%' }}>
-              <BlackText variant='h6'>
-                Add Card
-              </BlackText>
-              <CardSearchMenu
-                jwt={jwt}
-                onCardSelect={handleCardAdd}
-                cards={allCards}
-                windowWidth={windowWidth}
-              />
-            </div>
+            <Grid container spacing={3}>
+              <Grid item xs={2} />
+              <Grid item xs={8}>
+                <BlackText variant='h6' style={{ textAlign: 'center' }}>
+                  Add Card
+                </BlackText>
+                <CardSearchMenu
+                  jwt={jwt}
+                  onCardSelect={handleCardAdd}
+                  cards={allCards}
+                  windowWidth={windowWidth}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <IconButton onClick={() => setOpen(false)}>
+                  <CloseIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
           ) : (
             <IconButton>
               <AddIcon fontSize='large' />

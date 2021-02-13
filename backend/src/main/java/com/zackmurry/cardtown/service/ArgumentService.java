@@ -18,11 +18,9 @@ import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +48,9 @@ public class ArgumentService {
         if (request.getName() == null) {
             throw new BadRequestException();
         }
-        // todo require name at least one character
-        if (request.getName().length() > 128) {
-            throw new LengthRequiredException("An argument's name must be <= 128 characters.");
+
+        if (request.getName().length() > 128 || request.getName().length() < 1) {
+            throw new LengthRequiredException("An argument's name must be <= 128 characters and at least one character.");
         }
 
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
@@ -247,7 +245,7 @@ public class ArgumentService {
      * @throws BadRequestException If the name is longer than 128 characters
      */
     public void renameArgument(@NonNull String argumentId, @NonNull String newName) {
-        if (newName.length() > 128) {
+        if (newName.length() > 128 || newName.length() < 1) {
             throw new BadRequestException();
         }
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);

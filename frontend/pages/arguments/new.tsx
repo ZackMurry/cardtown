@@ -33,6 +33,10 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
       setErrorText('Your argument\'s name cannot be more than 128 characters')
       return
     }
+    if (name.length < 1) {
+      setErrorText('The name must be at least one character')
+      return
+    }
 
     const cardIds = selectedCards.map(c => c.id)
     const response = await fetch('/api/v1/arguments', {

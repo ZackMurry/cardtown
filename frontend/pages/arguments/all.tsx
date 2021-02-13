@@ -18,6 +18,7 @@ interface Props {
   fetchErrorText?: string
 }
 
+// todo sort by number of cards and alphabetically
 const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) => {
   const [ args, setArgs ] = useState(initialArgs)
   const { width } = useWindowSize(1920, 1080)

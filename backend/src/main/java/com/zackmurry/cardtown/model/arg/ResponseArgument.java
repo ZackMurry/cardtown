@@ -21,8 +21,6 @@ public class ResponseArgument {
     private String name;
     private List<ResponseCard> cards;
 
-    // todo list of cards
-
     public static ResponseArgument fromArgumentEntity(ArgumentEntity argumentEntity, ResponseUserDetails userDetails, List<ResponseCard> cards) {
         return new ResponseArgument(UUIDCompressor.compress(argumentEntity.getId()), userDetails, argumentEntity.getName(), cards);
     }

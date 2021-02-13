@@ -85,4 +85,14 @@ public class ArgumentController {
         argumentService.renameArgument(decodedId, renameRequest.getName());
     }
 
+    @DeleteMapping("/id/**")
+    public void deleteArgument(HttpServletRequest servletRequest) {
+        final String encodedId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
+        if (encodedId == null || encodedId.isEmpty()) {
+            throw new BadRequestException();
+        }
+        final String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
+        argumentService.deleteArgument(decodedId);
+    }
+
 }

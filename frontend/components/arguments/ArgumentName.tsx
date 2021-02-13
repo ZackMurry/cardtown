@@ -28,9 +28,15 @@ const ArgumentName: FC<Props> = ({
     e.preventDefault()
     if (name === initialName) {
       setEditMode(false)
+      return
     }
     if (name.length > 128) {
       onError('The name cannot be longer than 128 characters')
+      return
+    }
+    if (name.length < 1) {
+      onError('The name must be at least one character')
+      return
     }
 
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argumentId)}`, {

@@ -23,8 +23,6 @@ const CardSearchMenu: FC<Props> = ({
       style={{
         backgroundColor: theme.palette.secondary.main,
         width: '100%',
-        border: '1px solid rgba(0, 0, 0, 0.23)',
-        borderRadius: 5,
         padding: 25
       }}
     >
