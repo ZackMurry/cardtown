@@ -15,6 +15,7 @@ import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import theme from '../../components/utils/theme'
 import initializeDraftContentState from '../../components/cards/initializeDraftEditorState'
 import draftExportHtmlOptions from '../../components/cards/draftExportHtmlOptions'
+import ErrorAlert from '../../components/utils/ErrorAlert'
 
 const NewCard: FC = () => {
   const { width } = useWindowSize(1920, 1080)
@@ -23,6 +24,7 @@ const NewCard: FC = () => {
   const [ cite, setCite ] = useState('')
   const [ citeInformation, setCiteInformation ] = useState('')
   const [ bodyState, setBodyState ] = useState(initializeDraftContentState)
+  const [ errorText, setErrorText ] = useState('')
 
   const jwt = useMemo(() => Cookie.get('jwt'), [])
   const router = useRouter()
@@ -50,7 +52,11 @@ const NewCard: FC = () => {
     if (response.ok) {
       const newCardId = await response.text()
       router.push(`/cards/id/${encodeURIComponent(newCardId)}`)
-    } // todo else show error
+    } else if (response.status === 500) {
+      setErrorText('A server error occurred during your request. Please try again')
+    } else {
+      setErrorText('An unknown error occurred during your request. Please try again')
+    }
   }
 
   const currentInlineStyles = []
@@ -216,6 +222,9 @@ const NewCard: FC = () => {
           </form>
         </div>
       </div>
+      {
+        errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />
+      }
     </div>
   )
 }

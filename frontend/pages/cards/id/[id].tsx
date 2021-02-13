@@ -89,21 +89,20 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
   if (response.ok) {
     card = await response.json()
   } else if (response.status === 404 || response.status === 400) {
-    // todo could probably make the error system look better, but whatever
-    errorText = 'Card not found'
+    errorText = 'This card could not be found'
   } else if (response.status === 403) {
-    errorText = "You don't have access to this card"
+    errorText = "You don't have access to this card!"
   } else if (response.status === 401) {
     redirectToLogin(res, `/cards/id/${encodeURIComponent(id)}`)
     return {
       props: {}
     }
   } else if (response.status === 500) {
-    errorText = 'There was an unknown server error. Please try again later'
+    errorText = 'There was an unknown server error. Please try again'
   } else if (response.status === 406) {
-    errorText = 'The ID for this card is invalid.'
+    errorText = 'The ID for this card is invalid'
   } else {
-    errorText = `There was an unrecognized error. Status: ${response.status}`
+    errorText = `There was an unknown error. Message: ${response.statusText}`
   }
   return {
     props: {

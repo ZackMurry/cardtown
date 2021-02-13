@@ -18,6 +18,7 @@ interface Props {
   errorText?: string
 }
 
+// todo sorting
 const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
   const [ cards, setCards ] = useState(initialCards)
   const { width } = useWindowSize(1920, 1080)

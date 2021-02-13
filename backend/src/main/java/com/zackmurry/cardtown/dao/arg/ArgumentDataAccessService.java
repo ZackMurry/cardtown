@@ -26,7 +26,6 @@ import java.util.UUID;
 /**
  * arguments are in a many-to-many relationship with cards.
  * there are two tables for arguments: arguments (meta-data about the argument) and argument_cards (links card ids to arguments, including the order they occur in)
- * todo unit tests -_-
  * todo: when a card is deleted, the argument indices don't update
  */
 @Repository

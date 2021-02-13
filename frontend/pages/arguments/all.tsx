@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { Grid, Typography } from '@material-ui/core'
+import { Grid, IconButton, Typography } from '@material-ui/core'
 import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { useState } from 'react'
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import ArgumentPreview from '../../components/types/ArgumentPreview'
 import BlackText from '../../components/utils/BlackText'
@@ -11,6 +12,7 @@ import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../components/utils/redirectToLogin'
 import theme from '../../components/utils/theme'
 import SearchArguments from '../../components/arguments/SearchArguments'
+import styles from '../../styles/AllArguments.module.css'
 
 interface Props {
   jwt?: string
@@ -18,10 +20,39 @@ interface Props {
   fetchErrorText?: string
 }
 
-// todo sort by number of cards and alphabetically
+type Sort = { by: 'none' | 'name' | 'cards', ascending: boolean }
+
 const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) => {
   const [ args, setArgs ] = useState(initialArgs)
+  const [ sort, setSort ] = useState<Sort>({ by: 'none', ascending: false })
   const { width } = useWindowSize(1920, 1080)
+
+  const updateSort = (options: Sort) => {
+    setSort(options)
+    if (options.by === 'name') {
+      if (options.ascending) {
+        setArgs(args.sort((a, b) => b.name.localeCompare(a.name)))
+      } else {
+        setArgs(args.sort((a, b) => a.name.localeCompare(b.name)))
+      }
+    } else if (options.by === 'cards') {
+      if (options.ascending) {
+        setArgs(args.sort((a, b) => a.cards.length - b.cards.length))
+      } else {
+        setArgs(args.sort((a, b) => b.cards.length - a.cards.length))
+      }
+    }
+  }
+
+  const handleSearchResults = (newArgs: ArgumentPreview[]) => {
+    setSort({ by: 'none', ascending: false })
+    setArgs(newArgs)
+  }
+
+  const handleClearSearch = () => {
+    setSort({ by: 'none', ascending: false })
+    setArgs(initialArgs)
+  }
 
   return (
     <div
@@ -59,11 +90,10 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) =>
             width: '100%', display: 'flex', justifyContent: 'flex-end', paddingBottom: 20
           }}
         >
-          {/* todo: sort by number of cards? */}
           <SearchArguments
             args={initialArgs}
-            onResults={setArgs}
-            onClear={() => setArgs(initialArgs)}
+            onResults={handleSearchResults}
+            onClear={handleClearSearch}
             windowWidth={width}
           />
         </div>
@@ -71,14 +101,64 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) =>
           width >= theme.breakpoints.values.lg && (
             <Grid container>
               <Grid item lg={9} style={{ paddingLeft: 20 }}>
-                <BlackText style={{ fontWeight: 500 }}>
-                  Name
-                </BlackText>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+                  <button
+                    style={{
+                      cursor: 'pointer',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0
+                    }}
+                    type='button'
+                    onClick={() => updateSort({ by: sort.by === 'name' ? 'none' : 'name', ascending: false })}
+                  >
+                    <BlackText style={{ fontWeight: 500 }}>
+                      Name
+                    </BlackText>
+                  </button>
+                  {
+                    sort.by === 'name' && (
+                      <div className={styles['icon-container'] + ' ' + (sort.ascending && styles['icon-container-180'])}>
+                        <IconButton
+                          onClick={() => updateSort({ by: sort.by, ascending: !sort.ascending })}
+                          style={{ width: 16, height: 16 }}
+                        >
+                          <ArrowDropDownIcon fontSize='small' />
+                        </IconButton>
+                      </div>
+                    )
+                  }
+                </div>
               </Grid>
               <Grid item lg={3} style={{ marginLeft: -10 }}>
-                <BlackText style={{ fontWeight: 500 }}>
-                  Number of cards
-                </BlackText>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <button
+                    style={{
+                      cursor: 'pointer',
+                      background: 'none',
+                      border: 'none',
+                      padding: 0
+                    }}
+                    type='button'
+                    onClick={() => updateSort({ by: sort.by === 'cards' ? 'none' : 'cards', ascending: false })}
+                  >
+                    <BlackText style={{ fontWeight: 500 }}>
+                      Number of cards
+                    </BlackText>
+                  </button>
+                  {
+                    sort.by === 'cards' && (
+                      <div className={styles['icon-container'] + ' ' + (sort.ascending && styles['icon-container-180'])}>
+                        <IconButton
+                          onClick={() => updateSort({ by: sort.by, ascending: !sort.ascending })}
+                          style={{ width: 16, height: 16 }}
+                        >
+                          <ArrowDropDownIcon fontSize='small' />
+                        </IconButton>
+                      </div>
+                    )
+                  }
+                </div>
               </Grid>
             </Grid>
           )
