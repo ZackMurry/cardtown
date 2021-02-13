@@ -108,4 +108,13 @@ public interface ArgumentDao {
      */
     void deleteArgument(UUID argumentId);
 
+    /**
+     * Renames an argument
+     * @param argumentId Id of argument to rename
+     * @param newName New name of argument (this should be encrypted before being passed into this method)
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     * @throws com.zackmurry.cardtown.exception.ArgumentNotFoundException If the argument could not be found
+     */
+    void renameArgument(UUID argumentId, String newName);
+
 }

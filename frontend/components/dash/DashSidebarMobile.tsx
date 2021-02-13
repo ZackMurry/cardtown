@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { FC, useState } from 'react'
 import BlackText from '../utils/BlackText'
 import theme from '../utils/theme'
-import PageName from './PageName'
+import PageName from '../types/PageName'
 
 interface Props {
   pageName: PageName

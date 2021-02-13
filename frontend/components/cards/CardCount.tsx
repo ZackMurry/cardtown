@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Typography } from '@material-ui/core'
-import { FC, useEffect, useState } from 'react'
+import { FC } from 'react'
 import theme from '../utils/theme'
 
 interface Props {

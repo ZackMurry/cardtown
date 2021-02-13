@@ -2,7 +2,7 @@ import { FC } from 'react'
 import theme from '../utils/theme'
 import DashSidebarMobile from './DashSidebarMobile'
 import DashSidebarDesktop from './DashSidebarDesktop'
-import PageName from './PageName'
+import PageName from '../types/PageName'
 
 interface Props {
   pageName: PageName

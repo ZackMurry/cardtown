@@ -13,6 +13,7 @@ import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardHeader;
 import com.zackmurry.cardtown.model.card.ResponseCard;
+import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -235,4 +236,36 @@ public class ArgumentService {
         argumentDao.deleteArgument(decompressedArgId);
     }
 
+    /**
+     * Renames an argument
+     * @param argumentId Id of the argument to rename (in Base64)
+     * @param newName New name of argument (in plain text)
+     * @throws ArgumentNotFoundException If the argument could not be found
+     * @throws ForbiddenException If the user does not have permission to rename the argument
+     * @throws InternalServerException If an error occurs while encrypting the name
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @throws BadRequestException If the name is longer than 128 characters
+     */
+    public void renameArgument(@NonNull String argumentId, @NonNull String newName) {
+        if (newName.length() > 128) {
+            throw new BadRequestException();
+        }
+        final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
+        if (argumentEntity == null) {
+            throw new ArgumentNotFoundException();
+        }
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!argumentEntity.getOwnerId().equals(principal.getId())) {
+            throw new ForbiddenException();
+        }
+        String encryptedName;
+        try {
+            encryptedName = EncryptionUtils.encryptStringAES(newName, principal.getSecretKey());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+        argumentDao.renameArgument(decompressedArgId, encryptedName);
+    }
 }

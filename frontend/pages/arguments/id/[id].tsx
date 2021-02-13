@@ -3,10 +3,10 @@ import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { useState } from 'react'
 import AddCardToArgumentButton from '../../../components/arguments/AddCardToArgumentButton'
+import ArgumentName from '../../../components/arguments/ArgumentName'
 import CardDisplay from '../../../components/cards/CardDisplay'
 import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import ResponseArgument from '../../../components/types/ResponseArgument'
-import BlackText from '../../../components/utils/BlackText'
 import ErrorAlert from '../../../components/utils/ErrorAlert'
 import useWindowSize from '../../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../../components/utils/redirectToLogin'
@@ -24,6 +24,7 @@ const ViewArgument: NextPage<Props> = ({
   fetchingErrorText, argument, jwt, id
 }) => {
   const [ errorText, setErrorText ] = useState('')
+  const [ name, setName ] = useState(argument?.name)
   const { width } = useWindowSize(1920, 1080)
 
   return (
@@ -49,9 +50,13 @@ const ViewArgument: NextPage<Props> = ({
         >
           Argument
         </Typography>
-        <BlackText style={{ fontSize: 24, fontWeight: 'bold', overflowWrap: 'break-word' }}>
-          {argument.name}
-        </BlackText>
+        <ArgumentName
+          jwt={jwt}
+          name={name}
+          argumentId={argument.id}
+          onError={setErrorText}
+          onNameChange={setName}
+        />
         <div
           style={{
             width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main

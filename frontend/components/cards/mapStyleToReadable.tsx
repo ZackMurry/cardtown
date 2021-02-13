@@ -1,4 +1,4 @@
-const styleToReadable = {
+const styleToReadable: { [key: string]: string } = {
   BOLD: 'bold',
   HIGHLIGHT: 'highlight',
   FONT_SIZE_6: 'font size 6',
@@ -11,6 +11,6 @@ const styleToReadable = {
   OUTLINE: 'outline'
 }
 
-export default function mapStyleToReadable(s: string) {
+export default function mapStyleToReadable(s: string): string {
   return styleToReadable[s] ?? s
 }

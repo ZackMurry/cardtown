@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 
 // from https://usehooks.com/useWindowSize/
-const useWindowSize = (initialWidth: number, initialHeight: number) => {
+const useWindowSize = (initialWidth: number, initialHeight: number): {
+  width: number, height: number
+} => {
   const [ windowSize, setWindowSize ] = useState({
     width: initialWidth,
     height: initialHeight

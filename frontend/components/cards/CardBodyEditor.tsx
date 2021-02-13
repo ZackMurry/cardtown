@@ -1,4 +1,6 @@
-import { Editor, getDefaultKeyBinding, RichUtils } from 'draft-js'
+import {
+  Editor, EditorState, getDefaultKeyBinding, RichUtils
+} from 'draft-js'
 import { CSSProperties, FC } from 'react'
 import styles from '../../styles/NewCard.module.css'
 import theme from '../utils/theme'
@@ -28,8 +30,8 @@ const styleMap = {
 }
 
 interface Props {
-  editorState: any
-  setEditorState: (newEditorState: any) => void
+  editorState: EditorState
+  setEditorState: (newEditorState: EditorState) => void
   disableOutline?: boolean
   style?: CSSProperties
 }
@@ -45,7 +47,7 @@ const CardBodyEditor: FC<Props> = ({
     if (command.startsWith('FONT_SIZE_')) {
       let newEditorState = editorState
       // eslint-disable-next-line no-restricted-syntax
-      for (const inlineStyle of newEditorState.getCurrentInlineStyle()) {
+      for (const inlineStyle of newEditorState.getCurrentInlineStyle().toArray()) {
         if (inlineStyle.startsWith('FONT_SIZE_')) {
           newEditorState = RichUtils.toggleInlineStyle(newEditorState, inlineStyle)
         }

@@ -126,7 +126,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public List<ArgumentEntity> getArgumentsByUser(UUID id) {
+    public List<ArgumentEntity> getArgumentsByUser(@NonNull UUID id) {
         final String sql = "SELECT id, name FROM arguments WHERE owner_id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -150,7 +150,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public int getNumberOfArgumentsByUser(UUID id) {
+    public int getNumberOfArgumentsByUser(@NonNull UUID id) {
         final String sql = "SELECT COUNT(id) FROM arguments WHERE owner_id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -166,7 +166,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument) {
+    public void addCardToArgument(@NonNull UUID cardId, @NonNull UUID argumentId, short indexInArgument) {
         if (indexInArgument > getFirstOpenIndexInArgument(argumentId)) {
             throw new IllegalArgumentException("Expected index of new card in argument to be <= current argument size");
         } else if (indexInArgument < 0) {
@@ -193,7 +193,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public int getNumberOfCardsInArgument(UUID argumentId) {
+    public int getNumberOfCardsInArgument(@NonNull UUID argumentId) {
         final String sql = "SELECT COUNT(card_id) FROM argument_cards WHERE argument_id = ?";
         try {
             PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -210,7 +210,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void removeCardFromArgument(UUID argumentId, UUID cardId) {
+    public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
         final short indexInArgument = getIndexOfCardInArgument(argumentId, cardId);
         final String removeSql = "DELETE FROM argument_cards WHERE argument_id = ? AND card_id = ?";
         final String incrementIndexSql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ?";
@@ -256,6 +256,23 @@ public class ArgumentDataAccessService implements ArgumentDao {
             preparedStatement.setObject(1, argumentId);
             int rowsRemoved = preparedStatement.executeUpdate();
             if (rowsRemoved == 0) {
+                throw new ArgumentNotFoundException();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void renameArgument(@NonNull UUID argumentId, @NonNull String newName) {
+        final String sql = "UPDATE arguments SET name = ? WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setString(1, newName);
+            preparedStatement.setObject(2, argumentId);
+            int rowsChanged = preparedStatement.executeUpdate();
+            if (rowsChanged == 0) {
                 throw new ArgumentNotFoundException();
             }
         } catch (SQLException e) {

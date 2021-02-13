@@ -9,6 +9,7 @@ import NewCard from '../../components/cards/NewCard'
 import ImportCard from '../../components/cards/ImportCard'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../components/utils/redirectToLogin'
+import ErrorAlert from '../../components/utils/ErrorAlert'
 
 interface Props {
   jwt?: string
@@ -99,6 +100,9 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
 
         </Grid>
       </div>
+      {
+        fetchErrorText && <ErrorAlert disableClose text={fetchErrorText} />
+      }
     </div>
   )
 }

@@ -18,7 +18,7 @@ interface Props {
 }
 
 const EditCard: FC<Props> = ({
-  jwt, onCancel, onDone, card, windowWidth
+  jwt, onCancel, onDone, card
 }) => {
   const [ tag, setTag ] = useState(card.tag)
   const [ cite, setCite ] = useState(card.cite)
