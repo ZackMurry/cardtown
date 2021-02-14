@@ -69,7 +69,7 @@ public class CardServiceTest {
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 
-    private static CardCreateRequest generateMockCard(String email) {
+    static CardCreateRequest generateMockCard(String email) {
         return new CardCreateRequest(
                 email, // owner email
                 RandomStringUtils.randomAlphanumeric(25), // tag

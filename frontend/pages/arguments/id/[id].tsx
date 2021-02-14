@@ -4,7 +4,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import {
-  DragDropContext, Droppable, DroppableProvided, DroppableStateSnapshot, DropResult
+  DragDropContext, Droppable, DroppableProvided, DropResult
 } from 'react-beautiful-dnd'
 import AddCardToArgumentButton from '../../../components/arguments/AddCardToArgumentButton'
 import ArgumentCardDisplay from '../../../components/arguments/ArgumentCardDisplay'
@@ -48,6 +48,7 @@ const ViewArgument: NextPage<Props> = ({
     // Move element from old index to new index
     newCards.splice(result.destination.index, 0, newCards.splice(result.source.index, 1)[0])
     setArgument({ ...argument, cards: newCards })
+    console.log(newCards.map(c => c.id))
 
     // todo throttle
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argument.id)}/cards`, {
@@ -57,7 +58,7 @@ const ViewArgument: NextPage<Props> = ({
     })
     // todo show success alert if worked
     if (!response.ok) {
-      setErrorText(`Unknown error occurred while re-ordering cards. Status code: ${response.status}`)
+      setErrorText(`Unknown error occurred while reordering cards. Status code: ${response.status}`)
     }
   }
 

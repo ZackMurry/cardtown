@@ -93,7 +93,12 @@ public class ArgumentService {
             throw new InternalServerException();
         }
         final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentEntity.getId());
-        final List<ResponseCard> responseCards = cardService.getResponseCardsByIds(argumentCardEntities.stream().map(ArgumentCardEntity::getCardId).collect(Collectors.toList()));
+        final List<ResponseCard> responseCards = cardService.getResponseCardsByIds(
+                argumentCardEntities.stream()
+                        .sorted(Comparator.comparingInt(ace -> (int) ace.getIndexInArgument())) // sort by index
+                        .map(ArgumentCardEntity::getCardId) // get card  id
+                        .collect(Collectors.toList())
+        );
         return ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner), responseCards);
     }
 
@@ -195,6 +200,7 @@ public class ArgumentService {
     }
 
     public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId) {
+        // todo make it so that you can remove a card at a specific index instead of removing all appearances of that card in the arg
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
         if (argumentEntity == null) {
