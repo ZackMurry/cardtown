@@ -2,10 +2,7 @@ package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
 import com.zackmurry.cardtown.exception.*;
-import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
-import com.zackmurry.cardtown.model.arg.ArgumentEntity;
-import com.zackmurry.cardtown.model.arg.ArgumentPreview;
-import com.zackmurry.cardtown.model.arg.ResponseArgument;
+import com.zackmurry.cardtown.model.arg.*;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
@@ -22,10 +19,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,7 +44,7 @@ public class ArgumentService {
         }
 
         if (request.getName().length() > 128 || request.getName().length() < 1) {
-            throw new LengthRequiredException("An argument's name must be <= 128 characters and at least one character.");
+            throw new LengthRequiredException("An argument's name must be between 1 and 128 characters long.");
         }
 
         final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
@@ -265,5 +259,51 @@ public class ArgumentService {
             throw new InternalServerException();
         }
         argumentDao.renameArgument(decompressedArgId, encryptedName);
+    }
+
+    /**
+     * Reorders the cards in an argument according to a new list of ids
+     * @param argumentId Id of argument to modify
+     * @param newPositions List of new card ids, in order, with ids in Base64
+     * @throws ArgumentNotFoundException If the argument could not be found
+     * @throws ForbiddenException If the user does not have access to the requested argument
+     * @throws BadRequestException If the new position list does not have the same number of cards as the argument currently does
+     * @throws BadRequestException If the new position list contains either a card that is not in the argument or one card more than it appears in the argument
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
+    public void updateCardPositions(@NonNull String argumentId, @NonNull List<String> newPositions) {
+        // todo unit test
+        final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
+        if (argumentEntity == null) {
+            throw new ArgumentNotFoundException();
+        }
+        final UUID userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        if (!argumentEntity.getOwnerId().equals(userId)) {
+            throw new ForbiddenException();
+        }
+
+        // validating that the cards are the same
+        final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(decompressedArgId);
+        if (newPositions.size() != argumentCardEntities.size()) {
+            throw new BadRequestException();
+        }
+
+        final List<UUID> remainingCardIds = argumentCardEntities.stream().map(ArgumentCardEntity::getCardId).collect(Collectors.toList());
+        final List<UUID> decompressedNewPositions = newPositions.stream().map(UUIDCompressor::decompress).collect(Collectors.toList());
+
+        for (UUID cardId : decompressedNewPositions) {
+            if (!remainingCardIds.remove(cardId)) {
+                throw new BadRequestException();
+            }
+        }
+
+        // Finding the card indices that are different
+        argumentCardEntities.sort(Comparator.comparingInt(ArgumentCardEntity::getIndexInArgument));
+        for (int i = 0; i < decompressedNewPositions.size(); i++) {
+            if (!decompressedNewPositions.get(i).equals(argumentCardEntities.get(i).getCardId())) {
+                argumentDao.setCardIndexInArgumentUnchecked(decompressedArgId, decompressedNewPositions.get(i), (short) i);
+            }
+        }
     }
 }

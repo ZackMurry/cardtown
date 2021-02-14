@@ -95,4 +95,12 @@ public class ArgumentController {
         argumentService.deleteArgument(decodedId);
     }
 
+    @PutMapping("/id/**/cards")
+    public void updateArgumentCardPositions(@NonNull @RequestBody List<String> newPositions, HttpServletRequest servletRequest) {
+        // This requires the full set of new positions to make data races suck a bit less
+        final String encodedArgId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1].split("/cards")[0];
+        final String decodedArgId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
+        argumentService.updateCardPositions(decodedArgId, newPositions);
+    }
+
 }

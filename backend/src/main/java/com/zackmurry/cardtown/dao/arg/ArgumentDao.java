@@ -117,4 +117,13 @@ public interface ArgumentDao {
      */
     void renameArgument(UUID argumentId, String newName);
 
+    /**
+     * Updates a card's index in an argument without checking if the new index is valid
+     * @param argumentId Id of argument to modify
+     * @param cardId Id of card to update
+     * @param newIndex New index of card in argument
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex);
+
 }

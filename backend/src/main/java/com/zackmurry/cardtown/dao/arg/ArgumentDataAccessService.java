@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.dao.arg;
 
 import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
+import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
@@ -279,4 +280,20 @@ public class ArgumentDataAccessService implements ArgumentDao {
             throw new InternalServerException();
         }
     }
+
+    @Override
+    public void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex) {
+        final String sql = "UPDATE argument_cards SET index_in_argument = ? WHERE argument_id = ? AND card_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setShort(1, newIndex);
+            preparedStatement.setObject(2, argumentId);
+            preparedStatement.setObject(3, cardId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
 }

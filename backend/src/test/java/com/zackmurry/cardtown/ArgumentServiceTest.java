@@ -101,7 +101,7 @@ public class ArgumentServiceTest {
     @Test
     public void testArgumentNameEncryption() {
         for (int i = 0; i < 100; i++) {
-            final String argumentName = RandomStringUtils.randomAlphanumeric(0, 129);
+            final String argumentName = RandomStringUtils.randomAlphanumeric(1, 129);
             final ArgumentCreateRequest req = new ArgumentCreateRequest(argumentName);
             final String argId = argumentService.createArgument(req);
             assertEquals(argumentName, argumentService.getResponseArgumentById(argId).getName());

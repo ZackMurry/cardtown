@@ -3,6 +3,7 @@ import Document, {
   Html, Head, Main, NextScript
 } from 'next/document'
 import { ServerStyleSheets } from '@material-ui/core/styles'
+import { resetServerContext } from 'react-beautiful-dnd'
 import theme from '../components/utils/theme'
 
 export default class MyDocument extends Document {
@@ -20,7 +21,7 @@ export default class MyDocument extends Document {
         </Head>
         <body>
           <Main />
-        <NextScript />
+          <NextScript />
         </body>
       </Html>
     )
@@ -61,6 +62,8 @@ MyDocument.getInitialProps = async ctx => {
   })
 
   const initialProps = await Document.getInitialProps(ctx)
+
+  resetServerContext()
 
   return {
     ...initialProps,

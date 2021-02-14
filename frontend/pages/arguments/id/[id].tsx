@@ -3,10 +3,13 @@ import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import {
+  DragDropContext, Droppable, DroppableProvided, DroppableStateSnapshot, DropResult
+} from 'react-beautiful-dnd'
 import AddCardToArgumentButton from '../../../components/arguments/AddCardToArgumentButton'
+import ArgumentCardDisplay from '../../../components/arguments/ArgumentCardDisplay'
 import ArgumentName from '../../../components/arguments/ArgumentName'
 import DeleteArgumentButton from '../../../components/arguments/DeleteArgumentButton'
-import CardDisplay from '../../../components/cards/CardDisplay'
 import DashboardSidebar from '../../../components/dash/DashboardSidebar'
 import ResponseArgument from '../../../components/types/ResponseArgument'
 import ErrorAlert from '../../../components/utils/ErrorAlert'
@@ -23,12 +26,40 @@ interface Props {
 
 // todo drag and drop to reorder
 const ViewArgument: NextPage<Props> = ({
-  fetchingErrorText, argument, jwt, id
+  fetchingErrorText, argument: initialArgument, jwt, id
 }) => {
+  const [ argument, setArgument ] = useState(initialArgument)
   const [ errorText, setErrorText ] = useState('')
   const [ name, setName ] = useState(argument?.name)
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
+
+  // todo test with more cards
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination) {
+      return
+    }
+    if (result.destination.index === result.source.index) {
+      return
+    }
+
+    const newCards = Array.from(argument.cards)
+    // https://stackoverflow.com/a/7180095
+    // Move element from old index to new index
+    newCards.splice(result.destination.index, 0, newCards.splice(result.source.index, 1)[0])
+    setArgument({ ...argument, cards: newCards })
+
+    // todo throttle
+    const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argument.id)}/cards`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCards.map(c => c.id))
+    })
+    // todo show success alert if worked
+    if (!response.ok) {
+      setErrorText(`Unknown error occurred while re-ordering cards. Status code: ${response.status}`)
+    }
+  }
 
   return (
     <div style={{
@@ -74,27 +105,40 @@ const ViewArgument: NextPage<Props> = ({
             width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
           }}
         />
-        <div
-          style={{
-            backgroundColor: theme.palette.secondary.main,
-            border: `1px solid ${theme.palette.lightGrey.main}`,
-            borderRadius: 5,
-            padding: '3vh 3vw'
-          }}
-        >
-          {
-            argument?.cards && argument.cards.map(card => (
-              <CardDisplay
-                card={card}
-                jwt={jwt}
-                onError={setErrorText}
-                windowWidth={width}
-                key={card.id}
-                argumentId={id}
-              />
-            ))
-          }
-        </div>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId='CARDS_LIST'>
+              {(
+                dropProvided: DroppableProvided
+              ) => (
+                <div
+                  style={{
+                    backgroundColor: theme.palette.secondary.main,
+                    border: `1px solid ${theme.palette.lightGrey.main}`,
+                    borderRadius: 5,
+                    padding: '3vh 3vw'
+                  }}
+                  ref={dropProvided.innerRef}
+                >
+                  {
+                    argument?.cards && argument.cards.map((card, index) => (
+                      <ArgumentCardDisplay
+                        card={card}
+                        jwt={jwt}
+                        onError={setErrorText}
+                        windowWidth={width}
+                        key={card.id}
+                        argumentId={id}
+                        index={index}
+                      />
+                    ))
+                  }
+                  {
+                    dropProvided.placeholder
+                  }
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         <div style={{ marginTop: 25 }}>
           <AddCardToArgumentButton
             jwt={jwt}
