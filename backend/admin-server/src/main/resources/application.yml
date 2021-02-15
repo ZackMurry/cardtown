@@ -1,4 +1,4 @@
-# just put this on a sub-domain (like admin.cardtown.co)
+# just put this on a 9999 without Nginx pointing to it (so it'd be cardtown.co:9999)
 server:
   port: 9999
 spring:

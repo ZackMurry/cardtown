@@ -10,7 +10,7 @@ jobs:
   build-backend:
     runs-on: ubuntu-latest
     env:
-      working-directory: ./backend
+      working-directory: ./backend/core
     steps:
     - name: Set up Postgres
       uses: harmon758/postgresql-action@v1
@@ -31,6 +31,8 @@ jobs:
         echo "CARDTOWN_JWT_SECRET_KEY=${{secrets.CARDTOWN_JWT_SECRET_KEY}}" >> $GITHUB_ENV
         echo "POSTGRES_USERNAME=${{secrets.POSTGRES_USERNAME}}" >> $GITHUB_ENV
         echo "POSTGRES_PASSWORD=${{secrets.POSTGRES_PASSWORD}}" >> $GITHUB_ENV
+        echo "CARDTOWN_ADMIN_USERNAME=${{secrets.CARDTOWN_ADMIN_USERNAME}}" >> $GITHUB_ENV
+        echo "CARDTOWN_ADMIN_PASSWORD=${{secrets.CARDTOWN_ADMIN_PASSWORD}}" >> $GITHUB_ENV
     - name: Build with Maven
       working-directory: ${{env.working-directory}}
       run: mvn -X -B package --file pom.xml -DskipTests
