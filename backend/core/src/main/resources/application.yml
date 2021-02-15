@@ -1,0 +1,29 @@
+# todo set global base path to /api/v1
+app:
+  datasource:
+    jdbc-url: jdbc:postgresql://localhost:5432/cardtown
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    pool-size: 30
+spring:
+  flyway:
+    baseline-on-migrate: true
+  boot:
+    admin:
+      client:
+        url: http://localhost:9999
+        username: ${CARDTOWN_ADMIN_USERNAME}
+        password: ${CARDTOWN_ADMIN_PASSWORD}
+        instance:
+          metadata:
+            user:
+              name: client
+              password: client
+  application:
+    name: Cardtown Backend Core
+management:
+  endpoints:
+    web:
+      expose: "*"
+      exposure:
+        include: "*"

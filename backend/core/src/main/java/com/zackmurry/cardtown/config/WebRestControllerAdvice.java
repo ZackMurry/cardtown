@@ -6,6 +6,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -73,6 +74,12 @@ public class WebRestControllerAdvice {
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleUserNotFoundException(UserNotFoundException exception, HttpServletResponse response) {
+        return exception.getMessage();
+    }
+
+    @ExceptionHandler(RequestRejectedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleRequestRejectedException(RequestRejectedException exception, HttpServletResponse response) {
         return exception.getMessage();
     }
 

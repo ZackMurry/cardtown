@@ -1,0 +1,10 @@
+# just put this on a sub-domain (like admin.cardtown.co)
+server:
+  port: 9999
+spring:
+  application:
+    name: Cardtown Admin Server
+  security:
+    user:
+      name: ${CARDTOWN_ADMIN_USERNAME}
+      password: ${CARDTOWN_ADMIN_PASSWORD}
