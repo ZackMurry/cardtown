@@ -5,11 +5,14 @@ import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.service.UserService;
+import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +26,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -39,6 +48,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
+    // Using a separate MessageDigest instead of using EncryptionUtils' so that the lock isn't interfered with by admin requests.
+    // Thus, this is only used by Spring Boot Admin
+    private final MessageDigest messageDigest;
+
+    private final String adminEmail;
+
+    private final String adminPassword;
+
+    public JwtRequestFilter(Environment environment) throws NoSuchAlgorithmException {
+        this.adminEmail = environment.getProperty("CARDTOWN_ADMIN_USERNAME");
+        this.adminPassword = environment.getProperty("CARDTOWN_ADMIN_PASSWORD");
+        this.messageDigest = MessageDigest.getInstance("SHA-256");
+    }
+
     /**
      * Adds an additional filter before Spring Security returns a 403.
      * Compares the 'Authorization' header and allows authorization to a page if it is valid
@@ -50,7 +73,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String email = null;
         String jwt = null;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader == null) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value());
+            return;
+        }
+
+        if (authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7); // remove "Bearer " from the front
             try {
                 email = jwtUtil.extractSubject(jwt);
@@ -58,36 +86,71 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
                 return;
             }
-        }
-
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            final User user = userService.loadUserByUsername(email);
-
-            // getting user's encryption key for decrypting their secret key
-            final String encryptionKeyBase64 = jwtUtil.extractEncryptionKey(jwt);
-            if (encryptionKeyBase64 == null) {
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                final User user = userService.loadUserByUsername(email);
+                final String encryptionKeyBase64 = jwtUtil.extractEncryptionKey(jwt);
+                if (encryptionKeyBase64 == null) {
+                    response.sendError(HttpStatus.UNAUTHORIZED.value());
+                    return;
+                }
+                byte[] encryptionKey = Base64.decodeBase64(encryptionKeyBase64);
+                byte[] secretKey;
+                try {
+                    secretKey = userService.getUserSecretKey(email, encryptionKey);
+                } catch (UserNotFoundException e) {
+                    e.printStackTrace();
+                    throw new InternalServerException();
+                }
+                if (secretKey == null) {
+                    response.sendError(HttpStatus.UNAUTHORIZED.value());
+                    return;
+                }
+                final UserModel model = new UserModel(user, encryptionKey);
+                if (jwtUtil.validateToken(jwt, user)) {
+                    var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
+                    token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(token);
+                }
+            }
+        } else if (authorizationHeader.startsWith("Admin ")) {
+            final String[] parts = authorizationHeader.substring(6).split("\\|");
+            if (parts.length != 2) {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
                 return;
             }
-            final byte[] encryptionKey = Base64.decodeBase64(encryptionKeyBase64);
-
-            byte[] secretKey;
-            try {
-                secretKey = userService.getUserSecretKey(email, encryptionKey);
-            } catch (UserNotFoundException e) {
-                e.printStackTrace();
-                throw new InternalServerException();
-            }
-            if (secretKey == null) {
+            final String reqEmail = parts[0];
+            final String reqPassword = parts[1];
+            if (!reqEmail.equals(adminEmail) || !reqPassword.equals(adminPassword)) {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
                 return;
             }
-            final UserModel model = new UserModel(user, encryptionKey);
-            if (jwtUtil.validateToken(jwt, user)) {
+            byte[] encryptionKey;
+            synchronized (this) {
+                messageDigest.update(adminPassword.getBytes(StandardCharsets.UTF_8));
+                encryptionKey = messageDigest.digest();
+                messageDigest.reset();
+            }
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                final User user = userService.loadUserByUsername(reqEmail);
+                byte[] secretKey;
+                try {
+                    secretKey = userService.getUserSecretKey(reqEmail, encryptionKey);
+                } catch (UserNotFoundException e) {
+                    e.printStackTrace();
+                    throw new InternalServerException();
+                }
+                if (secretKey == null) {
+                    response.sendError(HttpStatus.UNAUTHORIZED.value());
+                    return;
+                }
+                final UserModel model = new UserModel(user, encryptionKey);
                 var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
                 token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(token);
             }
+        } else {
+            response.sendError(HttpStatus.UNAUTHORIZED.value());
+            return;
         }
         chain.doFilter(request, response);
     }

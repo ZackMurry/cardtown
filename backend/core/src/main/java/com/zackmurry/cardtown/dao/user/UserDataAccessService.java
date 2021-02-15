@@ -5,9 +5,13 @@ import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.model.auth.UserRole;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,6 +25,8 @@ import java.util.UUID;
 
 @Repository
 public class UserDataAccessService implements UserDao {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserDataAccessService.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -39,7 +45,8 @@ public class UserDataAccessService implements UserDao {
                             resultSet.getString("email"),
                             resultSet.getString("first_name"),
                             resultSet.getString("last_name"),
-                            resultSet.getString("password")
+                            resultSet.getString("password"),
+                            resultSet.getString("role")
                     ),
                     email
             );
@@ -73,11 +80,19 @@ public class UserDataAccessService implements UserDao {
     }
 
     @Override
-    public void createAccount(UserModel user) {
+    public void createAccount(@NonNull UserModel user) {
         if (findByEmail(user.getEmail()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "User with the email already exists");
         }
-        final String sql = "INSERT INTO users (email, first_name, last_name, password, encrypted_secret_key) VALUES (?, ?, ?, ?, ?)";
+        if (user.getRoles() == null) {
+            logger.warn("Error creating user account: no roles defined");
+            throw new InternalServerException();
+        }
+        if (user.getRoles().isEmpty()) {
+            logger.warn("User roles is empty. Replacing...");
+            user.setRoles(List.of(UserRole.USER));
+        }
+        final String sql = "INSERT INTO users (email, first_name, last_name, password, encrypted_secret_key, role) VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
             jdbcTemplate.execute(
@@ -86,7 +101,8 @@ public class UserDataAccessService implements UserDao {
                     user.getFirstName(),
                     user.getLastName(),
                     user.getPassword(), // hashed
-                    Base64.encodeBase64String(user.getSecretKey()) // encrypted with AES by SHA-256 hash of password
+                    Base64.encodeBase64String(user.getSecretKey()), // encrypted with AES by SHA-256 hash of password
+                    user.getRoles().get(0).getName()
             );
         } catch(SQLException e) {
             e.printStackTrace();
@@ -135,7 +151,7 @@ public class UserDataAccessService implements UserDao {
 
     @Override
     public Optional<User> findById(UUID id) {
-        final String sql = "SELECT email, first_name, last_name, password FROM users WHERE id = ?";
+        final String sql = "SELECT email, first_name, last_name, password, role FROM users WHERE id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -147,7 +163,8 @@ public class UserDataAccessService implements UserDao {
                                 resultSet.getString("email"),
                                 resultSet.getString("first_name"),
                                 resultSet.getString("last_name"),
-                                resultSet.getString("password")
+                                resultSet.getString("password"),
+                                resultSet.getString("role")
                         )
                 );
             }

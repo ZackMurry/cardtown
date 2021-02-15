@@ -17,7 +17,7 @@ spring:
         instance:
           metadata:
             user:
-              name: client
+              name: client # todo have these be environment variables
               password: client
   application:
     name: Cardtown Backend Core
@@ -27,3 +27,10 @@ management:
       expose: "*"
       exposure:
         include: "*"
+  security:
+    enabled: true
+    roles: ADMIN
+security:
+  user:
+    name: ${CARDTOWN_ADMIN_USERNAME}
+    password: ${CARDTOWN_ADMIN_PASSWORD}

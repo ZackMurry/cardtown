@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     first_name VARCHAR(32) NOT NULL,
     last_name VARCHAR(32) NOT NULL,
     password VARCHAR(64) NOT NULL,
-    encrypted_secret_key VARCHAR(128) NOT NULL
+    encrypted_secret_key VARCHAR(128) NOT NULL,
+    role VARCHAR(32) NOT NULL DEFAULT 'USER'
 );
 
 CREATE TABLE IF NOT EXISTS cards (

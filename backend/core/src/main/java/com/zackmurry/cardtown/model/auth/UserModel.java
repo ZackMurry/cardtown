@@ -16,6 +16,7 @@ public class UserModel extends User {
         this.setLastName(u.getLastName());
         this.setPassword(u.getPassword());
         this.secretKey = secretKey;
+        this.setRoles(u.getRoles());
     }
 
 }

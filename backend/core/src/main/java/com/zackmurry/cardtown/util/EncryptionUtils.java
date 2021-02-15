@@ -29,7 +29,9 @@ public class EncryptionUtils {
      * @return a base64-encoded SHA-256 hash of the text
      */
     public String getSHA256HashBase64(String text) {
-        final byte[] bytes = getSHA256Hash(text.getBytes(StandardCharsets.UTF_8));
+        byte[] bytes;
+        bytes = getSHA256Hash(text.getBytes(StandardCharsets.UTF_8));
+        messageDigest.reset();
         return Base64.encodeBase64String(bytes);
     }
 
@@ -39,7 +41,13 @@ public class EncryptionUtils {
      * @return a SHA-256 hash of the text
      */
     public byte[] getSHA256Hash(byte[] plainText) {
-        return messageDigest.digest(plainText);
+        byte[] result;
+        synchronized (this) {
+            messageDigest.update(plainText);
+            result = messageDigest.digest();
+            messageDigest.reset();
+        }
+        return result;
     }
 
     /**

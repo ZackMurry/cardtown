@@ -108,6 +108,7 @@ public class UserService implements UserDetailsService {
         if (encryptionKey == null) {
             throw new InternalServerException();
         }
+        System.out.println("new encryption key base64: " + Base64.encodeBase64String(encryptionKey));
 
         // Creating the user's new secret key
         final SecretKey secretKey = EncryptionUtils.generateStrongAESKey(256);
