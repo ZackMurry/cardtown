@@ -208,14 +208,15 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
+    public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
         final short indexInArgument = getIndexOfCardInArgument(argumentId, cardId);
-        final String removeSql = "DELETE FROM argument_cards WHERE argument_id = ? AND card_id = ?";
+        final String removeSql = "DELETE FROM argument_cards WHERE argument_id = ? AND card_id = ? AND index_in_argument = ?";
         final String incrementIndexSql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(removeSql);
             preparedStatement.setObject(1, argumentId);
             preparedStatement.setObject(2, cardId);
+            preparedStatement.setShort(3, index);
             preparedStatement.executeUpdate();
             final PreparedStatement incrementStatement = jdbcTemplate.getConnection().prepareStatement(incrementIndexSql);
             incrementStatement.setObject(1, argumentId);
@@ -307,7 +308,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
                         new ArgumentCardEntity(
                                 UUID.fromString(resultSet.getString("argument_id")),
                                 cardId,
-                                resultSet.getShort("argument_id")
+                                resultSet.getShort("index_in_argument")
                         )
                 );
             }

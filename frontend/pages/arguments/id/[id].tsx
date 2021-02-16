@@ -48,7 +48,6 @@ const ViewArgument: NextPage<Props> = ({
     // Move element from old index to new index
     newCards.splice(result.destination.index, 0, newCards.splice(result.source.index, 1)[0])
     setArgument({ ...argument, cards: newCards })
-    console.log(newCards.map(c => c.id))
 
     // todo throttle
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argument.id)}/cards`, {
@@ -127,9 +126,11 @@ const ViewArgument: NextPage<Props> = ({
                         jwt={jwt}
                         onError={setErrorText}
                         windowWidth={width}
-                        key={card.id}
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={`${card.id}@${index}`}
                         argumentId={id}
-                        index={index}
+                        indexInArgument={index}
+                        onRemove={() => setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })}
                       />
                     ))
                   }

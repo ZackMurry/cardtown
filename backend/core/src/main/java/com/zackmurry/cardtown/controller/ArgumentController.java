@@ -67,12 +67,12 @@ public class ArgumentController {
     }
 
     @DeleteMapping("/id/**/cards/**")
-    public void removeCardFromArgument(HttpServletRequest servletRequest) {
+    public void removeCardFromArgument(@RequestParam short index, HttpServletRequest servletRequest) {
         final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
         final String[] parts = relevantPath.split("/cards/");
         final String argId = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
         final String cardId = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
-        argumentService.removeCardFromArgument(argId, cardId);
+        argumentService.removeCardFromArgument(argId, cardId, index);
     }
 
     @PutMapping("/id/**")

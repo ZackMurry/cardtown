@@ -12,12 +12,14 @@ import styles from '../../styles/ViewCard.module.css'
 interface Props {
   cardId: string
   argumentId: string
+  indexInArgument: number
   jwt: string
   onEdit: () => void
+  onRemove: () => void
 }
 
 const ArgumentCardOptionsButton: FC<Props> = ({
-  cardId, argumentId, jwt, onEdit
+  cardId, argumentId, jwt, onEdit, indexInArgument, onRemove
 }) => {
   const [ anchorEl, setAnchorEl ] = useState(null)
   const [ errorText, setErrorText ] = useState('')
@@ -29,13 +31,15 @@ const ArgumentCardOptionsButton: FC<Props> = ({
   }
 
   const handleRemove = async () => {
-    const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argumentId)}/cards/${encodeURIComponent(cardId)}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${jwt}` }
-    })
+    const response = await fetch(
+      `/api/v1/arguments/id/${encodeURIComponent(argumentId)}/cards/${encodeURIComponent(cardId)}?index=${indexInArgument}`,
+      {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${jwt}` }
+      }
+    )
     if (response.ok) {
-      // todo only remove this one card instead of reloading
-      router.reload()
+      onRemove()
     } else {
       setErrorText(`Error deleting card: ${response.status}`)
     }

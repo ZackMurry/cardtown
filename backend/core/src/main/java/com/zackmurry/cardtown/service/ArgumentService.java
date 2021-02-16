@@ -202,7 +202,7 @@ public class ArgumentService {
         return cardEntities;
     }
 
-    public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
+    public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
@@ -211,14 +211,14 @@ public class ArgumentService {
         if (!argumentEntity.getOwnerId().equals(userId)) {
             throw new ForbiddenException();
         }
-        argumentDao.removeCardFromArgument(argumentId, cardId);
+        argumentDao.removeCardFromArgument(argumentId, cardId, index);
     }
 
-    public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId) {
+    public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId, @NonNull short index) {
         // todo make it so that you can remove a card at a specific index instead of removing all appearances of that card in the arg
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
-        removeCardFromArgument(decompressedArgId, decompressedCardId);
+        removeCardFromArgument(decompressedArgId, decompressedCardId, index);
     }
 
     /**
@@ -327,9 +327,10 @@ public class ArgumentService {
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
     public void removeCardFromAllArguments(@NonNull UUID cardId) {
+        // todo this needs unit tests
         final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardEntitiesByCardId(cardId);
         for (ArgumentCardEntity argumentCardEntity : argumentCardEntities) {
-            removeCardFromArgument(argumentCardEntity.getArgumentId(), cardId);
+            removeCardFromArgument(argumentCardEntity.getArgumentId(), cardId, argumentCardEntity.getIndexInArgument());
         }
     }
 

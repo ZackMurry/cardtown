@@ -13,11 +13,12 @@ interface Props {
   windowWidth: number
   onError: (msg: string) => void
   argumentId: string
-  index: number
+  indexInArgument: number
+  onRemove: () => void
 }
 
 const ArgumentCardDisplay: FC<Props> = ({
-  card, jwt, windowWidth, onError, argumentId, index
+  card, jwt, windowWidth, onError, argumentId, indexInArgument, onRemove
 }) => {
   const [ editing, setEditing ] = useState(false)
   const router = useRouter()
@@ -44,7 +45,7 @@ const ArgumentCardDisplay: FC<Props> = ({
   }
 
   return (
-    <Draggable draggableId={card.id + 'handle'} index={index}>
+    <Draggable draggableId={`${card.id}@${indexInArgument}-handle`} index={indexInArgument}>
       {(
         dragProvided: DraggableProvided,
         dragSnapshot: DraggableStateSnapshot
@@ -76,7 +77,14 @@ const ArgumentCardDisplay: FC<Props> = ({
                       </div>
                       {/* todo separate the ArgumentCardOptionsButton into separate icons
                       to avoid having two similar-looking icons */}
-                      <ArgumentCardOptionsButton argumentId={argumentId} cardId={card.id} jwt={jwt} onEdit={handleEdit} />
+                      <ArgumentCardOptionsButton
+                        argumentId={argumentId}
+                        cardId={card.id}
+                        indexInArgument={indexInArgument}
+                        jwt={jwt}
+                        onEdit={handleEdit}
+                        onRemove={onRemove}
+                      />
                     </div>
                   </div>
                   <div>

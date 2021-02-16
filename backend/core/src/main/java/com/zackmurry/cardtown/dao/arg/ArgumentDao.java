@@ -83,12 +83,14 @@ public interface ArgumentDao {
 
     /**
      * Removes a card from an argument and left-shifts other cards' indices
+     * todo might not need cardId now that index is a param
      * @param argumentId Id of the argument that the card belongs to
      * @param cardId Id of the card to remove
+     * @param index Index of the card to remove (in so that you can remove one instance of a card from an argument when >1 appear in it)
      * @throws com.zackmurry.cardtown.exception.CardNotFoundException If the card could not be found in the argument
      * @throws InternalServerException If there is a <code>SQLException</code>
      */
-    void removeCardFromArgument(UUID argumentId, UUID cardId);
+    void removeCardFromArgument(UUID argumentId, UUID cardId, short index);
 
     /**
      * Gets the position of a card in an argument

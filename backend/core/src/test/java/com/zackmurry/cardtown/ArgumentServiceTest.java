@@ -141,7 +141,7 @@ public class ArgumentServiceTest {
             assertEquals(newCard.getBodyText(), returnedCard.getBodyText());
             assertEquals(newCard.getBodyHtml(), returnedCard.getBodyHtml());
             assertEquals(newCard.getBodyDraft(), returnedCard.getBodyDraft());
-            assertDoesNotThrow(() -> argumentService.removeCardFromArgument(argId, cardId));
+            assertDoesNotThrow(() -> argumentService.removeCardFromArgument(argId, cardId, (short) 0));
             assertEquals(0, argumentService.getResponseArgumentById(argId).getCards().size());
             assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
         }
@@ -154,9 +154,9 @@ public class ArgumentServiceTest {
                 cardIds[j] = cardId;
                 assertDoesNotThrow(() -> argumentService.addCardToArgument(cardId, argId));
             }
-            for (int j = 25; j > 0; j--) {
+            for (short j = 25; j > 0; j--) {
                 assertEquals(j, argumentService.getResponseArgumentById(argId).getCards().size());
-                argumentService.removeCardFromArgument(argId, cardIds[j - 1]);
+                argumentService.removeCardFromArgument(argId, cardIds[j - 1], (short) (j - 1));
             }
             assertEquals(0, argumentService.getResponseArgumentById(argId).getCards().size());
             assertDoesNotThrow(() -> argumentService.deleteArgument(argId));
