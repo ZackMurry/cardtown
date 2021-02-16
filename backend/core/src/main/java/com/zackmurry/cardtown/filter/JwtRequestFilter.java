@@ -5,12 +5,10 @@ import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.service.UserService;
-import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -29,9 +27,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -73,84 +68,82 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String email = null;
         String jwt = null;
 
-        if (authorizationHeader == null) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value());
-            return;
-        }
-
-        if (authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7); // remove "Bearer " from the front
-            try {
-                email = jwtUtil.extractSubject(jwt);
-            } catch (MalformedJwtException | SignatureException e) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value());
-                return;
-            }
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                final User user = userService.loadUserByUsername(email);
-                final String encryptionKeyBase64 = jwtUtil.extractEncryptionKey(jwt);
-                if (encryptionKeyBase64 == null) {
-                    response.sendError(HttpStatus.UNAUTHORIZED.value());
-                    return;
-                }
-                byte[] encryptionKey = Base64.decodeBase64(encryptionKeyBase64);
-                byte[] secretKey;
+        if (authorizationHeader != null) {
+            if (authorizationHeader.startsWith("Bearer ")) {
+                jwt = authorizationHeader.substring(7); // remove "Bearer " from the front
                 try {
-                    secretKey = userService.getUserSecretKey(email, encryptionKey);
-                } catch (UserNotFoundException e) {
-                    e.printStackTrace();
-                    throw new InternalServerException();
-                }
-                if (secretKey == null) {
+                    email = jwtUtil.extractSubject(jwt);
+                } catch (MalformedJwtException | SignatureException e) {
                     response.sendError(HttpStatus.UNAUTHORIZED.value());
                     return;
                 }
-                final UserModel model = new UserModel(user, encryptionKey);
-                if (jwtUtil.validateToken(jwt, user)) {
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    final User user = userService.loadUserByUsername(email);
+                    final String encryptionKeyBase64 = jwtUtil.extractEncryptionKey(jwt);
+                    if (encryptionKeyBase64 == null) {
+                        response.sendError(HttpStatus.UNAUTHORIZED.value());
+                        return;
+                    }
+                    byte[] encryptionKey = Base64.decodeBase64(encryptionKeyBase64);
+                    byte[] secretKey;
+                    try {
+                        secretKey = userService.getUserSecretKey(email, encryptionKey);
+                    } catch (UserNotFoundException e) {
+                        e.printStackTrace();
+                        throw new InternalServerException();
+                    }
+                    if (secretKey == null) {
+                        response.sendError(HttpStatus.UNAUTHORIZED.value());
+                        return;
+                    }
+                    final UserModel model = new UserModel(user, encryptionKey);
+                    if (jwtUtil.validateToken(jwt, user)) {
+                        var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
+                        token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(token);
+                    }
+                }
+            } else if (authorizationHeader.startsWith("Admin ")) {
+                final String[] parts = authorizationHeader.substring(6).split("\\|");
+                if (parts.length != 2) {
+                    response.sendError(HttpStatus.UNAUTHORIZED.value());
+                    return;
+                }
+                final String reqEmail = parts[0];
+                final String reqPassword = parts[1];
+                if (!reqEmail.equals(adminEmail) || !reqPassword.equals(adminPassword)) {
+                    response.sendError(HttpStatus.UNAUTHORIZED.value());
+                    return;
+                }
+                byte[] encryptionKey;
+                synchronized (this) {
+                    messageDigest.update(adminPassword.getBytes(StandardCharsets.UTF_8));
+                    encryptionKey = messageDigest.digest();
+                    messageDigest.reset();
+                }
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    final User user = userService.loadUserByUsername(reqEmail);
+                    byte[] secretKey;
+                    try {
+                        secretKey = userService.getUserSecretKey(reqEmail, encryptionKey);
+                    } catch (UserNotFoundException e) {
+                        e.printStackTrace();
+                        throw new InternalServerException();
+                    }
+                    if (secretKey == null) {
+                        response.sendError(HttpStatus.UNAUTHORIZED.value());
+                        return;
+                    }
+                    final UserModel model = new UserModel(user, encryptionKey);
                     var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
                     token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(token);
                 }
-            }
-        } else if (authorizationHeader.startsWith("Admin ")) {
-            final String[] parts = authorizationHeader.substring(6).split("\\|");
-            if (parts.length != 2) {
+            } else {
                 response.sendError(HttpStatus.UNAUTHORIZED.value());
                 return;
             }
-            final String reqEmail = parts[0];
-            final String reqPassword = parts[1];
-            if (!reqEmail.equals(adminEmail) || !reqPassword.equals(adminPassword)) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value());
-                return;
-            }
-            byte[] encryptionKey;
-            synchronized (this) {
-                messageDigest.update(adminPassword.getBytes(StandardCharsets.UTF_8));
-                encryptionKey = messageDigest.digest();
-                messageDigest.reset();
-            }
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                final User user = userService.loadUserByUsername(reqEmail);
-                byte[] secretKey;
-                try {
-                    secretKey = userService.getUserSecretKey(reqEmail, encryptionKey);
-                } catch (UserNotFoundException e) {
-                    e.printStackTrace();
-                    throw new InternalServerException();
-                }
-                if (secretKey == null) {
-                    response.sendError(HttpStatus.UNAUTHORIZED.value());
-                    return;
-                }
-                final UserModel model = new UserModel(user, encryptionKey);
-                var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
-                token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(token);
-            }
-        } else {
-            response.sendError(HttpStatus.UNAUTHORIZED.value());
-            return;
+
         }
         chain.doFilter(request, response);
     }

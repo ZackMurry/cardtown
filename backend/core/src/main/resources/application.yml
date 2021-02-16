@@ -1,4 +1,3 @@
-# todo set global base path to /api/v1
 app:
   datasource:
     jdbc-url: jdbc:postgresql://localhost:5432/cardtown
@@ -34,3 +33,6 @@ security:
   user:
     name: ${CARDTOWN_ADMIN_USERNAME}
     password: ${CARDTOWN_ADMIN_PASSWORD}
+logging:
+  file:
+    name: core.log

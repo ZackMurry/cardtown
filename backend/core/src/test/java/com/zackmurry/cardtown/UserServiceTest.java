@@ -2,7 +2,6 @@ package com.zackmurry.cardtown;
 
 import com.zackmurry.cardtown.dao.user.UserDao;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
-import com.zackmurry.cardtown.model.auth.AuthenticationRequest;
 import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
 import com.zackmurry.cardtown.service.UserService;
 import com.zackmurry.cardtown.util.EncryptionUtils;

@@ -2,7 +2,10 @@ package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
 import com.zackmurry.cardtown.exception.*;
-import com.zackmurry.cardtown.model.arg.*;
+import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
+import com.zackmurry.cardtown.model.arg.ArgumentEntity;
+import com.zackmurry.cardtown.model.arg.ArgumentPreview;
+import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;

@@ -1,7 +1,6 @@
 package com.zackmurry.cardtown.dao.arg;
 
 import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
-import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;

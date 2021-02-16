@@ -8,3 +8,6 @@ spring:
     user:
       name: ${CARDTOWN_ADMIN_USERNAME}
       password: ${CARDTOWN_ADMIN_PASSWORD}
+logging:
+  file:
+    name: admin-server.log

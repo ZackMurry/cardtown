@@ -5,12 +5,14 @@ import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.LengthRequiredException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
-import com.zackmurry.cardtown.model.auth.*;
+import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
+import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
+import com.zackmurry.cardtown.model.auth.User;
+import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -56,11 +58,7 @@ public class UserService implements UserDetailsService {
      */
     @Override
     public User loadUserByUsername(String email) throws UsernameNotFoundException {
-        final User user = userDao.findByEmail(email).orElse(null);
-        if (user == null) {
-            throw new UsernameNotFoundException(email);
-        }
-        return user;
+        return userDao.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email));
     }
 
     /**

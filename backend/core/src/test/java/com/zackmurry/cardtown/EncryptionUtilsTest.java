@@ -2,7 +2,6 @@ package com.zackmurry.cardtown;
 
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
