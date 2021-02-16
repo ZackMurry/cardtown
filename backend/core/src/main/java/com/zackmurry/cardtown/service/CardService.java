@@ -35,6 +35,9 @@ public class CardService {
     private UserService userService;
 
     @Autowired
+    private ArgumentService argumentService;
+
+    @Autowired
     private CardDao cardDao;
 
     /**
@@ -189,7 +192,8 @@ public class CardService {
     }
 
     /**
-     * Deletes a card by its id. Before deleting, it checks if the principal has permission to delete the card
+     * Deletes a card by its id. Before deleting, it checks if the principal has permission to delete the card.
+     * Before deleting, it checks for appearances in arguments and removes it from them, first
      * @param id Id of card in Base64
      * @throws CardNotFoundException If the card could not be found
      * @throws ForbiddenException If the principal doesn't have permission to delete the card
@@ -207,6 +211,7 @@ public class CardService {
         if (!principalId.equals(ownerId)) {
             throw new ForbiddenException();
         }
+        argumentService.removeCardFromAllArguments(cardId);
         cardDao.deleteCardById(cardId);
     }
 

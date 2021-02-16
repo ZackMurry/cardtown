@@ -26,7 +26,6 @@ import java.util.UUID;
 /**
  * arguments are in a many-to-many relationship with cards.
  * there are two tables for arguments: arguments (meta-data about the argument) and argument_cards (links card ids to arguments, including the order they occur in)
- * todo: when a card is deleted, the argument indices don't update
  */
 @Repository
 public class ArgumentDataAccessService implements ArgumentDao {
@@ -289,6 +288,30 @@ public class ArgumentDataAccessService implements ArgumentDao {
             preparedStatement.setObject(2, argumentId);
             preparedStatement.setObject(3, cardId);
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public List<ArgumentCardEntity> getCardEntitiesByCardId(@NonNull UUID cardId) {
+        final String sql = "SELECT argument_id, index_in_argument FROM argument_cards WHERE card_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, cardId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ArgumentCardEntity> argumentCards = new ArrayList<>();
+            while (resultSet.next()) {
+                argumentCards.add(
+                        new ArgumentCardEntity(
+                                UUID.fromString(resultSet.getString("argument_id")),
+                                cardId,
+                                resultSet.getShort("argument_id")
+                        )
+                );
+            }
+            return argumentCards;
         } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();

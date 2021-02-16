@@ -126,4 +126,12 @@ public interface ArgumentDao {
      */
     void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex);
 
+    /**
+     * Gets <code>ArgumentCardEntity</code>s that have a card with the specified id
+     * @param cardId Id of card to find <code>ArgumentCardEntity</code>s for
+     * @return All found <code>ArgumentCardEntity</code>s
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    List<ArgumentCardEntity> getCardEntitiesByCardId(UUID cardId);
+
 }

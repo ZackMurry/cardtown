@@ -34,3 +34,4 @@ build/
 
 ### Log ###
 core.log
+core.log.*

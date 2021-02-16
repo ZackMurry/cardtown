@@ -202,10 +202,8 @@ public class ArgumentService {
         return cardEntities;
     }
 
-    public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId) {
-        // todo make it so that you can remove a card at a specific index instead of removing all appearances of that card in the arg
-        final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
+    public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
@@ -213,8 +211,14 @@ public class ArgumentService {
         if (!argumentEntity.getOwnerId().equals(userId)) {
             throw new ForbiddenException();
         }
+        argumentDao.removeCardFromArgument(argumentId, cardId);
+    }
+
+    public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId) {
+        // todo make it so that you can remove a card at a specific index instead of removing all appearances of that card in the arg
+        final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
-        argumentDao.removeCardFromArgument(decompressedArgId, decompressedCardId);
+        removeCardFromArgument(decompressedArgId, decompressedCardId);
     }
 
     /**
@@ -315,4 +319,18 @@ public class ArgumentService {
             }
         }
     }
+
+    /**
+     * Removes all appearances of cards from arguments.
+     * Checks authorization for accessing argument, but not the card
+     * @param cardId Id of card to remove
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
+    public void removeCardFromAllArguments(@NonNull UUID cardId) {
+        final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardEntitiesByCardId(cardId);
+        for (ArgumentCardEntity argumentCardEntity : argumentCardEntities) {
+            removeCardFromArgument(argumentCardEntity.getArgumentId(), cardId);
+        }
+    }
+
 }
