@@ -67,89 +67,94 @@ const ViewArgument: NextPage<Props> = ({
     }}
     >
       <DashboardSidebar windowWidth={width} pageName='Arguments' />
-      <div
-        style={{
-          width: '50%',
-          margin: '10vh auto'
-        }}
-      >
-        <Typography
-          style={{
-            color: theme.palette.darkGrey.main,
-            textTransform: 'uppercase',
-            fontSize: 11,
-            marginTop: 19,
-            letterSpacing: 0.5
-          }}
-        >
-          Argument
-        </Typography>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <ArgumentName
-            jwt={jwt}
-            name={name}
-            argumentId={argument.id}
-            onError={setErrorText}
-            onNameChange={setName}
-          />
-          <DeleteArgumentButton
-            jwt={jwt}
-            argumentId={argument.id}
-            argumentName={argument.name}
-            onError={setErrorText}
-            onDelete={() => router.push('/arguments/all')}
-          />
-        </div>
-        <div
-          style={{
-            width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
-          }}
-        />
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId='CARDS_LIST'>
-              {(
-                dropProvided: DroppableProvided
-              ) => (
-                <div
-                  style={{
-                    backgroundColor: theme.palette.secondary.main,
-                    border: `1px solid ${theme.palette.lightGrey.main}`,
-                    borderRadius: 5,
-                    padding: '3vh 3vw'
-                  }}
-                  ref={dropProvided.innerRef}
-                >
-                  {
-                    argument?.cards && argument.cards.map((card, index) => (
-                      <ArgumentCardDisplay
-                        card={card}
-                        jwt={jwt}
-                        onError={setErrorText}
-                        windowWidth={width}
-                        // eslint-disable-next-line react/no-array-index-key
-                        key={`${card.id}@${index}`}
-                        argumentId={id}
-                        indexInArgument={index}
-                        onRemove={() => setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })}
-                      />
-                    ))
-                  }
-                  {
-                    dropProvided.placeholder
-                  }
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        <div style={{ marginTop: 25 }}>
-          <AddCardToArgumentButton
-            jwt={jwt}
-            onError={setErrorText}
-            argId={argument.id}
-            windowWidth={width}
-          />
-        </div>
-      </div>
+      {
+        argument && (
+          <div
+            style={{
+              width: '50%',
+              margin: '10vh auto'
+            }}
+          >
+            <Typography
+              style={{
+                color: theme.palette.darkGrey.main,
+                textTransform: 'uppercase',
+                fontSize: 11,
+                marginTop: 19,
+                letterSpacing: 0.5
+              }}
+            >
+              Argument
+            </Typography>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <ArgumentName
+                jwt={jwt}
+                name={name}
+                argumentId={argument.id}
+                onError={setErrorText}
+                onNameChange={setName}
+              />
+              <DeleteArgumentButton
+                jwt={jwt}
+                argumentId={argument.id}
+                argumentName={argument.name}
+                onError={setErrorText}
+                onDelete={() => router.push('/arguments/all')}
+              />
+            </div>
+            <div
+              style={{
+                width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+              }}
+            />
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId='CARDS_LIST'>
+                  {(
+                    dropProvided: DroppableProvided
+                  ) => (
+                    <div
+                      style={{
+                        backgroundColor: theme.palette.secondary.main,
+                        border: `1px solid ${theme.palette.lightGrey.main}`,
+                        borderRadius: 5,
+                        padding: '3vh 3vw'
+                      }}
+                      ref={dropProvided.innerRef}
+                    >
+                      {
+                        argument?.cards && argument.cards.map((card, index) => (
+                          <ArgumentCardDisplay
+                            card={card}
+                            jwt={jwt}
+                            onError={setErrorText}
+                            windowWidth={width}
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={`${card.id}@${index}`}
+                            argumentId={id}
+                            indexInArgument={index}
+                            onRemove={() => setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })}
+                          />
+                        ))
+                      }
+                      {
+                        dropProvided.placeholder
+                      }
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            <div style={{ marginTop: 25 }}>
+              <AddCardToArgumentButton
+                jwt={jwt}
+                onError={setErrorText}
+                argId={argument.id}
+                windowWidth={width}
+              />
+            </div>
+          </div>
+
+        )
+      }
       {
         fetchingErrorText && <ErrorAlert disableClose text={fetchingErrorText} />
       }

@@ -111,25 +111,8 @@ public class CardService {
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
     public String createCard(@NonNull CardCreateRequest request) {
-        if (request.getOwnerEmail() == null ||
-            request.getBodyHtml() == null ||
-            request.getBodyDraft() == null ||
-            request.getCite() == null ||
-            request.getBodyText() == null) {
-            throw new BadRequestException();
-        }
-        if (request.getTag() == null) {
-            request.setTag("");
-        }
-
-        if (request.getCiteInformation() == null) {
-            request.setCiteInformation("");
-        }
-
+        request.validateFields();
         // todo: impose some limit on length of body fields
-        if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
-            throw new LengthRequiredException();
-        }
 
         // whitelisting html tags to prevent XSS
         request.setBodyHtml(HtmlSanitizer.sanitizeHtml(request.getBodyHtml()));
@@ -229,25 +212,8 @@ public class CardService {
      * @throws ForbiddenException If the principal doesn't have permission to edit the requested card
      * @throws InternalServerException If there is an error while encrypting the new card data
      */
-    public void updateCardById(String id, CardCreateRequest request) {
-        // todo extract this stuff into a validation method
-        if (request.getBodyHtml() == null ||
-            request.getBodyDraft() == null ||
-            request.getCite() == null ||
-            request.getBodyText() == null) {
-            throw new BadRequestException();
-        }
-
-        if (request.getTag() == null) {
-            request.setTag("");
-        }
-        if (request.getCiteInformation() == null) {
-            request.setCiteInformation("");
-        }
-        if (request.getTag().length() > 256 || request.getCite().length() > 128 || request.getCiteInformation().length() > 2048) {
-            throw new LengthRequiredException();
-        }
-
+    public void updateCardById(@NonNull String id, @NonNull CardCreateRequest request) {
+        request.validateFields();
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final UUID cardId = UUIDCompressor.decompress(id);
         final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);

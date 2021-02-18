@@ -119,7 +119,6 @@ public class ArgumentService {
     }
 
     public void addCardToArgument(@NonNull String cardId, @NonNull String argumentId) {
-        // todo check access to card
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
@@ -215,7 +214,6 @@ public class ArgumentService {
     }
 
     public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId, @NonNull short index) {
-        // todo make it so that you can remove a card at a specific index instead of removing all appearances of that card in the arg
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         removeCardFromArgument(decompressedArgId, decompressedCardId, index);
