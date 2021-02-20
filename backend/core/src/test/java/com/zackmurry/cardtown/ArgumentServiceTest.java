@@ -14,6 +14,7 @@ import com.zackmurry.cardtown.service.ArgumentService;
 import com.zackmurry.cardtown.service.CardService;
 import com.zackmurry.cardtown.service.UserService;
 import com.zackmurry.cardtown.util.EncryptionUtils;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.*;
@@ -130,7 +131,7 @@ public class ArgumentServiceTest {
             final String cardId = cardService.createCard(newCard);
             final String argumentName = RandomStringUtils.randomAlphanumeric(1, 128);
             final String argId =  argumentService.createArgument(new ArgumentCreateRequest(argumentName));
-            assertDoesNotThrow(() -> argumentService.addCardToArgument(cardId, argId));
+            assertDoesNotThrow(() -> argumentService.addCardToArgument(argId, cardId));
             final ResponseArgument responseArgument = argumentService.getResponseArgumentById(argId);
             assertEquals(argumentName, responseArgument.getName());
             assertEquals(1, responseArgument.getCards().size());
@@ -152,7 +153,7 @@ public class ArgumentServiceTest {
                 final CardCreateRequest newCard = CardServiceTest.generateMockCard(testEmail);
                 final String cardId = cardService.createCard(newCard);
                 cardIds[j] = cardId;
-                assertDoesNotThrow(() -> argumentService.addCardToArgument(cardId, argId));
+                assertDoesNotThrow(() -> argumentService.addCardToArgument(argId, cardId));
             }
             for (short j = 25; j > 0; j--) {
                 assertEquals(j, argumentService.getResponseArgumentById(argId).getCards().size());
@@ -168,36 +169,23 @@ public class ArgumentServiceTest {
     public void testReorderCards() {
         // Create argument and add new cards to argument
         final String argumentId = argumentService.createArgument(new ArgumentCreateRequest(RandomStringUtils.randomAlphanumeric(1, 129)));
+        System.out.println(UUIDCompressor.decompress(argumentId));
         final List<String> cardIds = new ArrayList<>(32);
         for (int i = 0; i < 25; i++) {
             final CardCreateRequest newCard = CardServiceTest.generateMockCard(testEmail);
             final String cardId = cardService.createCard(newCard);
             cardIds.add(cardId);
-            assertDoesNotThrow(() -> argumentService.addCardToArgument(cardId, argumentId));
+            assertDoesNotThrow(() -> argumentService.addCardToArgument(argumentId, cardId));
         }
 
         // Test switching one index at a time
         for (int i = 0; i < 100; i++) {
-            final int firstIndexToSwitch = RandomUtils.nextInt(0, cardIds.size());
-            final int secondIndexToSwitch = RandomUtils.nextInt(0, cardIds.size());
-            final String tempId = cardIds.get(firstIndexToSwitch);
-            cardIds.set(firstIndexToSwitch, cardIds.get(secondIndexToSwitch));
-            cardIds.set(secondIndexToSwitch, tempId);
-            argumentService.updateCardPositions(argumentId, cardIds);
-            final List<String> updatedPositions = argumentService.getResponseArgumentById(argumentId)
-                    .getCards().stream()
-                    .map(ResponseCard::getId)
-                    .collect(Collectors.toList());
-            assertEquals(cardIds.size(), updatedPositions.size());
-            for (int j = 0; j < cardIds.size(); j++) {
-                assertEquals(cardIds.get(j), updatedPositions.get(j));
-            }
-        }
-
-        // Test randomizing order
-        for (int i = 0; i < 25; i++) {
-            Collections.shuffle(cardIds);
-            assertDoesNotThrow(() -> argumentService.updateCardPositions(argumentId, cardIds));
+            final short oldIndex = (short) RandomUtils.nextInt(0, cardIds.size());
+            final short newIndex = (short) RandomUtils.nextInt(0, cardIds.size());
+            final String tempId = cardIds.get(oldIndex);
+            cardIds.remove(oldIndex);
+            cardIds.add(newIndex, tempId);
+            argumentService.updateCardPositions(argumentId, newIndex, oldIndex);
             final List<String> updatedPositions = argumentService.getResponseArgumentById(argumentId)
                     .getCards().stream()
                     .map(ResponseCard::getId)

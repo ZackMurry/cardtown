@@ -29,6 +29,8 @@ public class ArgumentService {
 
     private static final Logger logger = LoggerFactory.getLogger(ArgumentService.class);
 
+    private static final short TEMPORARY_CARD_INDEX_STARTING = Short.MIN_VALUE + 10;
+
     @Autowired
     private ArgumentDao argumentDao;
 
@@ -64,7 +66,7 @@ public class ArgumentService {
         if (request.getCardIds() != null && request.getCardIds().size() != 0) {
             final List<UUID> cardIds = request.getCardIds().stream().map(UUIDCompressor::decompress).collect(Collectors.toList());
             for (UUID cardId : cardIds) {
-                addCardToArgument(cardId, argId);
+                addCardToArgument(argId, cardId);
             }
         }
         return UUIDCompressor.compress(argId);
@@ -97,14 +99,13 @@ public class ArgumentService {
         final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentEntity.getId());
         final List<ResponseCard> responseCards = cardService.getResponseCardsByIds(
                 argumentCardEntities.stream()
-                        .sorted(Comparator.comparingInt(ace -> (int) ace.getIndexInArgument())) // sort by index
                         .map(ArgumentCardEntity::getCardId) // get card  id
                         .collect(Collectors.toList())
         );
         return ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner), responseCards);
     }
 
-    public void addCardToArgument(UUID cardId, UUID argumentId) {
+    public void addCardToArgument(UUID argumentId, UUID cardId) {
         final short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
         final CardEntity cardEntity = cardService.getCardEntityById(cardId).orElse(null);
         if (cardEntity == null) {
@@ -114,10 +115,10 @@ public class ArgumentService {
         if (!cardEntity.getOwnerId().equals(principalId)) {
             throw new ForbiddenException();
         }
-        argumentDao.addCardToArgument(cardId, argumentId, index);
+        argumentDao.addCardToArgument(argumentId, cardId, index);
     }
 
-    public void addCardToArgument(@NonNull String cardId, @NonNull String argumentId) {
+    public void addCardToArgument(@NonNull String argumentId, @NonNull String cardId) {
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
@@ -128,7 +129,7 @@ public class ArgumentService {
         if (!argumentEntity.getOwnerId().equals(principalId)) {
             throw new ForbiddenException();
         }
-        addCardToArgument(decompressedCardId, decompressedArgId);
+        addCardToArgument(decompressedArgId, decompressedCardId);
     }
 
     public List<ArgumentPreview> listArgumentsByUser() {
@@ -182,7 +183,7 @@ public class ArgumentService {
     }
 
     /**
-     * does not validate credentials!
+     * Does not validate credentials! Returns a list of cards in the argument, sorted by index
      * @param argumentId id of argument to search
      * @return list of cards in argument
      */
@@ -272,18 +273,19 @@ public class ArgumentService {
     }
 
     /**
-     * Reorders the cards in an argument according to a new list of ids
+     * Changes the position of a card in an argument, pushing along any other cards
      * @param argumentId Id of argument to modify
-     * @param newPositions List of new card ids, in order, with ids in Base64
+     * @param newIndex New index of card in argument
+     * @param oldIndex Old index of card in argument
      * @throws ArgumentNotFoundException If the argument could not be found
      * @throws ForbiddenException If the user does not have access to the requested argument
      * @throws BadRequestException If the new position list does not have the same number of cards as the argument currently does
      * @throws BadRequestException If the new position list contains either a card that is not in the argument or one card more than it appears in the argument
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
-    public void updateCardPositions(@NonNull String argumentId, @NonNull List<String> newPositions) {
-        // todo unit test
+    public void updateCardPositions(@NonNull String argumentId, @NonNull Short newIndex, @NonNull Short oldIndex) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
+
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
@@ -293,28 +295,15 @@ public class ArgumentService {
             throw new ForbiddenException();
         }
 
-        // validating that the cards are the same
-        final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(decompressedArgId);
-        if (newPositions.size() != argumentCardEntities.size()) {
+        final short argumentSize = argumentDao.getNumberOfCardsInArgument(decompressedArgId);
+        if (newIndex >= argumentSize || oldIndex >= argumentSize || newIndex < 0 || oldIndex < 0) {
             throw new BadRequestException();
         }
 
-        final List<UUID> remainingCardIds = argumentCardEntities.stream().map(ArgumentCardEntity::getCardId).collect(Collectors.toList());
-        final List<UUID> decompressedNewPositions = newPositions.stream().map(UUIDCompressor::decompress).collect(Collectors.toList());
-
-        for (UUID cardId : decompressedNewPositions) {
-            if (!remainingCardIds.remove(cardId)) {
-                throw new BadRequestException();
-            }
-        }
-
-        // Finding the card indices that are different
-        argumentCardEntities.sort(Comparator.comparingInt(ArgumentCardEntity::getIndexInArgument));
-        for (int i = 0; i < decompressedNewPositions.size(); i++) {
-            if (!decompressedNewPositions.get(i).equals(argumentCardEntities.get(i).getCardId())) {
-                argumentDao.setCardIndexInArgumentUnchecked(decompressedArgId, decompressedNewPositions.get(i), (short) i, argumentCardEntities.get(i).getIndexInArgument());
-            }
-        }
+        // Remove the card from the argument, then add it back at the new index
+        final UUID cardId = argumentDao.getCardsByArgumentId(decompressedArgId).get(oldIndex).getCardId();
+        argumentDao.removeCardFromArgument(decompressedArgId, cardId, oldIndex);
+        argumentDao.addCardToArgument(decompressedArgId, cardId, newIndex);
     }
 
     /**

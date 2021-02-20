@@ -7,7 +7,9 @@ import com.zackmurry.cardtown.model.arg.ArgumentPreview;
 import com.zackmurry.cardtown.model.arg.ArgumentRenameRequest;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.arg.card.CardIdHolder;
+import com.zackmurry.cardtown.model.arg.card.ReorderCardsInArgumentRequest;
 import com.zackmurry.cardtown.service.ArgumentService;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +54,7 @@ public class ArgumentController {
             throw new BadRequestException();
         }
 
-        argumentService.addCardToArgument(addRequest.getId(), argId);
+        argumentService.addCardToArgument(argId, addRequest.getId());
     }
 
     @GetMapping("")
@@ -95,12 +97,14 @@ public class ArgumentController {
         argumentService.deleteArgument(decodedId);
     }
 
-    @PutMapping("/id/**/cards")
-    public void updateArgumentCardPositions(@NonNull @RequestBody List<String> newPositions, HttpServletRequest servletRequest) {
-        // This requires the full set of new positions to make data races suck a bit less
+    @PatchMapping("/id/**/cards")
+    public void updateArgumentCardPositions(@NonNull @RequestBody ReorderCardsInArgumentRequest reorderRequest, HttpServletRequest servletRequest) {
+        if (reorderRequest.getOldIndex() == null || reorderRequest.getNewIndex() == null) {
+            throw new BadRequestException();
+        }
         final String encodedArgId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1].split("/cards")[0];
         final String decodedArgId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
-        argumentService.updateCardPositions(decodedArgId, newPositions);
+        argumentService.updateCardPositions(decodedArgId, reorderRequest.getNewIndex(), reorderRequest.getOldIndex());
     }
 
 }

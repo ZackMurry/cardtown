@@ -5,6 +5,7 @@ import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,24 +31,32 @@ public interface ArgumentDao {
     Optional<ArgumentEntity> getArgumentEntity(UUID id);
 
     /**
-     * Gets cards from an argument with the given id
-     * @param argumentId id of the argument
+     * Gets cards from an argument with the given id, ordered by their index in the argument
+     * @param argumentId Id of the argument
      * @return A list of cards found in the argument
      * @throws InternalServerException if there is a <code>SQLException</code>
      */
     List<ArgumentCardEntity> getCardsByArgumentId(UUID argumentId);
 
     /**
+     * Increments card positions in an argument at or past a specified index
+     * @param argumentId Id of argument to update
+     * @param index Index to update at or past at
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    void incrementCardPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, short index);
+
+    /**
      * Inserts a card into an argument and the specified index (0-based).
      * If a card already exists there, this pushes it (and other possible cards) to the next index
-     * @param cardId Card to add to argument. Must already be in the database
      * @param argumentId Argument to add to. Must already be in the database
+     * @param cardId Card to add to argument. Must already be in the database
      * @param indexInArgument The desired zero-based index to set the card at
      * @throws IllegalArgumentException If the index would create a gap between two cards
      * @throws IllegalArgumentException If the index is negative
      * @throws InternalServerException If there is a <code>SQLException</code>
      */
-    void addCardToArgument(UUID cardId, UUID argumentId, short indexInArgument);
+    void addCardToArgument(UUID argumentId, UUID cardId, short indexInArgument);
 
     /**
      * Gets the first unused position in an argument.
@@ -80,7 +89,7 @@ public interface ArgumentDao {
      * @return Number of cards in the argument
      * @throws InternalServerException If there is a <code>SQLException</code> or no count is returned from the query
      */
-    int getNumberOfCardsInArgument(UUID argumentId);
+    short getNumberOfCardsInArgument(UUID argumentId);
 
     /**
      * Removes a card from an argument and left-shifts other cards' indices
@@ -123,12 +132,11 @@ public interface ArgumentDao {
     /**
      * Updates a card's index in an argument without checking if the new index is valid
      * @param argumentId Id of argument to modify
-     * @param cardId Id of card to update
      * @param newIndex New index of card in argument
      * @param oldIndex Old index of card in argument
      * @throws InternalServerException If a <code>SQLException</code> occurs
      */
-    void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex, short oldIndex);
+    void setCardIndexInArgumentUnchecked(UUID argumentId, short newIndex, short oldIndex);
 
     /**
      * Gets <code>ArgumentCardEntity</code>s that have a card with the specified id

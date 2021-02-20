@@ -49,9 +49,12 @@ const ViewArgument: NextPage<Props> = ({
 
     // todo throttle
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argument.id)}/cards`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(newCards.map(c => c.id))
+      body: JSON.stringify({
+        oldIndex: result.source.index,
+        newIndex: result.destination.index
+      })
     })
     // todo show success alert if worked
     if (!response.ok) {

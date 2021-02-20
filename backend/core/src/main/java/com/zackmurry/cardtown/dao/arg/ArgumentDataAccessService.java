@@ -7,6 +7,7 @@ import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +92,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentCardEntity> getCardsByArgumentId(@NonNull UUID argumentId) {
-        final String sql = "SELECT card_id, index_in_argument FROM argument_cards WHERE argument_id = ?";
+        final String sql = "SELECT card_id, index_in_argument FROM argument_cards WHERE argument_id = ? ORDER BY index_in_argument";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, argumentId);
@@ -109,11 +110,11 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public short getFirstOpenIndexInArgument(@NonNull UUID argumentId) {
-        String sql = "SELECT index_in_argument FROM argument_cards WHERE argument_id = ? ORDER BY index_in_argument DESC";
+        final String sql = "SELECT index_in_argument FROM argument_cards WHERE argument_id = ? ORDER BY index_in_argument DESC";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, argumentId);
-            ResultSet resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return (short) (resultSet.getShort("index_in_argument") + 1);
             }
@@ -165,22 +166,33 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void addCardToArgument(@NonNull UUID cardId, @NonNull UUID argumentId, short indexInArgument) {
-        if (indexInArgument > getFirstOpenIndexInArgument(argumentId)) {
-            throw new IllegalArgumentException("Expected index of new card in argument to be <= current argument size");
+    public void incrementCardPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, short index) {
+        final String sql = "UPDATE argument_cards SET index_in_argument = index_in_argument + 1 WHERE argument_id = ? AND index_in_argument >= ?";
+        try {
+            final PreparedStatement incrementStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            incrementStatement.setObject(1, argumentId);
+            incrementStatement.setShort(2, index);
+            incrementStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void addCardToArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short indexInArgument) {
+        final short firstOpenIndex = getFirstOpenIndexInArgument(argumentId);
+        if (indexInArgument > firstOpenIndex) {
+            throw new IllegalArgumentException("Expected index of new card in argument to be <= current argument size. First open index: " + firstOpenIndex + "; got: " + indexInArgument);
         } else if (indexInArgument < 0) {
             throw new IllegalArgumentException("Expected index of new card in argument to be positive");
         }
 
-        try {
-            final String incrementIndexSql = "UPDATE argument_cards SET index_in_argument = index_in_argument + 1 WHERE argument_id = ? AND index_in_argument >= ?";
-            PreparedStatement incrementStatement = jdbcTemplate.getConnection().prepareStatement(incrementIndexSql);
-            incrementStatement.setObject(1, argumentId);
-            incrementStatement.setShort(2, indexInArgument);
-            incrementStatement.executeUpdate();
+        incrementCardPositionsInArgumentAtOrPastIndex(argumentId, indexInArgument);
+        final String sql = "INSERT INTO argument_cards (argument_id, card_id, index_in_argument) VALUES (?, ?, ?)";
 
-            final String insertSql = "INSERT INTO argument_cards (argument_id, card_id, index_in_argument) VALUES (?, ?, ?)";
-            PreparedStatement insertStatement = jdbcTemplate.getConnection().prepareStatement(insertSql);
+        try {
+            final PreparedStatement insertStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             insertStatement.setObject(1, argumentId);
             insertStatement.setObject(2, cardId);
             insertStatement.setShort(3, indexInArgument);
@@ -192,14 +204,14 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public int getNumberOfCardsInArgument(@NonNull UUID argumentId) {
+    public short getNumberOfCardsInArgument(@NonNull UUID argumentId) {
         final String sql = "SELECT COUNT(card_id) FROM argument_cards WHERE argument_id = ?";
         try {
-            PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, argumentId);
             final ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return resultSet.getInt("count");
+                return resultSet.getShort("count");
             }
             throw new InternalServerException();
         } catch (SQLException e) {
@@ -210,19 +222,22 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
-        final short indexInArgument = getIndexOfCardInArgument(argumentId, cardId);
         final String removeSql = "DELETE FROM argument_cards WHERE argument_id = ? AND card_id = ? AND index_in_argument = ?";
-        final String incrementIndexSql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ?";
+        final String decrementSql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(removeSql);
             preparedStatement.setObject(1, argumentId);
             preparedStatement.setObject(2, cardId);
             preparedStatement.setShort(3, index);
-            preparedStatement.executeUpdate();
-            final PreparedStatement incrementStatement = jdbcTemplate.getConnection().prepareStatement(incrementIndexSql);
-            incrementStatement.setObject(1, argumentId);
-            incrementStatement.setShort(2, indexInArgument);
-            incrementStatement.executeUpdate();
+            if (preparedStatement.executeUpdate() == 0) {
+                logger.warn("ArgumentDataAccessService#removeCardFromArgument removed 0 cards");
+                // Since this should never happen at the DAO layer, throw an exception
+                throw new InternalServerException();
+            }
+            final PreparedStatement decrementStatement = jdbcTemplate.getConnection().prepareStatement(decrementSql);
+            decrementStatement.setObject(1, argumentId);
+            decrementStatement.setShort(2, index);
+            decrementStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();
@@ -282,14 +297,13 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex, short oldIndex) {
-        final String sql = "UPDATE argument_cards SET index_in_argument = ? WHERE argument_id = ? AND card_id = ? AND index_in_argument = ?";
+    public void setCardIndexInArgumentUnchecked(UUID argumentId, short newIndex, short oldIndex) {
+        final String sql = "UPDATE argument_cards SET index_in_argument = ? WHERE argument_id = ? AND index_in_argument = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setShort(1, newIndex);
             preparedStatement.setObject(2, argumentId);
-            preparedStatement.setObject(3, cardId);
-            preparedStatement.setShort(4, oldIndex);
+            preparedStatement.setShort(3, oldIndex);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
