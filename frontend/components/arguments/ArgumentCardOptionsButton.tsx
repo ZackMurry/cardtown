@@ -3,7 +3,6 @@ import {
   Button, IconButton, MenuItem, Paper, Popover
 } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
-import { useRouter } from 'next/router'
 import DeleteIcon from '@material-ui/icons/Delete'
 import React, { FC, useState } from 'react'
 import ErrorAlert from '../utils/ErrorAlert'
@@ -23,8 +22,6 @@ const ArgumentCardOptionsButton: FC<Props> = ({
 }) => {
   const [ anchorEl, setAnchorEl ] = useState(null)
   const [ errorText, setErrorText ] = useState('')
-
-  const router = useRouter()
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(e.currentTarget)

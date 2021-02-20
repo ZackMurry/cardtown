@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.dao.arg;
 
 import com.zackmurry.cardtown.exception.InternalServerException;
+import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
@@ -124,9 +125,10 @@ public interface ArgumentDao {
      * @param argumentId Id of argument to modify
      * @param cardId Id of card to update
      * @param newIndex New index of card in argument
+     * @param oldIndex Old index of card in argument
      * @throws InternalServerException If a <code>SQLException</code> occurs
      */
-    void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex);
+    void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex, short oldIndex);
 
     /**
      * Gets <code>ArgumentCardEntity</code>s that have a card with the specified id
@@ -134,6 +136,14 @@ public interface ArgumentDao {
      * @return All found <code>ArgumentCardEntity</code>s
      * @throws InternalServerException If a <code>SQLException</code> occurs
      */
-    List<ArgumentCardEntity> getCardEntitiesByCardId(UUID cardId);
+    List<ArgumentCardEntity> getArgumentCardEntitiesByCardId(UUID cardId);
+
+    /**
+     * Gets a list of <code>ArgumentCardJoinEntity</code>s that have a cardId matching the cardId inputted
+     * @param cardId Id of card to search for arguments for
+     * @return Arguments containing a card with this id; can return multiple of the same argument if a card is in an argument more than once
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    List<ArgumentCardJoinEntity> getArgumentCardJoinEntitiesByCardId(UUID cardId);
 
 }

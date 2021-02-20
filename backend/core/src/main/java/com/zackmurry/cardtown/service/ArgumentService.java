@@ -2,11 +2,10 @@ package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
 import com.zackmurry.cardtown.exception.*;
-import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
-import com.zackmurry.cardtown.model.arg.ArgumentEntity;
-import com.zackmurry.cardtown.model.arg.ArgumentPreview;
-import com.zackmurry.cardtown.model.arg.ResponseArgument;
+import com.zackmurry.cardtown.model.arg.*;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
+import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
+import com.zackmurry.cardtown.model.arg.card.ArgumentsIncludingCardModel;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -313,7 +312,7 @@ public class ArgumentService {
         argumentCardEntities.sort(Comparator.comparingInt(ArgumentCardEntity::getIndexInArgument));
         for (int i = 0; i < decompressedNewPositions.size(); i++) {
             if (!decompressedNewPositions.get(i).equals(argumentCardEntities.get(i).getCardId())) {
-                argumentDao.setCardIndexInArgumentUnchecked(decompressedArgId, decompressedNewPositions.get(i), (short) i);
+                argumentDao.setCardIndexInArgumentUnchecked(decompressedArgId, decompressedNewPositions.get(i), (short) i, argumentCardEntities.get(i).getIndexInArgument());
             }
         }
     }
@@ -326,10 +325,44 @@ public class ArgumentService {
      */
     public void removeCardFromAllArguments(@NonNull UUID cardId) {
         // todo this needs unit tests
-        final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardEntitiesByCardId(cardId);
+        final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getArgumentCardEntitiesByCardId(cardId);
         for (ArgumentCardEntity argumentCardEntity : argumentCardEntities) {
             removeCardFromArgument(argumentCardEntity.getArgumentId(), cardId, argumentCardEntity.getIndexInArgument());
         }
     }
 
+    /**
+     * Gets a list of <code>ArgumentsIncludingCardModel</code>s, describing arguments that contain a card with an id of cardId
+     * @param cardId Id of card to search arguments for
+     * @return Arguments containing the specified card
+     */
+    public List<ArgumentsIncludingCardModel> getArgumentPreviewsByCardId(@NonNull String cardId) {
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
+        final CardEntity cardEntity = cardService.getCardEntityById(decompressedCardId).orElseThrow(CardNotFoundException::new);
+        if (!cardEntity.getOwnerId().equals(principal.getId())) {
+            throw new ForbiddenException();
+        }
+        final List<ArgumentCardJoinEntity> argumentCardJoinEntities = argumentDao.getArgumentCardJoinEntitiesByCardId(decompressedCardId);
+        // todo use a HashMap for greedily getting user details once sharing is implemented
+        final ResponseUserDetails ownerDetails = ResponseUserDetails.fromUser(principal);
+        final List<ArgumentsIncludingCardModel> argList = new ArrayList<>();
+        for (ArgumentCardJoinEntity e : argumentCardJoinEntities) {
+            try {
+                e.decryptFields(principal.getSecretKey());
+            } catch (Exception exception) {
+                exception.printStackTrace();
+                throw new InternalServerException();
+            }
+            argList.add(
+                    new ArgumentsIncludingCardModel(
+                            e.getName(),
+                            UUIDCompressor.compress(e.getId()),
+                            ownerDetails,
+                            e.getIndexInArgument()
+                    )
+            );
+        }
+        return argList;
+    }
 }

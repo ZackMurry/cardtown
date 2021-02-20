@@ -16,7 +16,8 @@ interface Props {
   jwt?: string
 }
 
-// todo styling
+// todo show arguments (with hyperlink and the index that the card appears) that contain the card
+// using GET /api/v1/cards/[id]/arguments
 const ViewCard: NextPage<Props> = ({
   fetchingErrorText, card, jwt
 }) => {

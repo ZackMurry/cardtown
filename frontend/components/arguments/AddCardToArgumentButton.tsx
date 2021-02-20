@@ -79,9 +79,9 @@ const AddCardToArgumentButton: FC<Props> = ({
       {
         isOpen
           ? (
-            <Grid container spacing={3}>
-              <Grid item xs={2} />
-              <Grid item xs={8}>
+            <Grid container>
+              <Grid item xs={1} />
+              <Grid item xs={10}>
                 <BlackText variant='h6' style={{ textAlign: 'center' }}>
                   Add Card
                 </BlackText>
@@ -92,7 +92,7 @@ const AddCardToArgumentButton: FC<Props> = ({
                   windowWidth={windowWidth}
                 />
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={1}>
                 <IconButton onClick={() => setOpen(false)}>
                   <CloseIcon />
                 </IconButton>

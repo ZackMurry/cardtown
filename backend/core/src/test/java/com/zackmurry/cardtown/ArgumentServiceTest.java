@@ -205,6 +205,7 @@ public class ArgumentServiceTest {
             assertEquals(cardIds.size(), updatedPositions.size());
             for (int j = 0; j < cardIds.size(); j++) {
                 assertEquals(cardIds.get(j), updatedPositions.get(j));
+                // todo test indices in argument
             }
         }
 

@@ -3,6 +3,7 @@ package com.zackmurry.cardtown.dao.arg;
 import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
 import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.InternalServerException;
+import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
@@ -281,13 +282,14 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex) {
-        final String sql = "UPDATE argument_cards SET index_in_argument = ? WHERE argument_id = ? AND card_id = ?";
+    public void setCardIndexInArgumentUnchecked(UUID argumentId, UUID cardId, short newIndex, short oldIndex) {
+        final String sql = "UPDATE argument_cards SET index_in_argument = ? WHERE argument_id = ? AND card_id = ? AND index_in_argument = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setShort(1, newIndex);
             preparedStatement.setObject(2, argumentId);
             preparedStatement.setObject(3, cardId);
+            preparedStatement.setShort(4, oldIndex);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -296,7 +298,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public List<ArgumentCardEntity> getCardEntitiesByCardId(@NonNull UUID cardId) {
+    public List<ArgumentCardEntity> getArgumentCardEntitiesByCardId(@NonNull UUID cardId) {
         final String sql = "SELECT argument_id, index_in_argument FROM argument_cards WHERE card_id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -318,5 +320,32 @@ public class ArgumentDataAccessService implements ArgumentDao {
             throw new InternalServerException();
         }
     }
+
+    @Override
+    public List<ArgumentCardJoinEntity> getArgumentCardJoinEntitiesByCardId(@NonNull UUID cardId) {
+        final String sql = "SELECT argument_id, index_in_argument, owner_id, name FROM argument_cards AS ac INNER JOIN arguments ON arguments.id = ac.argument_id WHERE ac.card_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, cardId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ArgumentCardJoinEntity> argumentCardJoinEntities = new ArrayList<>();
+            while (resultSet.next()) {
+                argumentCardJoinEntities.add(
+                        new ArgumentCardJoinEntity(
+                                UUID.fromString(resultSet.getString("argument_id")),
+                                UUID.fromString(resultSet.getString("owner_id")),
+                                resultSet.getString("name"),
+                                cardId,
+                                resultSet.getShort("index_in_argument")
+                        )
+                );
+            }
+            return argumentCardJoinEntities;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
 
 }

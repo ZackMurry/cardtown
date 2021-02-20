@@ -2,13 +2,17 @@ package com.zackmurry.cardtown.controller;
 
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.model.CountResponse;
+import com.zackmurry.cardtown.model.arg.ArgumentPreview;
+import com.zackmurry.cardtown.model.arg.card.ArgumentsIncludingCardModel;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.CardPreview;
 import com.zackmurry.cardtown.model.card.ResponseCard;
+import com.zackmurry.cardtown.service.ArgumentService;
 import com.zackmurry.cardtown.service.CardService;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,9 @@ public class CardController {
 
     @Autowired
     private CardService cardService;
+
+    @Autowired
+    private ArgumentService argumentService;
 
     @GetMapping("/auth-test")
     public String authTest() {
@@ -75,13 +82,23 @@ public class CardController {
     }
 
     @PutMapping("/id/**")
-    public void updateCardById(@RequestBody CardCreateRequest cardUpdateRequest, HttpServletRequest servletRequest) {
+    public void updateCardById(@NonNull @RequestBody CardCreateRequest cardUpdateRequest, HttpServletRequest servletRequest) {
         final String compressedId = servletRequest.getRequestURI().split("/api/v1/cards/id/")[1];
         if (compressedId == null) {
             throw new BadRequestException();
         }
         final String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
         cardService.updateCardById(decodedId, cardUpdateRequest);
+    }
+
+    @GetMapping("/id/**/arguments")
+    public List<ArgumentsIncludingCardModel> getArgumentPreviewsByCardId(HttpServletRequest servletRequest) {
+        final String encodedCardId = servletRequest.getRequestURI().split("/api/v1/cards/id/")[1].split("/arguments")[0];
+        if (encodedCardId == null) {
+            throw new BadRequestException();
+        }
+        final String decodedCardId = URLDecoder.decode(encodedCardId, StandardCharsets.UTF_8);
+        return argumentService.getArgumentPreviewsByCardId(decodedCardId);
     }
 
 }

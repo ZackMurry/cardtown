@@ -30,7 +30,7 @@ const DeleteArgumentButton: FC<Props> = ({
 
   return (
     <>
-      <IconButton onClick={() => setDialogOpen(true)}>
+      <IconButton onClick={() => setDialogOpen(true)} style={{ width: 48, height: 48 }}>
         <DeleteIcon fontSize='small' />
       </IconButton>
       <ConfirmationDialog

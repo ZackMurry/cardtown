@@ -24,7 +24,6 @@ interface Props {
   jwt?: string
 }
 
-// todo drag and drop to reorder
 const ViewArgument: NextPage<Props> = ({
   fetchingErrorText, argument: initialArgument, jwt, id
 }) => {
@@ -34,7 +33,6 @@ const ViewArgument: NextPage<Props> = ({
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
 
-  // todo test with more cards
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) {
       return
@@ -86,7 +84,7 @@ const ViewArgument: NextPage<Props> = ({
             >
               Argument
             </Typography>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <ArgumentName
                 jwt={jwt}
                 name={name}
@@ -107,42 +105,49 @@ const ViewArgument: NextPage<Props> = ({
                 width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
               }}
             />
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId='CARDS_LIST'>
-                  {(
-                    dropProvided: DroppableProvided
-                  ) => (
-                    <div
-                      style={{
-                        backgroundColor: theme.palette.secondary.main,
-                        border: `1px solid ${theme.palette.lightGrey.main}`,
-                        borderRadius: 5,
-                        padding: '3vh 3vw'
-                      }}
-                      ref={dropProvided.innerRef}
-                    >
-                      {
-                        argument?.cards && argument.cards.map((card, index) => (
-                          <ArgumentCardDisplay
-                            card={card}
-                            jwt={jwt}
-                            onError={setErrorText}
-                            windowWidth={width}
-                            // eslint-disable-next-line react/no-array-index-key
-                            key={`${card.id}@${index}`}
-                            argumentId={id}
-                            indexInArgument={index}
-                            onRemove={() => setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })}
-                          />
-                        ))
-                      }
-                      {
-                        dropProvided.placeholder
-                      }
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId='CARDS_LIST'>
+                {(
+                  dropProvided: DroppableProvided
+                ) => (
+                  <div
+                    style={{
+                      backgroundColor: theme.palette.secondary.main,
+                      border: `1px solid ${theme.palette.lightGrey.main}`,
+                      borderRadius: 5,
+                      padding: '3vh 3vw'
+                    }}
+                    ref={dropProvided.innerRef}
+                  >
+                    {
+                      !argument?.cards?.length && (
+                        <Typography color='textSecondary' style={{ textAlign: 'center' }}>
+                          This argument doesn't have any cards
+                        </Typography>
+                      )
+                    }
+                    {
+                      argument?.cards && argument.cards.map((card, index) => (
+                        <ArgumentCardDisplay
+                          card={card}
+                          jwt={jwt}
+                          onError={setErrorText}
+                          windowWidth={width}
+                          // eslint-disable-next-line react/no-array-index-key
+                          key={`${card.id}@${index}`}
+                          argumentId={id}
+                          indexInArgument={index}
+                          onRemove={() => setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })}
+                        />
+                      ))
+                    }
+                    {
+                      dropProvided.placeholder
+                    }
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
             <div style={{ marginTop: 25 }}>
               <AddCardToArgumentButton
                 jwt={jwt}

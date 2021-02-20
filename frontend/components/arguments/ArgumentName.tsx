@@ -59,7 +59,7 @@ const ArgumentName: FC<Props> = ({
       {
         editMode
           ? (
-            <form onSubmit={handleDone} style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <form onSubmit={handleDone} style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <TextField
                 value={name}
                 onChange={e => setName(e.target.value)}
