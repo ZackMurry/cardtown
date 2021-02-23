@@ -9,7 +9,6 @@ import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.arg.card.CardIdHolder;
 import com.zackmurry.cardtown.model.arg.card.ReorderCardsInArgumentRequest;
 import com.zackmurry.cardtown.service.ArgumentService;
-import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
@@ -64,7 +63,7 @@ public class ArgumentController {
 
     @GetMapping("/count")
     public CountResponse getNumberOfArgsByUser() {
-        final int c = argumentService.getNumberOfArgsByUser();
+        final int c = argumentService.getNumberOfArgumentsByUser();
         return new CountResponse(c);
     }
 

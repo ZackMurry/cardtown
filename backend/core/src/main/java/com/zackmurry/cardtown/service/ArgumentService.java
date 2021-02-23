@@ -29,8 +29,6 @@ public class ArgumentService {
 
     private static final Logger logger = LoggerFactory.getLogger(ArgumentService.class);
 
-    private static final short TEMPORARY_CARD_INDEX_STARTING = Short.MIN_VALUE + 10;
-
     @Autowired
     private ArgumentDao argumentDao;
 
@@ -40,6 +38,15 @@ public class ArgumentService {
     @Autowired
     private CardService cardService;
 
+    /**
+     * Creates an argument with the specified information, with the owner id as the current principal
+     * @param request Details of the new argument
+     * @return The new argument's id, in Base64
+     * @throws BadRequestException If the name field is null
+     * @throws LengthRequiredException If the name is more than 128 characters or less than 1 character
+     * @throws InternalServerException If an error occurs while encrypting the argument's name
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public String createArgument(@NonNull ArgumentCreateRequest request) {
         request.setOwnerId(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
 
@@ -56,7 +63,7 @@ public class ArgumentService {
             request.encryptFields(secretKey);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BadRequestException();
+            throw new InternalServerException();
         }
         final UUID argId = argumentDao.createArgument(request);
         if (argId == null) {
@@ -72,6 +79,16 @@ public class ArgumentService {
         return UUIDCompressor.compress(argId);
     }
 
+    /**
+     * Gets an argument by its id
+     * @param id Id of argument, in Base64
+     * @return Details of argument
+     * @throws ArgumentNotFoundException If the argument could not be found
+     * @throws ForbiddenException If the principal does not have access to the requested argument, but it is found
+     * @throws InternalServerException If an error occurs while decrypting the argument's name
+     * @throws InternalServerException If the owner of the argument could not be found
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public ResponseArgument getResponseArgumentById(@NonNull String id) {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
@@ -105,7 +122,15 @@ public class ArgumentService {
         return ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner), responseCards);
     }
 
-    public void addCardToArgument(UUID argumentId, UUID cardId) {
+    /**
+     * Adds a card to the end of an argument
+     * @param argumentId Id of argument to add to
+     * @param cardId Id of card to add
+     * @throws CardNotFoundException If the card could not be found
+     * @throws ArgumentNotFoundException If the argument could not be found
+     * @throws ForbiddenException If the user does not have access to the card and write permission to the argument
+     */
+    public void addCardToArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
         final short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
         final CardEntity cardEntity = cardService.getCardEntityById(cardId).orElse(null);
         if (cardEntity == null) {
@@ -115,23 +140,33 @@ public class ArgumentService {
         if (!cardEntity.getOwnerId().equals(principalId)) {
             throw new ForbiddenException();
         }
-        argumentDao.addCardToArgument(argumentId, cardId, index);
-    }
-
-    public void addCardToArgument(@NonNull String argumentId, @NonNull String cardId) {
-        final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
-        final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
-        final UUID principalId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         if (!argumentEntity.getOwnerId().equals(principalId)) {
             throw new ForbiddenException();
         }
+        argumentDao.addCardToArgument(argumentId, cardId, index);
+    }
+
+    /**
+     * Adds a card to the end of an argument, using Base64 ids
+     * @see ArgumentService#addCardToArgument(UUID, UUID)
+     */
+    public void addCardToArgument(@NonNull String argumentId, @NonNull String cardId) {
+        final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
+        final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         addCardToArgument(decompressedArgId, decompressedCardId);
     }
 
+    /**
+     * Retrieves all arguments that the user has access to. Only retrieves previews for them
+     * @return Argument previews that the user has access to
+     * @throws InternalServerException If an error occurs while decrypting information
+     * @throws InternalServerException If a user was said to be the owner of an entity, but not found in the database
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
     public List<ArgumentPreview> listArgumentsByUser() {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
@@ -144,7 +179,7 @@ public class ArgumentService {
             } catch (Exception e) {
                 // probably something wrong with the card
                 e.printStackTrace();
-                throw new BadRequestException();
+                throw new InternalServerException();
             }
 
             final List<CardEntity> cardEntities = getCardsInArgument(argumentEntity.getId());
@@ -153,7 +188,7 @@ public class ArgumentService {
                 // todo greedily fetch ResponseUserDetails when sharing is implemented
                 final ResponseUserDetails responseUserDetails = userService.getResponseUserDetailsById(cardEntity.getOwnerId()).orElse(null);
                 if (responseUserDetails == null) {
-                    throw new BadRequestException();
+                    throw new InternalServerException();
                 }
                 final ResponseCard responseCard = ResponseCard.fromCard(cardEntity, responseUserDetails);
 
@@ -169,7 +204,7 @@ public class ArgumentService {
 
             final ResponseUserDetails responseUserDetails = userService.getResponseUserDetailsById(argumentEntity.getOwnerId()).orElse(null);
             if (responseUserDetails == null) {
-                throw new BadRequestException();
+                throw new InternalServerException();
             }
             final ArgumentPreview argumentPreview = ArgumentPreview.of(argumentEntity, responseUserDetails, cardHeaders);
             argumentPreviews.add(argumentPreview);
@@ -177,15 +212,20 @@ public class ArgumentService {
         return argumentPreviews;
     }
 
-    public int getNumberOfArgsByUser() {
+    /**
+     * Gets the number of arguments that a user has access to
+     * @return The number of arguments
+     */
+    public int getNumberOfArgumentsByUser() {
         final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         return argumentDao.getNumberOfArgumentsByUser(id);
     }
 
     /**
+     * Gets the cards in an argument, by the argument's id.
      * Does not validate credentials! Returns a list of cards in the argument, sorted by index
-     * @param argumentId id of argument to search
-     * @return list of cards in argument
+     * @param argumentId Id of argument to search
+     * @return List of cards in argument
      */
     public List<CardEntity> getCardsInArgument(UUID argumentId) {
         final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentId);
@@ -201,6 +241,14 @@ public class ArgumentService {
         return cardEntities;
     }
 
+    /**
+     * Removes a card from an argument, adjusting indices and whatnot.
+     * @param argumentId Id of argument to remove from
+     * @param cardId Id of card to remove
+     * @param index Index that the card appears in the argument at
+     * @throws ArgumentNotFoundException If the argument could not be found
+     * @throws ForbiddenException If the principal does not have permission to view/modify this argument
+     */
     public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
         if (argumentEntity == null) {
@@ -213,6 +261,10 @@ public class ArgumentService {
         argumentDao.removeCardFromArgument(argumentId, cardId, index);
     }
 
+    /**
+     * Removes a card from an argument, using Base64 ids
+     * @see ArgumentService#removeCardFromArgument(UUID, UUID, short)
+     */
     public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId, @NonNull short index) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
