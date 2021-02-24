@@ -36,6 +36,32 @@ const NewCard: FC = () => {
     const bodyDraft = convertToRaw(content)
     const bodyHtml = stateToHTML(content, draftExportHtmlOptions)
     const bodyText = content.getPlainText('\u0001')
+    console.log(`htmll: ${bodyHtml.length} draftl: ${JSON.stringify(bodyDraft).length} textl: ${bodyText.length}`)
+
+    if (tag.length < 1) {
+      setErrorText('Your card must have a tag')
+      return
+    }
+    if (tag.length > 256) {
+      setErrorText('Your card\'s tag cannot be longer than 256 characters')
+      return
+    }
+    if (cite.length === 0) {
+      setErrorText('Your card must have a cite')
+      return
+    }
+    if (cite.length > 128) {
+      setErrorText('Your card\'s cite cannot be longer than 128 characters')
+      return
+    }
+    if (citeInformation.length > 2048) {
+      setErrorText('Your card\'s cite information cannot be longer than 2048 characters')
+      return
+    }
+    if (bodyHtml.length > 100000 || bodyText.length > 50000) {
+      setErrorText('Your card\'s body is too long!')
+      return
+    }
 
     const response = await fetch('/api/v1/cards', {
       method: 'POST',

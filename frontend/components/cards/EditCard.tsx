@@ -8,6 +8,7 @@ import theme from '../utils/theme'
 import CardBodyEditor from './CardBodyEditor'
 import draftExportHtmlOptions from './draftExportHtmlOptions'
 import ResponseCard from '../types/ResponseCard'
+import ErrorAlert from '../utils/ErrorAlert'
 
 interface Props {
   jwt: string
@@ -24,6 +25,7 @@ const EditCard: FC<Props> = ({
   const [ cite, setCite ] = useState(card.cite)
   const [ citeInformation, setCiteInformation ] = useState(card.citeInformation)
   const [ bodyState, setBodyState ] = useState(() => EditorState.createWithContent(convertFromRaw(JSON.parse(card.bodyDraft))))
+  const [ errorText, setErrorText ] = useState('')
 
   const handleDone = async (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     if (!jwt) {
@@ -34,6 +36,31 @@ const EditCard: FC<Props> = ({
     const bodyHtml = stateToHTML(content, draftExportHtmlOptions)
     const bodyDraft = convertToRaw(bodyState.getCurrentContent())
     const bodyText = content.getPlainText('\u0001')
+
+    if (tag.length < 1) {
+      setErrorText('Your card must have a tag')
+      return
+    }
+    if (tag.length > 256) {
+      setErrorText('Your card\'s tag cannot be longer than 256 characters')
+      return
+    }
+    if (cite.length === 0) {
+      setErrorText('Your card must have a cite')
+      return
+    }
+    if (cite.length > 128) {
+      setErrorText('Your card\'s cite cannot be longer than 128 characters')
+      return
+    }
+    if (citeInformation.length > 2048) {
+      setErrorText('Your card\'s cite information cannot be longer than 2048 characters')
+      return
+    }
+    if (bodyHtml.length > 100000 || bodyText.length > 50000) {
+      setErrorText('Your card\'s body is too long!')
+      return
+    }
 
     const response = await fetch(`/api/v1/cards/id/${encodeURIComponent(card.id)}`, {
       method: 'PUT',
@@ -121,6 +148,9 @@ const EditCard: FC<Props> = ({
         setEditorState={setBodyState}
         disableOutline
       />
+      {
+        errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />
+      }
     </div>
   )
 }

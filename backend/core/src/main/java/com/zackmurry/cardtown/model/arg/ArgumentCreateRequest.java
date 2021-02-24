@@ -16,7 +16,6 @@ public class ArgumentCreateRequest extends EncryptedArgument {
 
     private UUID ownerId;
     private List<String> cardIds;
-    // todo name should be unique in the scope of the user
 
     public ArgumentCreateRequest(List<String> cardIds, String name) {
         this.cardIds = cardIds;

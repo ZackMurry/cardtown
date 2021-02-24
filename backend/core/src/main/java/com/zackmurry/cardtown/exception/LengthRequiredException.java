@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class LengthRequiredException extends RuntimeException {
 
     public LengthRequiredException() {
-        super("Internal server error");
+        super("Length required");
     }
 
     public LengthRequiredException(String message) {

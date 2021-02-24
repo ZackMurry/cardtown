@@ -7,7 +7,6 @@ import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
-import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

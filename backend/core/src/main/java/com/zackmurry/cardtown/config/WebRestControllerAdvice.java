@@ -83,4 +83,10 @@ public class WebRestControllerAdvice {
         return exception.getMessage();
     }
 
+    @ExceptionHandler(PayloadTooLargeException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    public String handlePayloadTooLargeException(PayloadTooLargeException exception, HttpServletResponse response) {
+        return exception.getMessage();
+    }
+
 }

@@ -48,7 +48,8 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
       })
     })
     if (response.ok) {
-      console.log(await response.text())
+      const argId = response.text()
+      router.push(`/arguments/id/${argId}`)
     } else if (response.status === 400) {
       setErrorText('Error creating argument')
     } else if (response.status === 401 || response.status === 403) {

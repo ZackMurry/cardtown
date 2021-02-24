@@ -112,7 +112,6 @@ public class CardService {
      */
     public String createCard(@NonNull CardCreateRequest request) {
         request.validateFields();
-        // todo: impose some limit on length of body fields
 
         // whitelisting html tags to prevent XSS
         request.setBodyHtml(HtmlSanitizer.sanitizeHtml(request.getBodyHtml()));

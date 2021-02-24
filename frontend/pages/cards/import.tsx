@@ -105,6 +105,11 @@ const ImportCards: FC = () => {
       .parseFromString(bodyHtml, 'text/html')
       .documentElement.textContent
 
+    if (bodyText.length > 15000 || bodyHtml.length > 100000) {
+      setFeedbackText('Your card is too long!')
+      return
+    }
+
     const response = await fetch('/api/v1/cards', {
       method: 'POST',
       headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
@@ -124,6 +129,8 @@ const ImportCards: FC = () => {
       setBodyHtml('')
       setPasteData('')
       setFeedbackText(IMPORT_SUCCESS_TEXT)
+    } else {
+      setFeedbackText(`An unknown error occured during your request. Status code: ${response.status}`)
     }
   }
 
