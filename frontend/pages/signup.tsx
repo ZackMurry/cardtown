@@ -8,7 +8,7 @@ import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Cookie from 'js-cookie'
-import { NextPage } from 'next'
+import { GetServerSideProps, NextPage } from 'next'
 import BlackText from '../components/utils/BlackText'
 import ToggleIcon from '../components/utils/ToggleIcon'
 import ErrorAlert from '../components/utils/ErrorAlert'
@@ -200,11 +200,9 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
 
 export default Signup
 
-export async function getServerSideProps({ query }) {
-  return {
-    props: {
-      redirect: query?.redirect || null,
-      initialEmail: query?.email || ''
-    }
+export const getServerSideProps: GetServerSideProps = async ({ query }) => ({
+  props: {
+    redirect: query?.redirect || null,
+    initialEmail: query?.email || ''
   }
-}
+})

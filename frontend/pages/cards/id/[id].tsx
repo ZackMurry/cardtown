@@ -25,9 +25,10 @@ const ViewCard: NextPage<Props> = ({
   const [ errorText, setErrorText ] = useState('')
 
   return (
-    <div style={{
-      width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
-    }}
+    <div
+      style={{
+        width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
+      }}
     >
       <DashboardSidebar windowWidth={width} pageName='Cards' />
       <div

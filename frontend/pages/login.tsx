@@ -50,7 +50,7 @@ const Login: NextPage<Props> = ({ redirect }) => {
       router.push(redirect || '/dash')
     } else if (response.status === 400) {
       // todo resetting passwords
-      setErrorText('Incorrect email and/or password.')
+      setErrorText('Invalid email and/or password.')
     } else if (response.status === 404) {
       setErrorText('There was an error communicating with the server. Please try again later.')
     } else {
