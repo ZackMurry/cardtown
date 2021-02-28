@@ -24,6 +24,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * todo allow for analytics somehow
+ */
 @Service
 public class ArgumentService {
 
@@ -378,19 +381,13 @@ public class ArgumentService {
      * @return Arguments containing the specified card
      */
     public List<ArgumentWithCardModel> getArgumentPreviewsByCardId(@NonNull String cardId) {
-        System.out.println("service");
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        System.out.println("decompressing");
-        System.out.println(cardId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
-        System.out.println("made it up here");
         final CardEntity cardEntity = cardService.getCardEntityById(decompressedCardId).orElseThrow(CardNotFoundException::new);
         if (!cardEntity.getOwnerId().equals(principal.getId())) {
             throw new ForbiddenException();
         }
-        System.out.println("made it here");
         final List<ArgumentCardJoinEntity> argumentCardJoinEntities = argumentDao.getArgumentCardJoinEntitiesByCardId(decompressedCardId);
-        System.out.println("todo");
         // todo use a HashMap for greedily getting user details once sharing is implemented
         final ResponseUserDetails ownerDetails = ResponseUserDetails.fromUser(principal);
         final List<ArgumentWithCardModel> argList = new ArrayList<>();

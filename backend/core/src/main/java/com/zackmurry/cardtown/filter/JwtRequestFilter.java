@@ -96,7 +96,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         response.sendError(HttpStatus.UNAUTHORIZED.value());
                         return;
                     }
-                    final UserModel model = new UserModel(user, encryptionKey);
+                    final UserModel model = new UserModel(user, secretKey);
                     if (jwtUtil.validateToken(jwt, user)) {
                         var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
                         token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -134,7 +134,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         response.sendError(HttpStatus.UNAUTHORIZED.value());
                         return;
                     }
-                    final UserModel model = new UserModel(user, encryptionKey);
+                    final UserModel model = new UserModel(user, secretKey);
                     var token = new UsernamePasswordAuthenticationToken(model, null, user.getAuthorities());
                     token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(token);

@@ -32,3 +32,18 @@ CREATE TABLE IF NOT EXISTS argument_cards (
     card_id UUID NOT NULL REFERENCES cards ON DELETE CASCADE,
     index_in_argument SMALLINT DEFAULT 0 NOT NULL -- 0-based signed short (limit of 32767)
 );
+
+-- table for groups of debaters with shared evidence
+-- users can only be in one team
+CREATE TABLE IF NOT EXISTS teams (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    name VARCHAR(216) NOT NULL, -- limited length: 128
+    secret_key_hash VARCHAR(256) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS team_members (
+    team_id UUID NOT NULL REFERENCES teams ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users ON DELETE CASCADE,
+    team_secret_key VARCHAR(128) NOT NULL,
+    role VARCHAR(32) NOT NULL DEFAULT 'MEMBER' -- 'MEMBER' or 'OWNER'
+);

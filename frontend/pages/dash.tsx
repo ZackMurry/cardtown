@@ -5,6 +5,7 @@ import BlackText from '../components/utils/BlackText'
 import useWindowSize from '../components/utils/hooks/useWindowSize'
 import theme from '../components/utils/theme'
 
+// todo wrap dash pages in a DashboardPage component instead of rewriting layout
 const Dash: FC = () => {
   const { width } = useWindowSize(1920, 1080)
   return (

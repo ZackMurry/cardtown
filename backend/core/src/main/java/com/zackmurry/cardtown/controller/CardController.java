@@ -30,6 +30,7 @@ public class CardController {
     @Autowired
     private ArgumentService argumentService;
 
+    // todo switch a lot of controller methods to @Valid for validation
     @GetMapping("/auth-test")
     public String authTest() {
         return Base64.encodeBase64String(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey());

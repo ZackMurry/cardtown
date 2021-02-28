@@ -57,7 +57,7 @@ const ViewCard: NextPage<Props> = ({
         }
       </div>
       {
-        relatedArguments && (
+        relatedArguments && relatedArguments.length && (
           <CardArgumentsDisplay relatedArguments={relatedArguments} />
         )
       }
@@ -133,7 +133,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
   let relatedArguments: ArgumentWithCardModel[] | null
   if (argumentsResponse.ok) {
     relatedArguments = await argumentsResponse.json() as ArgumentWithCardModel[]
-    console.log(relatedArguments)
   } else {
     errorText = `Error fetching related arguments. Status code: ${argumentsResponse.status}`
   }

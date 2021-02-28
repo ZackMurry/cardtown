@@ -102,6 +102,7 @@ public class UserService implements UserDetailsService {
         // generating and encrypting secret key
         // todo salt encryptionKey with email or something
         // SHA-256 hash the user's password
+        // The role of the encryption key is to encrypt the secret key in the database
         final byte[] encryptionKey = encryptionUtils.getSHA256Hash(plainTextPassword.getBytes(StandardCharsets.UTF_8));
         if (encryptionKey == null) {
             throw new InternalServerException();
