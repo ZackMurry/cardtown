@@ -11,11 +11,11 @@ public class UUIDCompressor {
         bb.putLong(uuid.getMostSignificantBits());
         bb.putLong(uuid.getLeastSignificantBits());
         final byte[] array = bb.array();
-        return Base64.getEncoder().encodeToString(array);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(array);
     }
 
     public static UUID decompress(String compressed) {
-        final ByteBuffer byteBuffer = ByteBuffer.wrap(Base64.getDecoder().decode(compressed));
+        final ByteBuffer byteBuffer = ByteBuffer.wrap(Base64.getUrlDecoder().decode(compressed));
         return new UUID(byteBuffer.getLong(), byteBuffer.getLong());
     }
 

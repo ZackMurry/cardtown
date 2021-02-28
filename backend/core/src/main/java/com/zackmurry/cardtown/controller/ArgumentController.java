@@ -35,19 +35,17 @@ public class ArgumentController {
 
     @GetMapping("/id/**")
     public ResponseArgument getArgumentById(HttpServletRequest request) {
-        final String encodedId = request.getRequestURI().split("/api/v1/arguments/id/")[1];
-        if (encodedId == null) {
+        final String cardId = request.getRequestURI().split("/api/v1/arguments/id/")[1];
+        if (cardId == null) {
             throw new BadRequestException();
         }
-        final String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
-        return argumentService.getResponseArgumentById(decodedId);
+        return argumentService.getResponseArgumentById(cardId);
     }
 
     @PostMapping("/id/**/cards")
     public void addCardToArgument(@NonNull @RequestBody CardIdHolder addRequest, HttpServletRequest servletRequest) {
         final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
-        final String encodedArgId = relevantPath.split("/")[0];
-        final String argId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
+        final String argId = relevantPath.split("/")[0];
 
         if (addRequest.getId() == null || argId == null) {
             throw new BadRequestException();
@@ -71,28 +69,25 @@ public class ArgumentController {
     public void removeCardFromArgument(@RequestParam short index, HttpServletRequest servletRequest) {
         final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
         final String[] parts = relevantPath.split("/cards/");
-        final String argId = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
-        final String cardId = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
-        argumentService.removeCardFromArgument(argId, cardId, index);
+        argumentService.removeCardFromArgument(parts[0], parts[1], index);
     }
 
     @PutMapping("/id/**")
     public void renameArgument(@NonNull @RequestBody ArgumentRenameRequest renameRequest, HttpServletRequest servletRequest) {
-        final String encodedId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
-        if (encodedId == null || encodedId.isEmpty() || renameRequest.getName() == null) {
+        final String argId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
+        if (argId == null || argId.isEmpty() || renameRequest.getName() == null) {
             throw new BadRequestException();
         }
-        final String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
-        argumentService.renameArgument(decodedId, renameRequest.getName());
+        argumentService.renameArgument(argId, renameRequest.getName());
     }
 
     @DeleteMapping("/id/**")
     public void deleteArgument(HttpServletRequest servletRequest) {
-        final String encodedId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
-        if (encodedId == null || encodedId.isEmpty()) {
+        final String argId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
+        if (argId == null) {
             throw new BadRequestException();
         }
-        final String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
+        final String decodedId = URLDecoder.decode(argId, StandardCharsets.UTF_8);
         argumentService.deleteArgument(decodedId);
     }
 
@@ -101,9 +96,8 @@ public class ArgumentController {
         if (reorderRequest.getOldIndex() == null || reorderRequest.getNewIndex() == null) {
             throw new BadRequestException();
         }
-        final String encodedArgId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1].split("/cards")[0];
-        final String decodedArgId = URLDecoder.decode(encodedArgId, StandardCharsets.UTF_8);
-        argumentService.updateCardPositions(decodedArgId, reorderRequest.getNewIndex(), reorderRequest.getOldIndex());
+        final String argId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1].split("/cards")[0];
+        argumentService.updateCardPositions(argId, reorderRequest.getNewIndex(), reorderRequest.getOldIndex());
     }
 
 }

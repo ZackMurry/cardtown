@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ArgumentsIncludingCardModel {
+public class ArgumentWithCardModel {
 
     private String name;
     private String id;

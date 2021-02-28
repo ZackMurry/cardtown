@@ -5,7 +5,7 @@ import com.zackmurry.cardtown.exception.*;
 import com.zackmurry.cardtown.model.arg.*;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
-import com.zackmurry.cardtown.model.arg.card.ArgumentsIncludingCardModel;
+import com.zackmurry.cardtown.model.arg.card.ArgumentWithCardModel;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -377,17 +377,23 @@ public class ArgumentService {
      * @param cardId Id of card to search arguments for
      * @return Arguments containing the specified card
      */
-    public List<ArgumentsIncludingCardModel> getArgumentPreviewsByCardId(@NonNull String cardId) {
+    public List<ArgumentWithCardModel> getArgumentPreviewsByCardId(@NonNull String cardId) {
+        System.out.println("service");
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("decompressing");
+        System.out.println(cardId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
+        System.out.println("made it up here");
         final CardEntity cardEntity = cardService.getCardEntityById(decompressedCardId).orElseThrow(CardNotFoundException::new);
         if (!cardEntity.getOwnerId().equals(principal.getId())) {
             throw new ForbiddenException();
         }
+        System.out.println("made it here");
         final List<ArgumentCardJoinEntity> argumentCardJoinEntities = argumentDao.getArgumentCardJoinEntitiesByCardId(decompressedCardId);
+        System.out.println("todo");
         // todo use a HashMap for greedily getting user details once sharing is implemented
         final ResponseUserDetails ownerDetails = ResponseUserDetails.fromUser(principal);
-        final List<ArgumentsIncludingCardModel> argList = new ArrayList<>();
+        final List<ArgumentWithCardModel> argList = new ArrayList<>();
         for (ArgumentCardJoinEntity e : argumentCardJoinEntities) {
             try {
                 e.decryptFields(principal.getSecretKey());
@@ -396,7 +402,7 @@ public class ArgumentService {
                 throw new InternalServerException();
             }
             argList.add(
-                    new ArgumentsIncludingCardModel(
+                    new ArgumentWithCardModel(
                             e.getName(),
                             UUIDCompressor.compress(e.getId()),
                             ownerDetails,

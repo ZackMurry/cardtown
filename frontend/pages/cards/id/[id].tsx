@@ -8,18 +8,22 @@ import ErrorAlert from '../../../components/utils/ErrorAlert'
 import redirectToLogin from '../../../components/utils/redirectToLogin'
 import ResponseCard from '../../../components/types/ResponseCard'
 import CardDisplay from '../../../components/cards/CardDisplay'
+import ArgumentWithCardModel from '../../../components/types/ArgumentWithCardModel'
+import CardArgumentsDisplay from '../../../components/cards/CardArgumentsDisplay'
 
 interface Props {
   id?: string
   fetchingErrorText?: string
   card?: ResponseCard
   jwt?: string
+  relatedArguments?: ArgumentWithCardModel[]
 }
 
 // todo show arguments (with hyperlink and the index that the card appears) that contain the card
 // using GET /api/v1/cards/[id]/arguments
+// todo don't url encode ids on the frontend anymore
 const ViewCard: NextPage<Props> = ({
-  fetchingErrorText, card, jwt
+  fetchingErrorText, card, jwt, relatedArguments
 }) => {
   const { width } = useWindowSize(1920, 1080)
   const [ errorText, setErrorText ] = useState('')
@@ -34,7 +38,7 @@ const ViewCard: NextPage<Props> = ({
       <div
         style={{
           width: '50%',
-          margin: '10vh auto',
+          margin: '10vh auto 5vh auto',
           backgroundColor: theme.palette.secondary.main,
           border: `1px solid ${theme.palette.lightGrey.main}`,
           borderRadius: 5,
@@ -52,6 +56,11 @@ const ViewCard: NextPage<Props> = ({
           )
         }
       </div>
+      {
+        relatedArguments && (
+          <CardArgumentsDisplay relatedArguments={relatedArguments} />
+        )
+      }
       {
         (fetchingErrorText || errorText) && <ErrorAlert disableClose text={fetchingErrorText || errorText} />
       }
@@ -84,34 +93,57 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
       props: {}
     }
   }
-  const dev = process.env.NODE_ENV !== 'production'
-  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/cards/id/${encodeURIComponent(id)}`, {
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
+  const domain = process.env.NODE_ENV !== 'production' ? 'http://localhost' : 'https://cardtown.co'
+  // todo do promise.all()
+  const cardResponse = await fetch(`${domain}/api/v1/cards/id/${encodeURIComponent(id)}`, {
+    headers: { Authorization: `Bearer ${jwt}` }
   })
-  if (response.ok) {
-    card = await response.json()
-  } else if (response.status === 404 || response.status === 400) {
-    errorText = 'This card could not be found'
-  } else if (response.status === 403) {
-    errorText = "You don't have access to this card!"
-  } else if (response.status === 401) {
-    redirectToLogin(res, `/cards/id/${encodeURIComponent(id)}`)
-    return {
-      props: {}
-    }
-  } else if (response.status === 500) {
-    errorText = 'There was an unknown server error. Please try again'
-  } else if (response.status === 406) {
-    errorText = 'The ID for this card is invalid'
+  if (cardResponse.ok) {
+    card = await cardResponse.json()
   } else {
-    errorText = `There was an unknown error. Message: ${response.statusText}`
+    if (cardResponse.status === 404 || cardResponse.status === 400) {
+      errorText = 'This card could not be found'
+    } else if (cardResponse.status === 403) {
+      errorText = "You don't have access to this card!"
+    } else if (cardResponse.status === 401) {
+      redirectToLogin(res, `/cards/id/${encodeURIComponent(id)}`)
+      return {
+        props: {}
+      }
+    } else if (cardResponse.status === 500) {
+      errorText = 'There was an unknown server error. Please try again'
+    } else if (cardResponse.status === 406) {
+      errorText = 'The ID for this card is invalid'
+    } else {
+      errorText = `There was an unknown error. ${cardResponse.status}: ${cardResponse.statusText}`
+    }
+    return {
+      props: {
+        id,
+        fetchingErrorText: errorText,
+        card,
+        jwt
+      }
+    }
+  }
+
+  const argumentsResponse = await fetch(`${domain}/api/v1/cards/id/${id}/arguments`, {
+    headers: { Authorization: `Bearer ${jwt}` }
+  })
+  let relatedArguments: ArgumentWithCardModel[] | null
+  if (argumentsResponse.ok) {
+    relatedArguments = await argumentsResponse.json() as ArgumentWithCardModel[]
+    console.log(relatedArguments)
+  } else {
+    errorText = `Error fetching related arguments. Status code: ${argumentsResponse.status}`
   }
   return {
     props: {
       id,
       fetchingErrorText: errorText,
       card,
-      jwt
+      jwt,
+      relatedArguments: relatedArguments || null
     }
   }
 }

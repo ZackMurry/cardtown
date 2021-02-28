@@ -2,8 +2,7 @@ package com.zackmurry.cardtown.controller;
 
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.model.CountResponse;
-import com.zackmurry.cardtown.model.arg.ArgumentPreview;
-import com.zackmurry.cardtown.model.arg.card.ArgumentsIncludingCardModel;
+import com.zackmurry.cardtown.model.arg.card.ArgumentWithCardModel;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.CardPreview;
@@ -43,12 +42,11 @@ public class CardController {
 
     @GetMapping("/id/**")
     public ResponseCard getCardById(HttpServletRequest request) {
-        final String encodedId = request.getRequestURI().split("/api/v1/cards/id/")[1];
-        if (encodedId == null) {
+        final String cardId = request.getRequestURI().split("/api/v1/cards/id/")[1];
+        if (cardId == null) {
             throw new BadRequestException();
         }
-        final String decodedId = URLDecoder.decode(encodedId, StandardCharsets.UTF_8);
-        return cardService.getResponseCardById(decodedId);
+        return cardService.getResponseCardById(cardId);
     }
 
     /**
@@ -73,32 +71,29 @@ public class CardController {
 
     @DeleteMapping("/id/**")
     public void deleteCardById(HttpServletRequest request) {
-        final String compressedId = request.getRequestURI().split("/api/v1/cards/id/")[1];
-        if (compressedId == null) {
+        final String cardId = request.getRequestURI().split("/api/v1/cards/id/")[1];
+        if (cardId == null) {
             throw new BadRequestException();
         }
-        final String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
-        cardService.deleteCardById(decodedId);
+        cardService.deleteCardById(cardId);
     }
 
     @PutMapping("/id/**")
     public void updateCardById(@NonNull @RequestBody CardCreateRequest cardUpdateRequest, HttpServletRequest servletRequest) {
-        final String compressedId = servletRequest.getRequestURI().split("/api/v1/cards/id/")[1];
-        if (compressedId == null) {
+        final String cardId = servletRequest.getRequestURI().split("/api/v1/cards/id/")[1];
+        if (cardId == null) {
             throw new BadRequestException();
         }
-        final String decodedId = URLDecoder.decode(compressedId, StandardCharsets.UTF_8);
-        cardService.updateCardById(decodedId, cardUpdateRequest);
+        cardService.updateCardById(cardId, cardUpdateRequest);
     }
 
     @GetMapping("/id/**/arguments")
-    public List<ArgumentsIncludingCardModel> getArgumentPreviewsByCardId(HttpServletRequest servletRequest) {
-        final String encodedCardId = servletRequest.getRequestURI().split("/api/v1/cards/id/")[1].split("/arguments")[0];
-        if (encodedCardId == null) {
+    public List<ArgumentWithCardModel> getArgumentPreviewsByCardId(HttpServletRequest servletRequest) {
+        final String cardId = servletRequest.getRequestURI().split("/api/v1/cards/id/")[1].split("/arguments")[0];
+        if (cardId == null) {
             throw new BadRequestException();
         }
-        final String decodedCardId = URLDecoder.decode(encodedCardId, StandardCharsets.UTF_8);
-        return argumentService.getArgumentPreviewsByCardId(decodedCardId);
+        return argumentService.getArgumentPreviewsByCardId(cardId);
     }
 
 }
