@@ -34,4 +34,16 @@ public interface TeamDao {
      */
     Optional<TeamEntity> getTeamById(UUID id);
 
+    /**
+     * Gets the id of a team with a specified user
+     * @param userId Id of user to find team of
+     * @return If found: an <code>Optional</code> containing the team's id; else: <code>Optional.empty()</code>
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    Optional<UUID> getTeamIdWithUser(UUID userId);
+
+    void deleteTeamById(UUID teamId);
+
+    Optional<TeamMemberEntity> getTeamMemberEntityByUserId(UUID userId);
+
 }

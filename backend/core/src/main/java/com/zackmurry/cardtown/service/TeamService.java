@@ -2,6 +2,7 @@ package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.team.TeamDao;
 import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.exception.ForbiddenException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.TeamNotFoundException;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -17,6 +18,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -44,12 +47,14 @@ public class TeamService {
 
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        // Creating an AES secret key for the team
         final SecretKey teamSecretKey = EncryptionUtils.generateStrongAESKey(256);
         // todo base64 may need to be base64url for request params
+        // Generating hash for verifying invites
         final String teamSecretKeyHashBase64 = Base64.encodeBase64String(encryptionUtils.getSHA256Hash(teamSecretKey.getEncoded()));
         final TeamEntity teamEntity = new TeamEntity(teamCreateRequest.getName(), teamSecretKeyHashBase64);
         try {
-            teamEntity.encryptFields(principal.getSecretKey());
+            teamEntity.encryptFields(teamSecretKey.getEncoded());
         } catch (Exception e) {
             e.printStackTrace();
             throw new InternalServerException();
@@ -87,13 +92,64 @@ public class TeamService {
         }
         byte[] encryptedTeamSecretKey;
         try {
-            encryptedTeamSecretKey = EncryptionUtils.encryptAES(Base64.decodeBase64(teamSecretKeyHashBase64), principal.getSecretKey());
+            // Encrypting the team secret key with the user's secret key
+            encryptedTeamSecretKey = EncryptionUtils.encryptAES(Base64.decodeBase64(teamJoinRequest.getTeamSecretKey()), principal.getSecretKey());
         } catch (Exception e) {
             e.printStackTrace();
             throw new InternalServerException();
         }
         final TeamMemberEntity teamMemberEntity = new TeamMemberEntity(teamId, principal.getId(), Base64.encodeBase64String(encryptedTeamSecretKey));
         teamDao.addMemberToTeam(teamMemberEntity);
+    }
+
+    /**
+     * Deletes the team of the current user
+     * @throws BadRequestException If the current user is not part of a team
+     * @throws ForbiddenException If the current user is not the owner of their team
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
+    public void deleteTeam() {
+        // todo prompt for switching ownership of team if 1+ other members
+        // todo for TeamResponse: include owner in preview of team
+        final UUID userId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final TeamMemberEntity teamMemberEntity = teamDao.getTeamMemberEntityByUserId(userId).orElseThrow(BadRequestException::new);
+        if (!teamMemberEntity.getRole().equals(TeamRole.OWNER)) {
+            throw new ForbiddenException();
+        }
+        teamDao.deleteTeamById(teamMemberEntity.getTeamId());
+    }
+
+    /**
+     * Gets the details of the current user's team
+     * @return If found: an <code>Optional</code> containing the current user's team details; else: <code>Optional.empty()</code>
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
+    public Optional<TeamEntity> getTeamByUser(@NonNull UUID userId) {
+        final UUID teamId = teamDao.getTeamIdWithUser(userId).orElse(null);
+        if (teamId == null) {
+            return Optional.empty();
+        }
+        return teamDao.getTeamById(teamId);
+    }
+
+    /**
+     * Gets the team secret key of a given user
+     * @param userId Id of user to get team secret key of
+     * @param userSecretKey Secret key of user
+     * @return If user is in a team: an <code>Optional</code> containing the team's secret key; else: <code>Optional.empty()</code>
+     */
+    public Optional<byte[]> getTeamSecretKeyByUser(@NonNull UUID userId, byte[] userSecretKey) {
+        final TeamMemberEntity teamMemberEntity = teamDao.getTeamMemberEntityByUserId(userId).orElse(null);
+        if (teamMemberEntity == null) {
+            return Optional.empty();
+        }
+        final byte[] encryptedTeamSecretKey = Base64.decodeBase64(teamMemberEntity.getTeamSecretKey());
+        try {
+            return Optional.of(EncryptionUtils.decryptAES(encryptedTeamSecretKey, userSecretKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
     }
 
 }

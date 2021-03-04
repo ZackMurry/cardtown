@@ -48,6 +48,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private EncryptionUtils encryptionUtils;
 
+    @Autowired
+    private TeamService teamService;
+
     /**
      * Gets a user's data by their email.
      * This is really only used by Spring Security
@@ -121,7 +124,7 @@ public class UserService implements UserDetailsService {
             throw new InternalServerException();
         }
 
-        final UserModel userModel = new UserModel(user, encryptedSecretKey);
+        final UserModel userModel = new UserModel(user, encryptedSecretKey, null);
         userDao.createAccount(userModel);
 
         // Put username and encryption key into JWT
@@ -262,6 +265,22 @@ public class UserService implements UserDetailsService {
             return Optional.empty();
         }
         return Optional.of(ResponseUserDetails.fromUser(user));
+    }
+
+    /**
+     * Generates a <code>UserModel</code> from a user's email and encryption key
+     * @param email Email of user to generate a <code>UserModel</code> for
+     * @param encryptionKey Encryption key of user
+     * @return If user is found: an <code>Optional</code> containing the <code>UserModel</code>; else: <code>Optional.empty()</code>
+     */
+    public Optional<UserModel> getUserModelByEmail(@NonNull String email, @NonNull byte[] encryptionKey) {
+        final User user = userDao.findByEmail(email).orElse(null);
+        if (user == null) {
+            return Optional.empty();
+        }
+        final byte[] secretKey = getUserSecretKey(email, encryptionKey);
+        final byte[] teamSecretKey = teamService.getTeamSecretKeyByUser(user.getId(), secretKey).orElse(null);
+        return Optional.of(new UserModel(user, secretKey, teamSecretKey));
     }
 
 }

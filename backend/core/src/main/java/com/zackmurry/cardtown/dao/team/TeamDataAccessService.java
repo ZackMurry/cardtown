@@ -1,9 +1,9 @@
 package com.zackmurry.cardtown.dao.team;
 
 import com.zackmurry.cardtown.exception.InternalServerException;
-import com.zackmurry.cardtown.model.team.TeamCreateRequest;
 import com.zackmurry.cardtown.model.team.TeamEntity;
 import com.zackmurry.cardtown.model.team.TeamMemberEntity;
+import com.zackmurry.cardtown.model.team.TeamRole;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +78,63 @@ public class TeamDataAccessService implements TeamDao {
                                 resultSet.getString("name"),
                                 id,
                                 resultSet.getString("secret_key_hash")
+                        )
+                );
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public Optional<UUID> getTeamIdWithUser(UUID userId) {
+        final String sql = "SELECT team_id FROM team_members WHERE user_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, userId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(UUID.fromString(resultSet.getString("team_id")));
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void deleteTeamById(@NonNull UUID teamId) {
+        final String sql = "DELETE FROM teams WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, teamId);
+            final int rowsEffected = preparedStatement.executeUpdate();
+            if (rowsEffected != 1) {
+                logger.warn("Deletion of team deleted a number of rows not equal to one. Rows deleted: {}", rowsEffected);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public Optional<TeamMemberEntity> getTeamMemberEntityByUserId(@NonNull UUID userId) {
+        final String sql = "SELECT * FROM team_members WHERE user_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, userId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(
+                        new TeamMemberEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                userId,
+                                resultSet.getString("team_secret_key"),
+                                TeamRole.valueOf(resultSet.getString("role"))
                         )
                 );
             }

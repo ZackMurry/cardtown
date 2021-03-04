@@ -50,11 +50,11 @@ public class CardServiceTest {
         } else {
             testPassword = RandomStringUtils.randomAlphanumeric(12);
             assertDoesNotThrow(() -> userService.createUserAccount(testEmail, "__TEST__", "__USER__", testPassword));
-            User user = userService.getUserByEmail(testEmail).orElse(null);
-            assertNotNull(user, "User should be found in database");
-            byte[] secretKey = userService.getUserSecretKey(testEmail, encryptionUtils.getSHA256Hash(testPassword.getBytes(StandardCharsets.UTF_8)));
-            UserModel userModel = new UserModel(user, secretKey);
-            token = new UsernamePasswordAuthenticationToken(userModel, null, user.getAuthorities());
+            final UserModel userModel = userService.getUserModelByEmail(
+                    testEmail,
+                    encryptionUtils.getSHA256Hash(testPassword.getBytes(StandardCharsets.UTF_8))
+            ).orElseThrow(UserNotFoundException::new);
+            token = new UsernamePasswordAuthenticationToken(userModel, null, userModel.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(token);
         }
     }
