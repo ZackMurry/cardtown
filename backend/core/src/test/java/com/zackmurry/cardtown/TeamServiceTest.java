@@ -1,8 +1,9 @@
 package com.zackmurry.cardtown;
 
 import com.zackmurry.cardtown.exception.UserNotFoundException;
-import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.model.team.TeamCreateRequest;
+import com.zackmurry.cardtown.model.team.TeamEntity;
 import com.zackmurry.cardtown.service.TeamService;
 import com.zackmurry.cardtown.service.UserService;
 import com.zackmurry.cardtown.util.EncryptionUtils;
@@ -14,9 +15,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
@@ -73,7 +75,26 @@ public class TeamServiceTest {
     @DisplayName("Test creating and deleting teams")
     @Test
     public void testCreateDeleteTeams() {
-        // todo
+        for (int i = 0; i < 25; i++) {
+            final String teamName = RandomStringUtils.randomAlphanumeric(1, 128);
+            teamService.createTeam(new TeamCreateRequest(teamName));
+
+            // Refresh user context with updated team secret key
+            final UserModel userModel = userService.getUserModelByEmail(
+                    testEmail,
+                    encryptionUtils.getSHA256Hash(
+                            testPassword.getBytes(StandardCharsets.UTF_8)
+                    )
+            ).orElseThrow(UserNotFoundException::new);
+            token = new UsernamePasswordAuthenticationToken(userModel, null, userModel.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(token);
+
+            final Optional<TeamEntity> optionalTeamEntity = teamService.getTeamOfUser();
+            assertTrue(optionalTeamEntity.isPresent());
+            assertEquals(teamName, optionalTeamEntity.get().getName());
+            assertDoesNotThrow(() -> teamService.deleteTeam());
+            assertTrue(teamService.getTeamOfUser().isEmpty());
+        }
     }
 
 }

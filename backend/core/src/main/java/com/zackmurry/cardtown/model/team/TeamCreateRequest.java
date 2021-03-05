@@ -2,12 +2,19 @@ package com.zackmurry.cardtown.model.team;
 
 
 import com.zackmurry.cardtown.exception.LengthRequiredException;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class TeamCreateRequest extends EncryptedTeam {
+
+    public TeamCreateRequest(String name) {
+        this.name = name;
+    }
 
     /**
      * Checks if the fields are valid

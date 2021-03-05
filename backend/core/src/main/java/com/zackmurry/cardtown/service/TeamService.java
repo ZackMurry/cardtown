@@ -120,16 +120,28 @@ public class TeamService {
     }
 
     /**
-     * Gets the details of the current user's team
+     * Gets the details of the current user's team (decrypted)
      * @return If found: an <code>Optional</code> containing the current user's team details; else: <code>Optional.empty()</code>
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
-    public Optional<TeamEntity> getTeamByUser(@NonNull UUID userId) {
-        final UUID teamId = teamDao.getTeamIdWithUser(userId).orElse(null);
+    public Optional<TeamEntity> getTeamOfUser() {
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final UUID teamId = teamDao.getTeamIdWithUser(principal.getId()).orElse(null);
         if (teamId == null) {
             return Optional.empty();
         }
-        return teamDao.getTeamById(teamId);
+
+        final TeamEntity teamEntity = teamDao.getTeamById(teamId).orElse(null);
+        if (teamEntity == null) {
+            return Optional.empty();
+        }
+        try {
+            teamEntity.decryptFields(principal.getTeamSecretKey());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+        return Optional.of(teamEntity);
     }
 
     /**

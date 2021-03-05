@@ -131,7 +131,7 @@ public class TeamDataAccessService implements TeamDao {
             if (resultSet.next()) {
                 return Optional.of(
                         new TeamMemberEntity(
-                                UUID.fromString(resultSet.getString("id")),
+                                UUID.fromString(resultSet.getString("team_id")),
                                 userId,
                                 resultSet.getString("team_secret_key"),
                                 TeamRole.valueOf(resultSet.getString("role"))
