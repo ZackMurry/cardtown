@@ -2,7 +2,6 @@ package com.zackmurry.cardtown.model.team;
 
 
 import com.zackmurry.cardtown.exception.LengthRequiredException;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

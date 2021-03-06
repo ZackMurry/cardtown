@@ -14,6 +14,7 @@ import com.zackmurry.cardtown.model.card.CardHeader;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.UUIDCompressor;
+import com.zackmurry.cardtown.util.UserSecretKeyHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,9 +62,8 @@ public class ArgumentService {
             throw new LengthRequiredException("An argument's name must be between 1 and 128 characters long.");
         }
 
-        final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
         try {
-            request.encryptFields(secretKey);
+            request.encryptFields(UserSecretKeyHolder.getSecretKey());
         } catch (Exception e) {
             e.printStackTrace();
             throw new InternalServerException();
@@ -95,7 +95,6 @@ public class ArgumentService {
     public ResponseArgument getResponseArgumentById(@NonNull String id) {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
-        final byte[] secretKey = principal.getSecretKey();
 
         final UUID uuidId = UUIDCompressor.decompress(id);
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(uuidId).orElse(null);
@@ -107,7 +106,7 @@ public class ArgumentService {
             throw new ForbiddenException();
         }
         try {
-            argumentEntity.decryptFields(secretKey);
+            argumentEntity.decryptFields(UserSecretKeyHolder.getSecretKey());
         } catch (Exception e) {
             // this happens if the encoding is invalid for some reason
             throw new InternalServerException();
@@ -173,7 +172,7 @@ public class ArgumentService {
     public List<ArgumentPreview> listArgumentsByUser() {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
-        final byte[] secretKey = principal.getSecretKey();
+        final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
         final List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByUser(userId);
         final List<ArgumentPreview> argumentPreviews = new ArrayList<>();
         for (ArgumentEntity argumentEntity : argumentEntities) {

@@ -6,7 +6,11 @@ import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.CardPreview;
 import com.zackmurry.cardtown.model.card.ResponseCard;
+import com.zackmurry.cardtown.model.team.TeamCreateRequest;
+import com.zackmurry.cardtown.model.team.TeamCreationResponse;
+import com.zackmurry.cardtown.model.team.TeamJoinRequest;
 import com.zackmurry.cardtown.service.CardService;
+import com.zackmurry.cardtown.service.TeamService;
 import com.zackmurry.cardtown.service.UserService;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.UUIDCompressor;
@@ -18,7 +22,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +37,9 @@ public class CardServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TeamService teamService;
 
     @Autowired
     private EncryptionUtils encryptionUtils;
@@ -157,6 +166,51 @@ public class CardServiceTest {
             assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
             assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
         }
+    }
+
+    @DisplayName("Test team encryption")
+    @Test
+    public void testTeamEncryption() {
+        // todo have to add team tests for a lot of things :|
+
+        // Creating a new test user
+        String teamOwnerEmail = RandomStringUtils.randomAlphanumeric(12, 40);
+        while (userService.accountExists(teamOwnerEmail)) {
+            teamOwnerEmail = RandomStringUtils.randomAlphanumeric(12, 40);
+        }
+        final String teamOwnerPassword = RandomStringUtils.randomAlphanumeric(12, 20);
+        final String teamOwnerEmailCopy = teamOwnerEmail; // Create a copy of the email String for lambda
+        assertDoesNotThrow(() -> userService.createUserAccount(teamOwnerEmailCopy, "__TEST__", "__USER__", teamOwnerPassword));
+        final UserModel teamOwnerModel = userService.getUserModelByEmail(
+                teamOwnerEmail,
+                encryptionUtils.getSHA256Hash(teamOwnerPassword.getBytes(StandardCharsets.UTF_8))
+        ).orElseThrow(RuntimeException::new);
+        final var teamOwnerToken = new UsernamePasswordAuthenticationToken(teamOwnerModel, null, teamOwnerModel.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(teamOwnerToken); // Set authentication to team owner user
+        // Create team as team owner
+        final TeamCreationResponse teamCreationResponse = teamService.createTeam(new TeamCreateRequest(RandomStringUtils.randomAlphanumeric(1, 20)));
+        SecurityContextHolder.getContext().setAuthentication(token); // Reset context
+        // Join team as test user
+        teamService.joinTeam(new TeamJoinRequest(teamCreationResponse.getId(), teamCreationResponse.getSecretKey()));
+
+        for (int i = 0; i < 25; i++) {
+            // Create card
+            final CardCreateRequest cardCreateRequest = generateMockCard(testEmail);
+            final String cardId = cardService.createCard(cardCreateRequest);
+
+            // Make sure that card is properly encrypted/decrypted
+            final ResponseCard responseCard = cardService.getResponseCardById(cardId);
+            assertEquals(cardCreateRequest.getBodyText(), responseCard.getBodyText());
+
+            // Delete card
+            cardService.deleteCardById(cardId);
+        }
+
+        // Cleanup created data
+        SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
+        teamService.deleteTeam();
+        userService.deleteUserAccount(teamOwnerEmail);
+        SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
     }
 
 }

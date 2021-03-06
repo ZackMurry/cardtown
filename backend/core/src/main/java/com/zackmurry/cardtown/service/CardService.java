@@ -11,6 +11,7 @@ import com.zackmurry.cardtown.model.card.CardPreview;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.util.HtmlSanitizer;
 import com.zackmurry.cardtown.util.UUIDCompressor;
+import com.zackmurry.cardtown.util.UserSecretKeyHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ public class CardService {
         }
 
         try {
-            cardEntity.decryptFields(principal.getSecretKey());
+            cardEntity.decryptFields(UserSecretKeyHolder.getSecretKey());
         } catch (Exception e) {
             e.printStackTrace();
             throw new BadRequestException();
@@ -121,10 +122,9 @@ public class CardService {
             throw new InternalServerException();
         }
 
-        final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
         final CardEntity cardEntity = request.toCardEntity(optionalUserId.get());
         try {
-            cardEntity.encryptFields(secretKey);
+            cardEntity.encryptFields(UserSecretKeyHolder.getSecretKey());
         } catch (Exception e) {
             e.printStackTrace();
             throw new BadRequestException();
@@ -143,8 +143,8 @@ public class CardService {
     public List<ResponseCard> getAllCardsByUser() {
         final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final List<CardEntity> rawCards = cardDao.getCardsByUser(id);
-        final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
 
+        final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
         try {
             for (CardEntity c : rawCards) {
                 c.decryptFields(secretKey);
@@ -236,9 +236,8 @@ public class CardService {
                 request.getBodyText()
         );
 
-        final byte[] secretKey = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getSecretKey();
         try {
-            cardEntity.encryptFields(secretKey);
+            cardEntity.encryptFields(UserSecretKeyHolder.getSecretKey());
         } catch (Exception e) {
             e.printStackTrace();
             throw new InternalServerException();
@@ -270,7 +269,7 @@ public class CardService {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final List<CardEntity> rawCards = cardDao.getCardsByUser(principal.getId());
         final ResponseUserDetails userDetails = ResponseUserDetails.fromUser(principal);
-        final byte[] secretKey = principal.getSecretKey();
+        final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
         final List<CardPreview> cardPreviews = new ArrayList<>();
         for (CardEntity c : rawCards) {
             final CardPreview cardPreview = CardPreview.of(c, userDetails);

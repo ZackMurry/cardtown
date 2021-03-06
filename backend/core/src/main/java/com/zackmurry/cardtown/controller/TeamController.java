@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.controller;
 
 import com.zackmurry.cardtown.model.team.TeamCreateRequest;
+import com.zackmurry.cardtown.model.team.TeamCreationResponse;
 import com.zackmurry.cardtown.model.team.TeamJoinRequest;
 import com.zackmurry.cardtown.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class TeamController {
     private TeamService teamService;
 
     @PostMapping("")
-    public String createTeam(@RequestBody @NotNull TeamCreateRequest teamCreateRequest) {
+    public TeamCreationResponse createTeam(@RequestBody @NotNull TeamCreateRequest teamCreateRequest) {
         return teamService.createTeam(teamCreateRequest);
     }
 

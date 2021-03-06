@@ -36,13 +36,13 @@ public class TeamService {
     /**
      * Creates a team with the specified information
      * @param teamCreateRequest Details of new team
-     * @return Id of new team in Base64
+     * @return An object containing the id of the new team (encoded in Base64url) and the team's secret key (for an invite)
      * @throws com.zackmurry.cardtown.exception.LengthRequiredException If the team's name is > 128 chars or < 1 char
      * @throws InternalServerException If an error occurs during encryption
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
-    public String createTeam(@NonNull TeamCreateRequest teamCreateRequest) {
-        // todo show user an invite link after creating a team and include teamSecretKeyHash in the invite link
+    public TeamCreationResponse createTeam(@NonNull TeamCreateRequest teamCreateRequest) {
+        // todo show user an invite link after creating a team and include teamSecretKey in the invite link
         teamCreateRequest.validateFields();
 
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -71,7 +71,9 @@ public class TeamService {
         }
         final TeamMemberEntity teamMemberEntity = new TeamMemberEntity(teamId, principal.getId(), Base64.encodeBase64String(encryptedTeamSecretKey), TeamRole.OWNER);
         teamDao.addMemberToTeam(teamMemberEntity);
-        return UUIDCompressor.compress(teamId);
+        final String encodedTeamSecretKey = Base64.encodeBase64URLSafeString(teamSecretKey.getEncoded());
+        // Additional link invites can be generated later based on the decryption of the team secret key by a member
+        return new TeamCreationResponse(UUIDCompressor.compress(teamId), encodedTeamSecretKey);
     }
 
     /**
@@ -83,17 +85,19 @@ public class TeamService {
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
     public void joinTeam(@NonNull TeamJoinRequest teamJoinRequest) {
+        // todo: Transition old cards that were made before joining a team to the user's new encryption method
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID teamId = UUIDCompressor.decompress(teamJoinRequest.getTeamId());
         final TeamEntity teamEntity = teamDao.getTeamById(teamId).orElseThrow(TeamNotFoundException::new);
-        final String teamSecretKeyHashBase64 = encryptionUtils.getSHA256HashBase64(teamJoinRequest.getTeamSecretKey());
+        final byte[] decodedTeamSecretKey = Base64.decodeBase64URLSafe(teamJoinRequest.getTeamSecretKey());
+        final String teamSecretKeyHashBase64 = Base64.encodeBase64String(encryptionUtils.getSHA256Hash(decodedTeamSecretKey));
         if (!teamEntity.getSecretKeyHash().equals(teamSecretKeyHashBase64)) {
             throw new BadRequestException();
         }
         byte[] encryptedTeamSecretKey;
         try {
             // Encrypting the team secret key with the user's secret key
-            encryptedTeamSecretKey = EncryptionUtils.encryptAES(Base64.decodeBase64(teamJoinRequest.getTeamSecretKey()), principal.getSecretKey());
+            encryptedTeamSecretKey = EncryptionUtils.encryptAES(decodedTeamSecretKey, principal.getSecretKey());
         } catch (Exception e) {
             e.printStackTrace();
             throw new InternalServerException();
