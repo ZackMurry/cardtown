@@ -16,8 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RequestMapping("/api/v1/cards")
@@ -61,7 +59,7 @@ public class CardController {
 
     @GetMapping("")
     public List<ResponseCard> getAllCardsByUser() {
-        return cardService.getAllCardsByUser();
+        return cardService.getAllCardsVisibleToUser();
     }
 
     @GetMapping("/count")

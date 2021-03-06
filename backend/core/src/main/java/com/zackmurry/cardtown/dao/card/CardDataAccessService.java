@@ -198,4 +198,34 @@ public class CardDataAccessService implements CardDao {
         }
     }
 
+    @Override
+    public List<CardEntity> getCardsByTeamId(@NonNull UUID teamId) {
+        final String sql = "SELECT id, owner_id, tag, cite, cite_information, body_html, body_draft, body_text FROM cards INNER JOIN team_members ON cards.owner_id = team_members.user_id WHERE team_members.team_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, teamId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+
+            final List<CardEntity> cards = new ArrayList<>();
+            while (resultSet.next()) {
+                cards.add(
+                    new CardEntity(
+                        UUID.fromString(resultSet.getString("id")),
+                        UUID.fromString(resultSet.getString("owner_id")),
+                        resultSet.getString("tag"),
+                        resultSet.getString("cite"),
+                        resultSet.getString("cite_information"),
+                        resultSet.getString("body_html"),
+                        resultSet.getString("body_draft"),
+                        resultSet.getString("body_text")
+                    )
+                );
+            }
+            return cards;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
 }

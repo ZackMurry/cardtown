@@ -1,9 +1,9 @@
 package com.zackmurry.cardtown;
 
 import com.zackmurry.cardtown.exception.UserNotFoundException;
-import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
+import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardPreview;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.model.team.TeamCreateRequest;
@@ -18,13 +18,14 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -88,7 +89,15 @@ public class CardServiceTest {
                 "{ \"sampleContent\": \"" + RandomStringUtils.randomAlphanumeric(100) + "\" }", // body draft
                 RandomStringUtils.randomAlphanumeric(100) // body text
         );
+    }
 
+    static boolean createRequestEqualsResponse(@NonNull CardCreateRequest request, @NonNull ResponseCard response) {
+        return request.getTag().equals(response.getTag()) &&
+                request.getCite().equals(response.getCite()) &&
+                request.getCiteInformation().equals(response.getCiteInformation()) &&
+                request.getBodyText().equals(response.getBodyText()) &&
+                request.getBodyDraft().equals(response.getBodyDraft()) &&
+                request.getBodyHtml().equals(response.getBodyHtml());
     }
 
     @DisplayName("Test creating and deleting cards")
@@ -108,12 +117,7 @@ public class CardServiceTest {
             final CardCreateRequest req = generateMockCard(testEmail);
             final String cardId = cardService.createCard(req);
             final ResponseCard returnedCard = cardService.getResponseCardById(cardId);
-            assertEquals(req.getTag(), returnedCard.getTag(), "The tag should not change after being stored in the database");
-            assertEquals(req.getCite(), returnedCard.getCite(), "The cite should not change after being stored in the database");
-            assertEquals(req.getCiteInformation(), returnedCard.getCiteInformation(), "The cite should not change after being stored in the database");
-            assertEquals(req.getBodyHtml(), returnedCard.getBodyHtml(), "The body html should not change after being stored in the database");
-            assertEquals(req.getBodyDraft(), returnedCard.getBodyDraft(), "The body draft should not change after being stored in the database");
-            assertEquals(req.getBodyText(), returnedCard.getBodyText(), "The body text should not change after being stored in the database");
+            assertTrue(createRequestEqualsResponse(req, returnedCard));
             assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
             assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
         }
@@ -128,12 +132,7 @@ public class CardServiceTest {
             final CardCreateRequest updateReq = generateMockCard(testEmail);
             assertDoesNotThrow(() -> cardService.updateCardById(cardId, updateReq));
             final ResponseCard updatedCard = cardService.getResponseCardById(cardId);
-            assertEquals(updateReq.getTag(), updatedCard.getTag());
-            assertEquals(updateReq.getCite(), updatedCard.getCite());
-            assertEquals(updateReq.getCiteInformation(), updatedCard.getCiteInformation());
-            assertEquals(updateReq.getBodyHtml(), updatedCard.getBodyHtml());
-            assertEquals(updateReq.getBodyDraft(), updatedCard.getBodyDraft());
-            assertEquals(updateReq.getBodyText(), updatedCard.getBodyText());
+            assertTrue(createRequestEqualsResponse(updateReq, updatedCard));
         }
         assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
         assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
@@ -168,49 +167,140 @@ public class CardServiceTest {
         }
     }
 
-    @DisplayName("Test team encryption")
-    @Test
-    public void testTeamEncryption() {
-        // todo have to add team tests for a lot of things :|
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @DisplayName("Test team integration")
+    class TestWithTeams {
 
-        // Creating a new test user
-        String teamOwnerEmail = RandomStringUtils.randomAlphanumeric(12, 40);
-        while (userService.accountExists(teamOwnerEmail)) {
+        private String teamOwnerEmail;
+        private String teamOwnerPassword;
+        private UsernamePasswordAuthenticationToken teamOwnerToken;
+
+        @BeforeAll
+        public void initializeTeam() {
+            // Creating a new test user
             teamOwnerEmail = RandomStringUtils.randomAlphanumeric(12, 40);
-        }
-        final String teamOwnerPassword = RandomStringUtils.randomAlphanumeric(12, 20);
-        final String teamOwnerEmailCopy = teamOwnerEmail; // Create a copy of the email String for lambda
-        assertDoesNotThrow(() -> userService.createUserAccount(teamOwnerEmailCopy, "__TEST__", "__USER__", teamOwnerPassword));
-        final UserModel teamOwnerModel = userService.getUserModelByEmail(
-                teamOwnerEmail,
-                encryptionUtils.getSHA256Hash(teamOwnerPassword.getBytes(StandardCharsets.UTF_8))
-        ).orElseThrow(RuntimeException::new);
-        final var teamOwnerToken = new UsernamePasswordAuthenticationToken(teamOwnerModel, null, teamOwnerModel.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(teamOwnerToken); // Set authentication to team owner user
-        // Create team as team owner
-        final TeamCreationResponse teamCreationResponse = teamService.createTeam(new TeamCreateRequest(RandomStringUtils.randomAlphanumeric(1, 20)));
-        SecurityContextHolder.getContext().setAuthentication(token); // Reset context
-        // Join team as test user
-        teamService.joinTeam(new TeamJoinRequest(teamCreationResponse.getId(), teamCreationResponse.getSecretKey()));
-
-        for (int i = 0; i < 25; i++) {
-            // Create card
-            final CardCreateRequest cardCreateRequest = generateMockCard(testEmail);
-            final String cardId = cardService.createCard(cardCreateRequest);
-
-            // Make sure that card is properly encrypted/decrypted
-            final ResponseCard responseCard = cardService.getResponseCardById(cardId);
-            assertEquals(cardCreateRequest.getBodyText(), responseCard.getBodyText());
-
-            // Delete card
-            cardService.deleteCardById(cardId);
+            while (userService.accountExists(teamOwnerEmail)) {
+                teamOwnerEmail = RandomStringUtils.randomAlphanumeric(12, 40);
+            }
+            teamOwnerPassword = RandomStringUtils.randomAlphanumeric(12, 20);
+            final String teamOwnerEmailCopy = teamOwnerEmail; // Create a copy of the email String for lambda
+            assertDoesNotThrow(() -> userService.createUserAccount(teamOwnerEmailCopy, "__TEST__", "__USER__", teamOwnerPassword));
+            UserModel teamOwnerModel = userService.getUserModelByEmail(
+                    teamOwnerEmail,
+                    encryptionUtils.getSHA256Hash(teamOwnerPassword.getBytes(StandardCharsets.UTF_8))
+            ).orElseThrow(RuntimeException::new);
+            teamOwnerToken = new UsernamePasswordAuthenticationToken(teamOwnerModel, null, teamOwnerModel.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(teamOwnerToken); // Set authentication to team owner user
+            // Create team as team owner
+            final TeamCreationResponse teamCreationResponse = teamService.createTeam(new TeamCreateRequest(RandomStringUtils.randomAlphanumeric(1, 20)));
+            teamOwnerToken = userService.regenerateTokenDetails(teamOwnerToken, teamOwnerPassword);
+            SecurityContextHolder.getContext().setAuthentication(token); // Reset context
+            // Join team as test user
+            teamService.joinTeam(new TeamJoinRequest(teamCreationResponse.getId(), teamCreationResponse.getSecretKey()));
+            token = userService.regenerateTokenDetails(token, testPassword);
+            SecurityContextHolder.getContext().setAuthentication(token);
         }
 
-        // Cleanup created data
-        SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
-        teamService.deleteTeam();
-        userService.deleteUserAccount(teamOwnerEmail);
-        SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
+        @AfterAll
+        public void cleanUpTeam() {
+            SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
+            teamService.deleteTeam();
+            userService.deleteUserAccount(teamOwnerEmail);
+            SecurityContextHolder.getContext().setAuthentication(userService.regenerateTokenDetails(token, testPassword));
+        }
+
+        @AfterEach
+        public void resetContext() {
+            SecurityContextHolder.getContext().setAuthentication(userService.regenerateTokenDetails(token, testPassword));
+        }
+
+        @DisplayName("Test team encryption")
+        @Test
+        public void testTeamEncryption() {
+            // todo have to add team tests for a lot of things :|
+            for (int i = 0; i < 25; i++) {
+                // Create card as testUser
+                final CardCreateRequest cardCreateRequest = generateMockCard(testEmail);
+                final String cardId = cardService.createCard(cardCreateRequest);
+
+                // Make sure that card is properly encrypted/decrypted
+                final ResponseCard responseCard = cardService.getResponseCardById(cardId);
+                assertTrue(createRequestEqualsResponse(cardCreateRequest, responseCard));
+
+                // Switch context to team owner and check access to card
+                SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
+                final ResponseCard teamOwnerResponseCard = cardService.getResponseCardById(cardId);
+                assertTrue(createRequestEqualsResponse(cardCreateRequest, teamOwnerResponseCard));
+
+                // Delete card
+                SecurityContextHolder.getContext().setAuthentication(token);
+                cardService.deleteCardById(cardId);
+            }
+        }
+
+        @DisplayName("Test team editing")
+        @Test
+        public void testTeamEditing() {
+            for (int i = 0; i < 25; i++) {
+                // Create card as testUser
+                final CardCreateRequest cardCreateRequest = generateMockCard(testEmail);
+                final String cardId = cardService.createCard(cardCreateRequest);
+
+                // Edit card as teamOwner
+                SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
+                final CardCreateRequest editRequest = generateMockCard(testEmail);
+                assertDoesNotThrow(() -> cardService.updateCardById(cardId, editRequest), "Team members should be able to edit cards");
+
+                // Check that testUser sees the update
+                SecurityContextHolder.getContext().setAuthentication(token);
+                final ResponseCard responseCard = cardService.getResponseCardById(cardId);
+                assertTrue(createRequestEqualsResponse(editRequest, responseCard));
+
+                // Delete the card
+                cardService.deleteCardById(cardId);
+            }
+        }
+
+        @DisplayName("Test team deleting")
+        @Test
+        public void testTeamDeleting() {
+            for (int i = 0; i < 25; i++) {
+                // Create card as testUser
+                final CardCreateRequest cardCreateRequest = generateMockCard(testEmail);
+                final String cardId = cardService.createCard(cardCreateRequest);
+
+                // Delete card as teamOwner
+                SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
+                assertDoesNotThrow(() -> cardService.deleteCardById(cardId), "Team members should be able to delete cards");
+                // Switch context back
+                SecurityContextHolder.getContext().setAuthentication(token);
+            }
+        }
+
+        @DisplayName("Test get all cards in team")
+        @Test
+        public void testTeamGetAllCards() {
+            // Create 25 cards as testUser
+            // Map of a card id to the CardCreateRequest for it
+            final Map<String, CardCreateRequest> cardCreateRequestsMap = new HashMap<>();
+            for (int i = 0; i < 25; i++) {
+                final CardCreateRequest cardCreateRequest = generateMockCard(testEmail);
+                cardCreateRequestsMap.put(cardService.createCard(cardCreateRequest), cardCreateRequest);
+            }
+
+            // Switch context to teamOwner and see if they are still present
+            SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
+            final List<ResponseCard> responseCards = cardService.getAllCardsVisibleToUser();
+            for (ResponseCard rc : responseCards) {
+                assertTrue(cardCreateRequestsMap.containsKey(rc.getId()));
+                final CardCreateRequest createRequest = cardCreateRequestsMap.remove(rc.getId());
+                assertTrue(createRequestEqualsResponse(createRequest, rc));
+                cardService.deleteCardById(rc.getId()); // Delete the card now that we're done
+            }
+            assertTrue(cardCreateRequestsMap.isEmpty());
+        }
+
     }
 
 }

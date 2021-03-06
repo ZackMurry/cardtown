@@ -168,4 +168,19 @@ public class TeamService {
         }
     }
 
+    public boolean usersInSameTeam(@NonNull UUID userId1, @NonNull UUID userId2) {
+        if (userId1.equals(userId2)) {
+            return true;
+        }
+        final TeamMemberEntity teamMemberEntity1 = teamDao.getTeamMemberEntityByUserId(userId1).orElse(null);
+        if (teamMemberEntity1 == null) {
+            return false;
+        }
+        final TeamMemberEntity teamMemberEntity2 = teamDao.getTeamMemberEntityByUserId(userId2).orElse(null);
+        if (teamMemberEntity2 == null) {
+            return false;
+        }
+        return teamMemberEntity1.getTeamId().equals(teamMemberEntity2.getTeamId());
+    }
+
 }

@@ -3,6 +3,7 @@ package com.zackmurry.cardtown.dao.card;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.EncryptedCard;
+import com.zackmurry.cardtown.model.team.TeamEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,5 +66,7 @@ public interface CardDao {
      * @throws InternalServerException If there is an <code>SQLException</code>
      */
     void updateCardById(UUID id, EncryptedCard request);
+
+    List<CardEntity> getCardsByTeamId(UUID teamId);
 
 }

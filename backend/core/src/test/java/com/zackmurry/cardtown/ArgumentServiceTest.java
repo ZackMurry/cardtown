@@ -136,12 +136,7 @@ public class ArgumentServiceTest {
             assertEquals(argumentName, responseArgument.getName());
             assertEquals(1, responseArgument.getCards().size());
             final ResponseCard returnedCard = responseArgument.getCards().get(0);
-            assertEquals(newCard.getTag(), returnedCard.getTag());
-            assertEquals(newCard.getCite(), returnedCard.getCite());
-            assertEquals(newCard.getCiteInformation(), returnedCard.getCiteInformation());
-            assertEquals(newCard.getBodyText(), returnedCard.getBodyText());
-            assertEquals(newCard.getBodyHtml(), returnedCard.getBodyHtml());
-            assertEquals(newCard.getBodyDraft(), returnedCard.getBodyDraft());
+            assertTrue(CardServiceTest.createRequestEqualsResponse(newCard, returnedCard));
             assertDoesNotThrow(() -> argumentService.removeCardFromArgument(argId, cardId, (short) 0));
             assertEquals(0, argumentService.getResponseArgumentById(argId).getCards().size());
             assertDoesNotThrow(() -> cardService.deleteCardById(cardId));

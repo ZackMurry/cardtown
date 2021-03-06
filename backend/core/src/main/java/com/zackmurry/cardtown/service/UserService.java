@@ -281,4 +281,22 @@ public class UserService implements UserDetailsService {
         return Optional.of(new UserModel(user, secretKey, teamSecretKey));
     }
 
+    /**
+     * Regenerates a <code>UsernamePasswordAuthenticationToken</code> based on the current token and the user's password.
+     * This is useful for re-fetching it after a user has joined a team.
+     * @param token Current token of user
+     * @param password Password of user
+     * @return An up-to-date version of <code>token</code>
+     * @throws BadRequestException If the user could not be found (the account was likely deleted)
+     * @see UserService#getUserModelByEmail(String, byte[]) getUserModelByEmail(...) is called under the hood
+     */
+    public UsernamePasswordAuthenticationToken regenerateTokenDetails(@NonNull UsernamePasswordAuthenticationToken token, @NonNull String password) {
+        final UserModel currentModel = (UserModel) token.getPrincipal();
+        final UserModel model = getUserModelByEmail(
+                currentModel.getEmail(),
+                encryptionUtils.getSHA256Hash(password.getBytes(StandardCharsets.UTF_8))
+        ).orElseThrow(BadRequestException::new);
+        return new UsernamePasswordAuthenticationToken(model, null, model.getAuthorities());
+    }
+
 }

@@ -9,6 +9,7 @@ import com.zackmurry.cardtown.model.card.CardCreateRequest;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardPreview;
 import com.zackmurry.cardtown.model.card.ResponseCard;
+import com.zackmurry.cardtown.model.team.TeamEntity;
 import com.zackmurry.cardtown.util.HtmlSanitizer;
 import com.zackmurry.cardtown.util.UUIDCompressor;
 import com.zackmurry.cardtown.util.UserSecretKeyHolder;
@@ -21,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.BufferUnderflowException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +38,9 @@ public class CardService {
 
     @Autowired
     private CardDao cardDao;
+
+    @Autowired
+    private TeamService teamService;
 
     /**
      * Returns a <code>ResponseCard</code> by its id.
@@ -59,8 +60,8 @@ public class CardService {
 
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
-        if (!userId.equals(cardEntity.getOwnerId())) {
-            // todo sharing
+        final UUID ownerId = cardEntity.getOwnerId();
+        if (!teamService.usersInSameTeam(userId, ownerId)) {
             throw new ForbiddenException();
         }
 
@@ -70,7 +71,7 @@ public class CardService {
             e.printStackTrace();
             throw new BadRequestException();
         }
-        final User owner = userService.getUserById(userId).orElse(null);
+        final User owner = userService.getUserById(ownerId).orElse(null);
         if (owner == null) {
             logger.warn("Owner of card not found in users database. Owner id: {}, card id: {}", userId, cardEntity.getId());
             throw new InternalServerException();
@@ -134,15 +135,41 @@ public class CardService {
     }
 
     /**
-     * Gets a list of (decrypted) <code>ResponseCard</code>s representing the principal's cards.
+     * Gets cards that the user owns (excludes cards owned by other team members)
+     * @return <code>ResponseCard</code>s representing the user's cards
+     * @throws InternalServerException If an error occurs while decrypting the cards
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
+    public List<ResponseCard> getCardsOwnedByUser() {
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final List<CardEntity> rawCards = cardDao.getCardsByUser(principal.getId());
+        final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
+        try {
+            for (CardEntity c : rawCards) {
+                c.decryptFields(secretKey);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+        final ResponseUserDetails resUserDetails = ResponseUserDetails.fromUser(principal);
+        return rawCards.stream().map(c -> ResponseCard.fromCard(c, resUserDetails)).collect(Collectors.toList());
+    }
+
+    /**
+     * Gets a list of <code>ResponseCard</code>s representing the principal's cards (and those of their team)
      * @return The principal's cards
      * @throws InternalServerException If there is an error decrypting the cards
      * @throws InternalServerException If a card's owner cannot be found in the users table
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @see CardService#getCardsOwnedByUser() If the user is not in a team, this is called
      */
-    public List<ResponseCard> getAllCardsByUser() {
-        final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        final List<CardEntity> rawCards = cardDao.getCardsByUser(id);
+    public List<ResponseCard> getAllCardsVisibleToUser() {
+        final Optional<TeamEntity> userTeam = teamService.getTeamOfUser();
+        if (userTeam.isEmpty()) {
+            return getCardsOwnedByUser();
+        }
+        final List<CardEntity> rawCards = cardDao.getCardsByTeamId(userTeam.get().getId());
 
         final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
         try {
@@ -153,14 +180,28 @@ public class CardService {
             e.printStackTrace();
             throw new InternalServerException();
         }
-        // probably use a HashMap<UUID, ResponseUserDetails> when i add sharing to greedily keep track of user details by UUID
-        final User userEntity = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (userEntity == null) {
-            logger.warn("Author of card not found in database -- author id: {}", id);
-            throw new InternalServerException();
+
+        // Get ResponseUserDetails for each CardEntity and map the cards to ResponseCards
+        final List<ResponseCard> responseCards = new ArrayList<>();
+        // This map is to reduce the amount of times the database is queried
+        // Every owner will be fetched exactly once
+        final Map<UUID, ResponseUserDetails> userDetailsMap = new HashMap<>();
+        for (CardEntity c : rawCards) {
+            final ResponseUserDetails responseUserDetails;
+            if (userDetailsMap.containsKey(c.getOwnerId())) {
+                responseUserDetails = userDetailsMap.get(c.getOwnerId());
+            } else {
+                final User ownerEntity = userService.getUserById(c.getOwnerId()).orElse(null);
+                if (ownerEntity == null) {
+                    logger.warn("Owner of card not found in database -- owner id: {}", c.getOwnerId());
+                    throw new InternalServerException();
+                }
+                responseUserDetails = ResponseUserDetails.fromUser(ownerEntity);
+                userDetailsMap.put(c.getOwnerId(), responseUserDetails);
+            }
+            responseCards.add(ResponseCard.fromCard(c, responseUserDetails));
         }
-        final ResponseUserDetails resUserDetails = ResponseUserDetails.fromUser(userEntity);
-        return rawCards.stream().map(c -> ResponseCard.fromCard(c, resUserDetails)).collect(Collectors.toList());
+        return responseCards;
     }
 
     /**
@@ -174,8 +215,8 @@ public class CardService {
     }
 
     /**
-     * Deletes a card by its id. Before deleting, it checks if the principal has permission to delete the card.
-     * Before deleting, it checks for appearances in arguments and removes it from them, first
+     * Deletes a card by its id. Before deleting, it checks if the principal has permission to delete the card and
+     * for appearances in arguments and removes it from them
      * @param id Id of card in Base64
      * @throws CardNotFoundException If the card could not be found
      * @throws ForbiddenException If the principal doesn't have permission to delete the card
@@ -190,7 +231,7 @@ public class CardService {
             throw new CardNotFoundException();
         }
 
-        if (!principalId.equals(ownerId)) {
+        if (!teamService.usersInSameTeam(principalId, ownerId)) {
             throw new ForbiddenException();
         }
         argumentService.removeCardFromAllArguments(cardId);
@@ -220,7 +261,7 @@ public class CardService {
             throw new CardNotFoundException();
         }
 
-        if (!ownerId.equals(principalId)) {
+        if (!teamService.usersInSameTeam(principalId, ownerId)) {
             throw new ForbiddenException();
         }
         // whitelisting html tags to prevent XSS
@@ -284,7 +325,7 @@ public class CardService {
     }
 
     /**
-     * Gets a <code>CardEntity</code> by its id (in UUID form)
+     * Gets an encrypted <code>CardEntity</code> by its id (in UUID form)
      * @param cardId Id of card to find
      * @return If card is found: an <code>Optional</code> containing the request card; if not found: <code>Optional.empty()</code>
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer

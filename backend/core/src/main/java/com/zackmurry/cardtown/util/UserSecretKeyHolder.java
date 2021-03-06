@@ -24,7 +24,6 @@ public class UserSecretKeyHolder {
     public static byte[] getSecretKey() {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal == null) {
-            logger.warn("Secret key requested for unauthenticated user!");
             throw new ForbiddenException();
         }
         if (principal.getTeamSecretKey() != null) {
