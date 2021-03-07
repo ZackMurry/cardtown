@@ -72,8 +72,7 @@ const LandingPageSquares: FC = () => {
               Collaborative work
             </BlackText>
             <Typography color='textSecondary'>
-              Once the full version of Cardtown is launched, you'll be able to share your cards,
-              arguments, speeches, and more with your team.
+              Share cards, arguments, speeches, and more with your entire team.
             </Typography>
           </div>
         </Grid>
@@ -91,8 +90,7 @@ const LandingPageSquares: FC = () => {
               </BlackText>
               <Typography color='textSecondary'>
                 {/* todo see if microsoft word works for this */}
-                Importing your cards is as simple as copying them into an box. If you use a supported
-                software for your cards (like Google Docs), they will automatically be formatted.
+                Importing your cards is as simple as copying them into an box and selecting the different parts.
                 You can export all of your cards to a PDF at any time.
               </Typography>
           </div>

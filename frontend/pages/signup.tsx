@@ -1,16 +1,12 @@
-import {
-  Button,
-  IconButton, InputAdornment, TextField, Typography
-} from '@material-ui/core'
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff'
-import VisibilityIcon from '@material-ui/icons/Visibility'
 import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import {
+  Heading, Text, Input, InputGroup, InputRightElement, IconButton, Button
+} from '@chakra-ui/react'
 import Cookie from 'js-cookie'
 import { GetServerSideProps, NextPage } from 'next'
-import BlackText from '../components/utils/BlackText'
-import ToggleIcon from '../components/utils/ToggleIcon'
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import ErrorAlert from '../components/utils/ErrorAlert'
 import theme from '../components/utils/theme'
 
@@ -116,75 +112,84 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
         width: '25%', minWidth: 400, display: 'flex', flexDirection: 'column', alignItems: 'center'
       }}
       >
-        <BlackText variant='h3' style={{ fontSize: 42, textAlign: 'center' }}>
+        <Heading as='h3' fontSize={42} textAlign='center'>
           Sign up
-        </BlackText>
-        <Typography color='textSecondary' style={{ fontSize: 18, marginTop: 5 }}>
+        </Heading>
+        <Text color='lightBlue' fontSize={18} marginTop={2}>
           Simplify your debate experience
-        </Typography>
+        </Text>
         <form style={{ width: '62.5%', marginTop: 20 }} onSubmit={handleSubmit} onInvalid={handleInvalid}>
-          <TextField
+          <Input
             type='email'
             label='Email address'
+            placeholder='Email address'
             value={email}
             onChange={e => setEmail(e.target.value)}
-            variant='outlined'
-            style={{ width: '100%', marginBottom: 10 }}
+            marginBottom={3}
             autoComplete='email'
+            minHeight={50}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', margin: '5px 0' }}>
-            <TextField
+            <Input
+              type='text'
               label='First'
+              placeholder='First'
               value={first}
               onChange={e => setFirst(e.target.value)}
-              variant='outlined'
-              style={{ width: '45%' }}
+              width='45%'
               autoComplete='given-name'
+              minHeight={50}
             />
-            <TextField
+            <Input
+              type='text'
               label='Last'
+              placeholder='Last'
               value={last}
               onChange={e => setLast(e.target.value)}
-              variant='outlined'
-              style={{ width: '45%' }}
+              width='45%'
               autoComplete='family-name'
+              minHeight={50}
             />
           </div>
-          <TextField
-            type={showPassword ? 'text' : 'password'}
-            label='Password'
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            variant='outlined'
-            style={{ width: '100%', margin: '10px 0' }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position='end' style={{ marginLeft: '-15%', marginTop: '-7.5%' }}>
-                  <IconButton onClick={() => setShowPassword(!showPassword)} style={{ padding: 0 }}>
-                    <ToggleIcon on={showPassword} onIcon={<VisibilityIcon />} offIcon={<VisibilityOffIcon />} timeout={250} />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
-            autoComplete='new-password'
-          />
+          <InputGroup size='md'>
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              label='Password'
+              placeholder='Password'
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              margin='10px 0'
+              autoComplete='current-password'
+              minHeight={50}
+              size='md'
+            />
+            <InputRightElement width='4.5rem' marginTop={15}>
+              <IconButton
+                aria-label='Show password'
+                icon={
+                  showPassword
+                    ? <ViewIcon />
+                    : <ViewOffIcon />
+                }
+                onClick={() => setShowPassword(!showPassword)}
+                background='none'
+              />
+            </InputRightElement>
+          </InputGroup>
           <Button
             type='submit'
-            variant='contained'
-            color='primary'
-            style={{
-              width: '100%', height: 50, marginTop: 15, textTransform: 'none'
-            }}
+            colorScheme='blue'
+            height={50}
+            isFullWidth
+            marginTop={15}
           >
-            <Typography variant='h5' style={{ fontWeight: 500, fontSize: 18 }}>
-              Create account
-            </Typography>
+            Create account
           </Button>
           {
             errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />
           }
         </form>
-        <Typography color='textSecondary' variant='h6' style={{ fontSize: 14, marginTop: 20 }}>
+        <Text color='lightBlue' fontSize={14} marginTop={5}>
           Already have an account?
           <Link href='/login'>
             <a href='/login' style={{ marginLeft: 2, color: theme.palette.primary.main }}>
@@ -192,7 +197,7 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
             </a>
           </Link>
           .
-        </Typography>
+        </Text>
       </div>
     </div>
   )

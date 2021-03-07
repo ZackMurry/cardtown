@@ -1,5 +1,5 @@
+import { Heading } from '@chakra-ui/react'
 import Link from 'next/link'
-import { Typography } from '@material-ui/core'
 import { FC } from 'react'
 import theme from '../utils/theme'
 
@@ -8,9 +8,8 @@ interface Props {
 }
 
 const CardCount: FC<Props> = ({ count }) => (
-  <Link href='/cards/all'>
+  <Link href='/cards/all' passHref>
     <a
-      href='/cards/all'
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -19,12 +18,15 @@ const CardCount: FC<Props> = ({ count }) => (
         height: '100%'
       }}
     >
-      <Typography variant='h5' style={{ fontSize: 22, color: theme.palette.blueBlack.main }}>
+      <Heading as='h5' fontSize={20} fontWeight='normal'>
         <span style={{ fontWeight: 500, paddingRight: 5 }}>
           { count }
         </span>
-        cards
-      </Typography>
+        card
+        {
+          count !== 1 ? 's' : ''
+        }
+      </Heading>
       <div style={{ marginRight: 10 }}>
         <div
           style={{

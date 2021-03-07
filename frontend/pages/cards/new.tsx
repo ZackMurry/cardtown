@@ -1,4 +1,7 @@
-import { Button, TextField, Typography } from '@material-ui/core'
+import { Typography } from '@material-ui/core'
+import {
+  Button, Heading, Text, Input, Textarea
+} from '@chakra-ui/react'
 import { convertToRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 import Cookie from 'js-cookie'
@@ -99,22 +102,20 @@ const NewCard: FC = () => {
       <DashboardSidebar windowWidth={width} pageName='Cards' />
 
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
-        <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '7.5vh auto' }}>
+        <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '0 auto', padding: '6vh 0' }}>
           <div>
-            <Typography
-              style={{
-                color: theme.palette.darkGrey.main,
-                textTransform: 'uppercase',
-                fontSize: 11,
-                marginTop: 19,
-                letterSpacing: 0.5
-              }}
+            <Text
+              color='darkGray'
+              textTransform='uppercase'
+              fontSize='11'
+              marginTop={19}
+              letterSpacing={0.5}
             >
               New card
-            </Typography>
-            <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
+            </Text>
+            <Heading as='h2' fontSize={24} fontWeight='bold' paddingTop={1}>
               Create a new card
-            </BlackText>
+            </Heading>
             <div
               style={{
                 width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
@@ -136,113 +137,89 @@ const NewCard: FC = () => {
               <Typography color='textSecondary' id='tagDescription' style={{ fontSize: 14, margin: '6px 0' }}>
                 Put a quick summary of what this card says.
               </Typography>
-              <TextField
+              <Textarea
                 id='tag'
-                variant='outlined'
                 value={tag}
                 onChange={e => setTag(e.target.value)}
-                style={{ width: '100%', backgroundColor: theme.palette.secondary.main }}
-                multiline
                 rows={2}
-                rowsMax={5}
-                InputProps={{
-                  inputProps: {
-                    name: 'tag',
-                    'aria-labelledby': 'tagLabel',
-                    'aria-describedby': 'tagDescription'
-                  }
-                }}
+                resize='none'
+                focusBorderColor='blue.400'
+                aria-labelledby='tagLabel'
+                aria-describedby='tagDescription'
               />
             </div>
 
             {/* cite */}
             <div style={{ marginTop: 25 }}>
               <label htmlFor='cite' id='citeLabel'>
-                <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
+                <Heading as='h3' fontSize={18} fontWeight={500}>
                   Cite
                   <span style={{ fontWeight: 300 }}>
                     *
                   </span>
-                </BlackText>
+                </Heading>
               </label>
-              <Typography color='textSecondary' id='citeDescription' style={{ fontSize: 14, margin: '6px 0' }}>
+              <Text color='lightBlue' id='citeDescription' fontSize={14} margin='6px 0'>
                 Put the last name of the author and the year it was written. You can also put more information. Example: Miller 18.
-              </Typography>
-              <TextField
-                variant='outlined'
+              </Text>
+              <Input
                 value={cite}
                 onChange={e => setCite(e.target.value)}
-                style={{ width: '100%', backgroundColor: theme.palette.secondary.main }}
-                InputProps={{
-                  inputProps: {
-                    name: 'cite',
-                    'aria-labelledby': 'citeLabel',
-                    'aria-describedby': 'citeDescription'
-                  }
-                }}
+                focusBorderColor='blue.400'
+                aria-labelledby='citeLabel'
+                aria-describedby='citeDescription'
               />
             </div>
 
             {/* cite information */}
             <div style={{ marginTop: 25 }}>
               <label htmlFor='citeInfo' id='citeInfoLabel'>
-                <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
+                <Heading as='h3' fontSize={18} fontWeight={500}>
                   Additional cite information
-                </BlackText>
+                </Heading>
               </label>
-              <Typography color='textSecondary' id='citeInfoDescription' style={{ fontSize: 14, margin: '6px 0' }}>
+              <Text color='lightBlue' id='citeInfoDescription' style={{ fontSize: 14, margin: '6px 0' }}>
                 Put some more information about the source of this card, like the author’s credentials and a link to the place you found it.
-              </Typography>
-              <TextField
-                variant='outlined'
+              </Text>
+              <Textarea
                 value={citeInformation}
                 onChange={e => setCiteInformation(e.target.value)}
-                style={{ width: '100%', backgroundColor: theme.palette.secondary.main }}
-                multiline
-                rowsMax={5}
-                rows={3}
-                InputProps={{
-                  inputProps: {
-                    name: 'citeInfo',
-                    'aria-labelledby': 'citeInfoLabel',
-                    'aria-describedby': 'citeInfoDescription'
-                  }
-                }}
+                focusBorderColor='blue.400'
+                aria-labelledby='citeInfoLabel'
+                aria-describedby='citeInfoDescription'
+                resize='none'
+                rows={2}
               />
             </div>
 
             {/* body */}
             <div style={{ marginTop: 20 }}>
-              <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
+              <Heading as='h3' fontSize={18} fontWeight={500}>
                 Body
                 <span style={{ fontWeight: 300 }}>
                   *
                 </span>
-              </BlackText>
+              </Heading>
               <NewCardFormattingPopover />
               <CardBodyEditor
                 editorState={bodyState}
                 setEditorState={setBodyState}
                 style={{ padding: 10 }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div>
-                  <Typography color='textSecondary' style={{ fontSize: 11, marginTop: 5 }}>
-                    *required field
-                  </Typography>
-                </div>
-                <Typography color='textSecondary' style={{ fontSize: width >= theme.breakpoints.values.md ? 15 : 11, marginTop: 5 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Text color='lightBlue' fontSize={11}>
+                  *required field
+                </Text>
+                <Text color='lightBlue' fontSize={width >= theme.breakpoints.values.md ? 15 : 11}>
                   {
                     currentInlineStyles.toString()
                   }
-                </Typography>
+                </Text>
               </div>
             </div>
             <div style={{ marginTop: 10, marginBottom: -5 }}>
-              <Button type='submit' variant='contained' color='primary' style={{ textTransform: 'none' }}>
-                <Typography>
-                  Finish
-                </Typography>
+              <Button colorScheme='blue' variant='solid' type='submit'>
+                Finish
               </Button>
             </div>
           </form>

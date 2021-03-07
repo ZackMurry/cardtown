@@ -130,6 +130,9 @@ public class TeamService {
      */
     public Optional<TeamEntity> getTeamOfUser() {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal.getTeamSecretKey() == null) {
+            return Optional.empty();
+        }
         final UUID teamId = teamDao.getTeamIdWithUser(principal.getId()).orElse(null);
         if (teamId == null) {
             return Optional.empty();

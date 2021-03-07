@@ -211,7 +211,7 @@ public class CardService {
      */
     public int getNumberOfCardsByUser() {
         final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        return cardDao.getNumberOfCardsByUser(id);
+        return cardDao.getNumberOfCardsByUser(id); // todo include team cards
     }
 
     /**

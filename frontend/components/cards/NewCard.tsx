@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core'
+import { Heading } from '@chakra-ui/react'
 import AddRoundedIcon from '@material-ui/icons/AddRounded'
 import Link from 'next/link'
 import { FC } from 'react'
@@ -6,9 +6,8 @@ import theme from '../utils/theme'
 
 const NewCard: FC = () => (
   <>
-    <Link href='/cards/new'>
+    <Link href='/cards/new' passHref>
       <a
-        href='/cards/new'
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -17,17 +16,14 @@ const NewCard: FC = () => (
           height: '100%'
         }}
       >
-        <Typography
-          variant='h5'
-          style={{
-            fontSize: 22,
-            fontWeight: 500,
-            paddingRight: 5,
-            color: theme.palette.blueBlack.main
-          }}
+        <Heading
+          as='h5'
+          fontSize={20}
+          fontWeight='normal'
+          paddingRight='5'
         >
-          Create new card
-        </Typography>
+          New card
+        </Heading>
         <AddRoundedIcon style={{ fontSize: 50, color: theme.palette.text.secondary }} />
       </a>
     </Link>

@@ -155,7 +155,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         } else {
             response.sendError(HttpStatus.UNAUTHORIZED.value());
+            return;
         }
+        chain.doFilter(request, response);
     }
 
 }

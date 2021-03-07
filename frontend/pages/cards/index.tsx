@@ -1,9 +1,10 @@
 import { GetServerSideProps, NextPage } from 'next'
 import { parse } from 'cookie'
-import { Grid, Typography } from '@material-ui/core'
+import {
+  Grid, GridItem, Heading, Text
+} from '@chakra-ui/react'
 import DashboardSidebar from '../../components/dash/DashboardSidebar'
 import theme from '../../components/utils/theme'
-import BlackText from '../../components/utils/BlackText'
 import CardCount from '../../components/cards/CardCount'
 import NewCard from '../../components/cards/NewCard'
 import ImportCard from '../../components/cards/ImportCard'
@@ -24,79 +25,59 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardSidebar windowWidth={width} pageName='Cards' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
-        <Typography
-          style={{
-            color: theme.palette.darkGrey.main,
-            textTransform: 'uppercase',
-            fontSize: 11,
-            marginTop: 19,
-            letterSpacing: 0.5
-          }}
+        <Text
+          color='darkGray'
+          textTransform='uppercase'
+          fontSize={11}
+          paddingTop={19}
+          letterSpacing={0.5}
         >
           Overview
-        </Typography>
-        <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
+        </Text>
+        <Heading as='h2' fontSize={24} fontWeight='bold'>
           Cards
-        </BlackText>
+        </Heading>
         <div
           style={{
             width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
           }}
         />
-        <Grid container className='dash-grid' role='grid' style={{ width: '80%' }}>
-          <Grid
-            item
-            xs={12}
-            md={6}
-            lg={3}
-            style={{
-              borderRadius: 10,
-              backgroundColor: theme.palette.secondary.main,
-              border: `1px solid ${theme.palette.lightGrey.main}`,
-              minHeight: '7.5vh',
-              padding: 20,
-              display: 'flex',
-              alignItems: 'center'
-            }}
+        <Grid gap={4} templateColumns='repeat(6, 1fr)'>
+          <GridItem
+            borderRadius={10}
+            backgroundColor='white'
+            border={`1px solid ${theme.palette.lightGrey.main}`}
+            minHeight='7.5vh'
+            display='flex'
+            padding={5}
+            alignItems='center'
           >
             <CardCount count={cardCount} />
-          </Grid>
+          </GridItem>
 
-          <Grid
-            item
-            xs={12}
-            md={6}
-            lg={3}
-            style={{
-              borderRadius: 10,
-              backgroundColor: theme.palette.secondary.main,
-              border: `1px solid ${theme.palette.lightGrey.main}`,
-              minHeight: '7.5vh',
-              display: 'flex',
-              alignItems: 'center',
-              padding: 20
-            }}
+          <GridItem
+            borderRadius={10}
+            backgroundColor='white'
+            border={`1px solid ${theme.palette.lightGrey.main}`}
+            minHeight='7.5vh'
+            display='flex'
+            padding={5}
+            alignItems='center'
           >
             <NewCard />
-          </Grid>
+          </GridItem>
 
-          <Grid
-            item
-            xs={12}
-            md={6}
-            lg={3}
-            style={{
-              borderRadius: 10,
-              backgroundColor: theme.palette.secondary.main,
-              border: `1px solid ${theme.palette.lightGrey.main}`,
-              minHeight: '7.5vh',
-              display: 'flex',
-              alignItems: 'center',
-              padding: 20
-            }}
+          <GridItem
+            borderRadius={10}
+            backgroundColor='white'
+            border={`1px solid ${theme.palette.lightGrey.main}`}
+            minHeight='7.5vh'
+            display='flex'
+            padding={5}
+            alignItems='center'
           >
             <ImportCard />
-          </Grid>
+          </GridItem>
 
         </Grid>
       </div>
@@ -121,13 +102,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     }
   }
 
-  const domain = process.env.NODE_ENV !== 'production' ? 'http://localhost' : 'https://cardtown.co'
+  const domain = process.env.NODE_ENV !== 'production' ? 'http://localhost:8080' : 'https://cardtown.co'
   const response = await fetch(domain + '/api/v1/cards/count', {
     headers: { Authorization: `Bearer ${jwt}` }
   })
   let cardCount: number | null = null
   if (response.ok) {
-    cardCount = (await response.json()).count
+    cardCount = (await response.json()).count as number
+    // cardCount = (await response.json()).count
   } else if (response.status === 401 || response.status === 403) {
     redirectToLogin(res, '/cards')
     return {

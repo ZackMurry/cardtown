@@ -5,6 +5,7 @@ import useWindowSize from '../components/utils/hooks/useWindowSize'
 import LandingPageMobile from '../components/landing/mobile/LandingPageMobile'
 import LandingPageDesktop from '../components/landing/desktop/LandingPageDesktop'
 
+// todo: switch to chakra-ui
 const Home: FC = () => {
   const { width } = useWindowSize(1920, 1080)
 
