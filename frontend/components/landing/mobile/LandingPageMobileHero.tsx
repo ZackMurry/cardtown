@@ -1,7 +1,8 @@
-import { IconButton, Typography } from '@material-ui/core'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import {
+  Box, Heading, Text, IconButton
+} from '@chakra-ui/react'
+import { ChevronDownIcon } from '@chakra-ui/icons'
 import { FC, MutableRefObject } from 'react'
-import BlackText from '../../utils/BlackText'
 import theme from '../../utils/theme'
 import LandingPageJoinBetaMobile from './LandingPageJoinBetaMobile'
 
@@ -20,42 +21,44 @@ const LandingPageMobileHero: FC<Props> = ({ tilesSectionRef }) => (
       alignItems: 'center'
     }}
   >
-    <BlackText
+    <Heading
       variant='h1'
-      style={{
-        width: '100%', textAlign: 'center', fontSize: 56, fontWeight: 400
-      }}
+      width='100%'
+      padding='0 5%'
+      textAlign='center'
+      fontSize='36px'
+      fontWeight='400px'
     >
       {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
       The hub for your <span style={{ color: theme.palette.primary.main }}>debate cards</span>
-    </BlackText>
-    <BlackText
-      variant='h5'
-      style={{
-        margin: '25px auto', width: '80%', textAlign: 'center', fontWeight: 300, fontSize: 20
-      }}
+    </Heading>
+    <Heading
+      as='h5'
+      margin='25px auto'
+      width='90%'
+      textAlign='center'
+      fontWeight='300'
+      fontSize='18px'
     >
       Cardtown is the easiest way to store, search, and read all of your debate cards.
-    </BlackText>
+    </Heading>
     <div style={{ margin: '5px auto', width: '90%' }}>
       <LandingPageJoinBetaMobile />
     </div>
 
-    <div
-      style={{
-        marginTop: '3vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
-      }}
+    <Box
+      marginTop='3vh'
+      display='flex'
+      flexDir='column'
+      alignItems='center'
     >
-      <Typography color='textSecondary' style={{ fontSize: 14, textAlign: 'center' }}>
+      <Text color='lightBlue' fontSize='14px' textAlign='center'>
         Or learn more
-      </Typography>
-      <IconButton onClick={() => tilesSectionRef.current.scrollIntoView()}>
-        <ExpandMoreIcon style={{ color: theme.palette.text.secondary }} fontSize='small' />
+      </Text>
+      <IconButton aria-label='Learn more' onClick={() => tilesSectionRef.current.scrollIntoView()}>
+        <ChevronDownIcon color='lightBlue' fontSize='large' />
       </IconButton>
-    </div>
+    </Box>
 
   </div>
 )

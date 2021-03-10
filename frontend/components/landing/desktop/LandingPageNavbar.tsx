@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { FC } from 'react'
-import { Button, Typography } from '@material-ui/core'
+import { Heading, Button } from '@chakra-ui/react'
 import theme from '../../utils/theme'
-import BlackText from '../../utils/BlackText'
 
 const LandingPageNavbar: FC = () => (
   <>
@@ -23,12 +22,12 @@ const LandingPageNavbar: FC = () => (
       }}
       role='navigation'
     >
-      <BlackText variant='h3' style={{ fontSize: 28, fontWeight: 500, paddingBottom: 5 }}>
+      <Heading as='h3' fontSize={28} fontWeight={500} paddingBottom={5}>
         card
         <span style={{ color: theme.palette.primary.main }}>
           town
         </span>
-      </BlackText>
+      </Heading>
       <div
         style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 349
@@ -36,30 +35,30 @@ const LandingPageNavbar: FC = () => (
       >
         <Link href='/features'>
           <a href='/features'>
-            <BlackText variant='h4' style={{ fontSize: 20, fontWeight: 300 }}>
+            <Heading as='h4' fontSize={20} fontWeight={300}>
               Features
-            </BlackText>
+            </Heading>
           </a>
         </Link>
 
         <Link href='/about'>
           <a href='/about'>
-            <BlackText variant='h4' style={{ fontSize: 20, fontWeight: 300 }}>
+            <Heading as='h4' fontSize={20} fontWeight={300}>
               About
-            </BlackText>
+            </Heading>
           </a>
         </Link>
 
         <Button
-          variant='outlined'
-          color='primary'
-          style={{ textTransform: 'none', border: '2px solid' }}
+          color='cardtownBlue'
+          variant='outline'
+          style={{ border: '2px solid' }}
         >
           <Link href='/login'>
             <a href='/login'>
-              <Typography variant='h4' style={{ fontSize: 20, padding: '5px 5px' }}>
+              <Heading as='h4' fontSize={20} padding='5px'>
                 Login
-              </Typography>
+              </Heading>
             </a>
           </Link>
         </Button>

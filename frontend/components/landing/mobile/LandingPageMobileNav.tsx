@@ -1,28 +1,24 @@
-import { Typography } from '@material-ui/core'
+import { Heading } from '@chakra-ui/react'
 import { FC } from 'react'
-import theme from '../../utils/theme'
 
 const LandingPageMobileNav: FC = () => (
   <div
     style={{
-      height: '20vh',
+      height: '15vh',
       width: '100%',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center'
     }}
   >
-    <Typography
+    <Heading
       variant='h5'
-      style={{
-        textTransform: 'uppercase',
-        color: theme.palette.darkGrey.main,
-        fontSize: 18,
-        textAlign: 'center'
-      }}
+      textAlign='center'
+      fontSize='22px'
+      fontWeight='400'
     >
       Cardtown
-    </Typography>
+    </Heading>
   </div>
 )
 

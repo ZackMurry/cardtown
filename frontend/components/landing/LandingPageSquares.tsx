@@ -4,6 +4,7 @@ import SearchIcon from '@material-ui/icons/Search'
 import BuildIcon from '@material-ui/icons/Build'
 import LockIcon from '@material-ui/icons/Lock'
 import EnhancedEncryptionIcon from '@material-ui/icons/EnhancedEncryption'
+import { Box, Heading, SimpleGrid } from '@chakra-ui/react'
 import CodeIcon from '@material-ui/icons/Code'
 import GetAppIcon from '@material-ui/icons/GetApp'
 import LanguageIcon from '@material-ui/icons/Language'
@@ -19,11 +20,11 @@ const LandingPageSquares: FC = () => {
 
   return (
     <>
-      <BlackText variant='h2' style={{ fontWeight: 400, fontSize: 36 }}>
+      <Heading as='h2' fontWeight={400} fontSize={36}>
         Made for debate
-      </BlackText>
-      <Grid container spacing={4} style={{ marginTop: 15 }}>
-        <Grid item xs={12} md={6} style={{ display: 'flex' }}>
+      </Heading>
+      <SimpleGrid columns={{ sm: 1, md: 2 }} spacing='40px' marginTop='15px'>
+        <div style={{ display: 'flex' }}>
           <div style={{ marginTop: 10 }}>
             <div className={styles['icon-backdrop']} style={{ backgroundColor: theme.palette.lightGrey.translucent }}>
               <div className={styles['icon-container']}>
@@ -40,8 +41,8 @@ const LandingPageSquares: FC = () => {
               you can easily search all of your cards — by tag, cite, and body.
             </Typography>
           </div>
-        </Grid>
-        <Grid item xs={12} md={6} style={{ display: 'flex' }}>
+        </div>
+        <div style={{ display: 'flex' }}>
           <div style={{ marginTop: 10 }}>
             <div className={styles['icon-backdrop']} style={{ backgroundColor: theme.palette.lightGrey.translucent }}>
               <div className={styles['icon-container']}>
@@ -58,8 +59,8 @@ const LandingPageSquares: FC = () => {
               you can export your speech as a PDF for file sharing.
             </Typography>
           </div>
-        </Grid>
-        <Grid item xs={12} md={6} style={{ display: 'flex' }}>
+        </div>
+        <div style={{ display: 'flex' }}>
           <div style={{ marginTop: 10 }}>
             <div className={styles['icon-backdrop']} style={{ backgroundColor: theme.palette.lightGrey.translucent }}>
               <div className={styles['icon-container-360']}>
@@ -75,8 +76,8 @@ const LandingPageSquares: FC = () => {
               Share cards, arguments, speeches, and more with your entire team.
             </Typography>
           </div>
-        </Grid>
-        <Grid item xs={12} md={6} style={{ display: 'flex' }}>
+        </div>
+        <Box display='flex'>
           <div style={{ marginTop: 10 }}>
             <div className={styles['icon-backdrop']} style={{ backgroundColor: theme.palette.lightGrey.translucent }}>
               <div className={styles['icon-container-180']}>
@@ -94,8 +95,8 @@ const LandingPageSquares: FC = () => {
                 You can export all of your cards to a PDF at any time.
               </Typography>
           </div>
-        </Grid>
-        <Grid item xs={12} md={6} style={{ display: 'flex' }}>
+        </Box>
+        <div style={{ display: 'flex' }}>
           <div style={{ marginTop: 10 }}>
             <div className={styles['icon-backdrop']} style={{ backgroundColor: theme.palette.lightGrey.translucent }}>
               <ToggleIcon
@@ -117,8 +118,8 @@ const LandingPageSquares: FC = () => {
               is encrypted.
             </Typography>
           </div>
-        </Grid>
-        <Grid item xs={12} md={6} style={{ display: 'flex' }}>
+        </div>
+        <Box display='flex'>
           <div style={{ marginTop: 10 }}>
             <div className={styles['icon-backdrop']} style={{ backgroundColor: theme.palette.lightGrey.translucent }}>
               <div className={styles['icon-container-180']}>
@@ -146,8 +147,8 @@ const LandingPageSquares: FC = () => {
               .
             </Typography>
           </div>
-        </Grid>
-      </Grid>
+        </Box>
+      </SimpleGrid>
     </>
   )
 }

@@ -1,7 +1,7 @@
-import { IconButton, Typography } from '@material-ui/core'
+import { ChevronDownIcon } from '@chakra-ui/icons'
+import { Heading, Text, IconButton } from '@chakra-ui/react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { FC, MutableRefObject } from 'react'
-import BlackText from '../../utils/BlackText'
 import theme from '../../utils/theme'
 import LandingPageJoinBeta from './LandingPageJoinBeta'
 
@@ -20,23 +20,27 @@ const LandingPageHero: FC<Props> = ({ tilesSectionRef }) => (
       alignItems: 'center'
     }}
   >
-    <BlackText
-      variant='h1'
-      style={{
-        width: '100%', textAlign: 'center', fontSize: 72, marginTop: '9vh', fontWeight: 400
-      }}
+    <Heading
+      as='h1'
+      width='100%'
+      textAlign='center'
+      fontSize={64}
+      marginTop='9vh'
+      fontWeight={400}
     >
       {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
       The hub for your <span style={{ color: theme.palette.primary.main }}>debate cards</span>
-    </BlackText>
-    <BlackText
-      variant='h5'
-      style={{
-        margin: '25px auto', width: '58%', textAlign: 'center', fontWeight: 300
-      }}
+    </Heading>
+    <Heading
+      as='h5'
+      margin='25px auto'
+      width='58%'
+      textAlign='center'
+      fontWeight={300}
+      fontSize={24}
     >
       Cardtown is the easiest way to store, search, and read all of your debate cards.
-    </BlackText>
+    </Heading>
     <div style={{ margin: '5px auto' }}>
       <LandingPageJoinBeta />
     </div>
@@ -49,11 +53,15 @@ const LandingPageHero: FC<Props> = ({ tilesSectionRef }) => (
         alignItems: 'center'
       }}
     >
-      <Typography color='textSecondary' style={{ fontSize: 14, textAlign: 'center' }}>
+      <Text color='lightBlue' style={{ fontSize: 14, textAlign: 'center' }}>
         Or learn more
-      </Typography>
-      <IconButton onClick={() => tilesSectionRef.current.scrollIntoView()}>
-        <ExpandMoreIcon style={{ color: theme.palette.text.secondary }} fontSize='small' />
+      </Text>
+      <IconButton
+        aria-label='Learn more'
+        onClick={() => tilesSectionRef.current.scrollIntoView()}
+        backgroundColor='transparent'
+      >
+        <ChevronDownIcon color='lightBlue' fontSize='large' />
       </IconButton>
     </div>
 

@@ -1,5 +1,7 @@
-import { Button, Typography } from '@material-ui/core'
-import { FC, useState } from 'react'
+import {
+  Button, Grid, Text, GridItem
+} from '@chakra-ui/react'
+import { FC, useState, FormEvent } from 'react'
 import { useRouter } from 'next/router'
 import theme from '../../utils/theme'
 
@@ -9,7 +11,7 @@ const LandingPageJoinBeta: FC = () => {
 
   const router = useRouter()
 
-  const handleSubmit = e => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setInvalid(false)
     if (email === '') {
@@ -20,55 +22,61 @@ const LandingPageJoinBeta: FC = () => {
   }
 
   // todo validation message
-  const handleInvalid = e => {
+  const handleInvalid = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setInvalid(true)
   }
 
   return (
     <>
-      <form onSubmit={handleSubmit} onInvalid={handleInvalid} style={{ display: 'flex' }}>
-        <input
-          type='email'
-          placeholder='Email address'
-          style={{
-            outline: 'none',
-            padding: 15,
-            fontSize: 16,
-            border: '2px solid #CBCEDA',
-            borderRadius: '10px 0 0 10px',
-            color: theme.palette.black.main
-          }}
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          autoComplete='email'
-          aria-label='Email'
-        />
-        <Button
-          type='submit'
-          variant='contained'
-          color='primary'
-          style={{
-            borderRadius: '0 10px 10px 0',
-            boxShadow: 'none',
-            textTransform: 'none'
-          }}
-        >
-          <Typography variant='h5' style={{ fontWeight: 500, fontSize: 18 }}>
-            Join the beta
-          </Typography>
-        </Button>
+      <form onSubmit={handleSubmit} onInvalid={handleInvalid}>
+        <Grid columns={2} templateColumns='repeat(3, 1fr)' gap={0}>
+          <GridItem colSpan={2}>
+            <input
+              type='email'
+              placeholder='Email address'
+              style={{
+                outline: 'none',
+                padding: 10,
+                fontSize: 14,
+                border: '2px solid #CBCEDA',
+                borderRadius: '10px 0 0 10px',
+                color: theme.palette.black.main,
+                width: '100%',
+                height: '100%'
+              }}
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              autoComplete='email'
+              aria-label='Email'
+            />
+          </GridItem>
+          <GridItem>
+            <Button
+              type='submit'
+              colorScheme='blue'
+              bg='cardtownBlue'
+              color='white'
+              borderRadius='0 10px 10px 0'
+              width='100%'
+              height='100%'
+            >
+              Join the beta
+            </Button>
+          </GridItem>
+        </Grid>
       </form>
       {/* todo maybe make invalid look a bit better */}
       {
         invalid && (
-          <Typography
-            style={{
-              color: theme.palette.error.main, textAlign: 'center', fontWeight: 500, margin: 10
-            }}
+          <Text
+            color='red.500'
+            textAlign='center'
+            fontWeight={500}
+            margin='10px'
           >
             This isn't a valid email address.
-          </Typography>
+          </Text>
         )
       }
     </>
