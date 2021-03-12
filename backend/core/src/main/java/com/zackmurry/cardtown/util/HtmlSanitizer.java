@@ -18,6 +18,7 @@ public class HtmlSanitizer {
 
     /**
      * takes a piece of html and removes potentially harmful tags
+     *
      * @param html html to sanitize
      * @return html with the bad parts cut out
      */

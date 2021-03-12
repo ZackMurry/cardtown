@@ -19,6 +19,8 @@ public class CardPreview {
     private String tag;
     private String cite;
     private String bodyText;
+    private long timeCreatedAt;
+    private long lastModified;
 
     public static CardPreview of(ResponseCard responseCard) {
         return new CardPreview(
@@ -26,7 +28,9 @@ public class CardPreview {
                 responseCard.getOwner(),
                 responseCard.getTag(),
                 responseCard.getCite(),
-                responseCard.getBodyText()
+                responseCard.getBodyText(),
+                responseCard.getTimeCreatedAt(),
+                responseCard.getLastModified()
         );
     }
 
@@ -36,7 +40,9 @@ public class CardPreview {
                 owner,
                 cardEntity.getTag(),
                 cardEntity.getCite(),
-                cardEntity.getBodyText()
+                cardEntity.getBodyText(),
+                cardEntity.getTimeCreatedAt(),
+                cardEntity.getLastModified()
         );
     }
 

@@ -12,5 +12,5 @@ import lombok.Setter;
 public class ArgumentRenameRequest {
 
     private String name;
-    
+
 }

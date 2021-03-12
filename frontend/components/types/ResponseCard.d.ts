@@ -9,4 +9,6 @@ export default interface ResponseCard {
   bodyHtml: string
   bodyDraft: string
   bodyText: string
+  timeCreatedAt: number
+  lastModified: number
 }

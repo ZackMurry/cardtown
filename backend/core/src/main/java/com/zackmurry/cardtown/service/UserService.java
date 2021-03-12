@@ -54,10 +54,11 @@ public class UserService implements UserDetailsService {
     /**
      * Gets a user's data by their email.
      * This is really only used by Spring Security
+     *
      * @param email The user's email
      * @return A <code>User</code> representing the user's data
      * @throws UsernameNotFoundException If no users exist with the given email
-     * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
+     * @throws InternalServerException   If there is a <code>SQLException</code> in the DAO layer
      */
     @Override
     public User loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -68,6 +69,7 @@ public class UserService implements UserDetailsService {
      * Gets a user's data by their email.
      * This method is used more than <code>UserService#loadUserByUsername</code> because I prefer optionals over exceptions
      * and the method name is a bit more fitting
+     *
      * @param email The user's email
      * @return If found: an optional containing the user's data; if not found: <code>Optional.empty()</code>
      * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
@@ -78,12 +80,13 @@ public class UserService implements UserDetailsService {
 
     /**
      * Creates an account for a user with the specified details
+     *
      * @param user User model to create in database. The password should not be encoded
      * @return An AuthenticationResponse containing the user's new JWT
      * @throws InternalServerException If an error occurred while creating a hash or secret key for the user
-     * @throws BadRequestException If any of the fields in the <code>User</code> object is null
+     * @throws BadRequestException     If any of the fields in the <code>User</code> object is null
      * @throws ResponseStatusException (Length required) If any of the following conditions are not met:
-     * password must be <= 55 chars, first name must be <= 32 chars, last name must be <= 32 chars, email must be <= 320 chars
+     *                                 password must be <= 55 chars, first name must be <= 32 chars, last name must be <= 32 chars, email must be <= 320 chars
      * @throws ResponseStatusException (Precondition failed) If an account already exists with the given email
      * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
      */
@@ -93,9 +96,9 @@ public class UserService implements UserDetailsService {
         }
         // todo required somewhat good password
         if (user.getPassword().length() > 55 ||
-            user.getFirstName().length() > 32 ||
-            user.getLastName().length() > 32 ||
-            user.getEmail().length() > 320) {
+                user.getFirstName().length() > 32 ||
+                user.getLastName().length() > 32 ||
+                user.getEmail().length() > 320) {
             throw new LengthRequiredException();
         }
         final String plainTextPassword = user.getPassword();
@@ -135,18 +138,19 @@ public class UserService implements UserDetailsService {
 
     /**
      * Helper method for creating a new user account
-     * @see UserService#createUserAccount(User) This method is an abstraction for this
-     * @param email The email of the new account
+     *
+     * @param email     The email of the new account
      * @param firstName The first name of the new user
-     * @param lastName The last name of the new user
-     * @param password The password of this user. this should not be encoded.
+     * @param lastName  The last name of the new user
+     * @param password  The password of this user. this should not be encoded.
      * @return An <code>AuthenticationResponse</code> containing the user's new JWT
      * @throws InternalServerException If an error occurred while creating a hash or secret key for the user
-     * @throws BadRequestException If any of the fields in the <code>User</code> object is null
+     * @throws BadRequestException     If any of the fields in the <code>User</code> object is null
      * @throws ResponseStatusException (Length required) If any of the following conditions are not met:
-     * password must be <= 55 chars, first name must be <= 32 chars, last name must be <= 32 chars, email must be <= 320 chars
+     *                                 password must be <= 55 chars, first name must be <= 32 chars, last name must be <= 32 chars, email must be <= 320 chars
      * @throws ResponseStatusException (Precondition failed) If an account already exists with the given email
      * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
+     * @see UserService#createUserAccount(User) This method is an abstraction for this
      */
     public AuthenticationResponse createUserAccount(String email, String firstName, String lastName, String password) {
         return createUserAccount(new User(email, firstName, lastName, password));
@@ -154,6 +158,7 @@ public class UserService implements UserDetailsService {
 
     /**
      * Finds if an account exists with a given email
+     *
      * @param email The email to look for
      * @return A boolean representing the status of the account's existence
      * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
@@ -164,8 +169,9 @@ public class UserService implements UserDetailsService {
 
     /**
      * Deletes an account with a given email
+     *
      * @param email Email of account to delete
-     * @throws UserNotFoundException If no user with this email was found
+     * @throws UserNotFoundException   If no user with this email was found
      * @throws InternalServerException If there was a <code>SQLException</code> in the DAO layer
      */
     public void deleteUserAccount(@NonNull String email) throws UserNotFoundException {
@@ -174,14 +180,15 @@ public class UserService implements UserDetailsService {
 
     /**
      * Gets a user's secret key in terms of <code>String</code>s
-     * @see UserService#getUserSecretKey(String, String) This method is called after converting the <code>String</code>s to Base 64 and
-     * the response is converted to Base64
-     * @param email Email of user to find secret key of
+     *
+     * @param email         Email of user to find secret key of
      * @param encryptionKey Encryption key to use in order to decrypt the secret key. This should be in Base 64
      * @return The unencrypted secret key in Base64
-     * @throws UserNotFoundException If no user is found with this email
+     * @throws UserNotFoundException   If no user is found with this email
      * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
      * @throws InternalServerException If there is an error decrypting the secret key
+     * @see UserService#getUserSecretKey(String, String) This method is called after converting the <code>String</code>s to Base 64 and
+     * the response is converted to Base64
      */
     public String getUserSecretKey(@NonNull String email, @NonNull String encryptionKey) throws UserNotFoundException {
         return Base64.encodeBase64String(getUserSecretKey(email, Base64.decodeBase64(encryptionKey)));
@@ -189,10 +196,11 @@ public class UserService implements UserDetailsService {
 
     /**
      * Gets a user's (decrypted) secret key
-     * @param email Email of user to find secret key of
+     *
+     * @param email         Email of user to find secret key of
      * @param encryptionKey Encryption key to use in order to decrypt the secret key
      * @return The unencrypted secret key
-     * @throws UserNotFoundException If no user is found with this email
+     * @throws UserNotFoundException   If no user is found with this email
      * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
      * @throws InternalServerException If there is an error decrypting the secret key
      */
@@ -211,6 +219,7 @@ public class UserService implements UserDetailsService {
 
     /**
      * Gets a user's id by their email
+     *
      * @param email Email of user to find id of
      * @return If user is found: an <code>Optional</code> containing the user's id; if not found: <code>Optional.empty()</code>
      * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
@@ -221,6 +230,7 @@ public class UserService implements UserDetailsService {
 
     /**
      * Gets a user's data by their id
+     *
      * @param userId Id of user to find
      * @return If user is found: an <code>Optional</code> containing the user's data; if not found: <code>Optional.empty()</code>
      * @throws InternalServerException If there is a <code>SQLException</code> in the DAO layer
@@ -231,11 +241,12 @@ public class UserService implements UserDetailsService {
 
     /**
      * Creates an authentication token for a user with the given details
-     * @param email Email of user to authenticate
+     *
+     * @param email    Email of user to authenticate
      * @param password Password of user
      * @return An <code>AuthenticationResponse</code> containing the created JWT
      * @throws org.springframework.security.core.AuthenticationException If the credentials are invalid
-     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @throws InternalServerException                                   If a <code>SQLException</code> occurs in the DAO layer
      */
     public AuthenticationResponse createAuthenticationToken(@NonNull String email, @NonNull String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
@@ -253,6 +264,7 @@ public class UserService implements UserDetailsService {
 
     /**
      * Creates a <code>ResponseUserDetails</code> from a user's id
+     *
      * @param id Id of the user
      * @return If user is found: an <code>Optional</code> containing the <code>ResponseUserDetails</code>;
      * if not found: <code>Optional.empty()</code>
@@ -267,7 +279,8 @@ public class UserService implements UserDetailsService {
 
     /**
      * Generates a <code>UserModel</code> from a user's email and encryption key
-     * @param email Email of user to generate a <code>UserModel</code> for
+     *
+     * @param email         Email of user to generate a <code>UserModel</code> for
      * @param encryptionKey Encryption key of user
      * @return If user is found: an <code>Optional</code> containing the <code>UserModel</code>; else: <code>Optional.empty()</code>
      */
@@ -284,7 +297,8 @@ public class UserService implements UserDetailsService {
     /**
      * Regenerates a <code>UsernamePasswordAuthenticationToken</code> based on the current token and the user's password.
      * This is useful for re-fetching it after a user has joined a team.
-     * @param token Current token of user
+     *
+     * @param token    Current token of user
      * @param password Password of user
      * @return An up-to-date version of <code>token</code>
      * @throws BadRequestException If the user could not be found (the account was likely deleted)

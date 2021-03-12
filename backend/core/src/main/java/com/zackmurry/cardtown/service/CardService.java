@@ -1,7 +1,10 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.card.CardDao;
-import com.zackmurry.cardtown.exception.*;
+import com.zackmurry.cardtown.exception.BadRequestException;
+import com.zackmurry.cardtown.exception.CardNotFoundException;
+import com.zackmurry.cardtown.exception.ForbiddenException;
+import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -45,10 +48,11 @@ public class CardService {
     /**
      * Returns a <code>ResponseCard</code> by its id.
      * Checks if the principal has permission to access it.
+     *
      * @param id Id of card
      * @return A <code>ResponseCard</code> representing the card's data
-     * @throws CardNotFoundException If the card could not be found
-     * @throws ForbiddenException If the user doesn't have access to the requested card
+     * @throws CardNotFoundException   If the card could not be found
+     * @throws ForbiddenException      If the user doesn't have access to the requested card
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      * @throws InternalServerException If the owner of the card is not found in the users table
      */
@@ -83,14 +87,15 @@ public class CardService {
     /**
      * A helper method for converting a Base64 card id to a UUID and then finding the associated <code>ResponseCard</code>.
      * This method also checks the principal's permission to the card before retrieving it
-     * @see CardService#getResponseCardById(UUID) For the method that is called after converting the Base64 to a UUID
+     *
      * @param id Id of card in Base64
      * @return A <code>ResponseCard</code> representing the card's data
-     * @throws CardNotFoundException If the card could not be found
-     * @throws ForbiddenException If the user doesn't have access to the requested card
+     * @throws CardNotFoundException   If the card could not be found
+     * @throws ForbiddenException      If the user doesn't have access to the requested card
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      * @throws InternalServerException If the owner of the card is not found in the users table
-     * @throws BadRequestException If the card has an invalid id
+     * @throws BadRequestException     If the card has an invalid id
+     * @see CardService#getResponseCardById(UUID) For the method that is called after converting the Base64 to a UUID
      */
     public ResponseCard getResponseCardById(@NonNull String id) {
         try {
@@ -105,12 +110,13 @@ public class CardService {
      * Creates a card in the database and returns its id in Base64.
      * If the card's tag or cite information are null, this will replace them with an empty <code>String</code>.
      * This method also sanitizes the HTML found in the request's bodyHtml
-     * @see HtmlSanitizer#sanitizeHtml(String) For details about sanitization
+     *
      * @param request Info of the card to create
      * @return New card's id in Base64
-     * @throws BadRequestException If any of the following are null: ownerEmail, bodyHtml, bodyDraft, bodyText, cite
+     * @throws BadRequestException     If any of the following are null: ownerEmail, bodyHtml, bodyDraft, bodyText, cite
      * @throws ResponseStatusException (Length required) If tag is more than 256 chars, cite is more than 128 chars, or cite information is more than 2048 chars
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @see HtmlSanitizer#sanitizeHtml(String) For details about sanitization
      */
     public String createCard(@NonNull CardCreateRequest request) {
         request.validateFields();
@@ -136,6 +142,7 @@ public class CardService {
 
     /**
      * Gets cards that the user owns (excludes cards owned by other team members)
+     *
      * @return <code>ResponseCard</code>s representing the user's cards
      * @throws InternalServerException If an error occurs while decrypting the cards
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
@@ -158,6 +165,7 @@ public class CardService {
 
     /**
      * Gets a list of <code>ResponseCard</code>s representing the principal's cards (and those of their team)
+     *
      * @return The principal's cards
      * @throws InternalServerException If there is an error decrypting the cards
      * @throws InternalServerException If a card's owner cannot be found in the users table
@@ -206,6 +214,7 @@ public class CardService {
 
     /**
      * Returns the amount of cards that the principal has access to. Does not check if the user exists
+     *
      * @return The number of cards the principal has access to
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
@@ -217,9 +226,10 @@ public class CardService {
     /**
      * Deletes a card by its id. Before deleting, it checks if the principal has permission to delete the card and
      * for appearances in arguments and removes it from them
+     *
      * @param id Id of card in Base64
-     * @throws CardNotFoundException If the card could not be found
-     * @throws ForbiddenException If the principal doesn't have permission to delete the card
+     * @throws CardNotFoundException   If the card could not be found
+     * @throws ForbiddenException      If the principal doesn't have permission to delete the card
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
     public void deleteCardById(String id) {
@@ -242,15 +252,16 @@ public class CardService {
      * Updates a card by its id. First checks if the principal has permission to edit the card. The <code>request</code> parameter must
      * contain the full new card -- not just a partial card (except for tag and citeInformation, which will be replaced with an empty string
      * if null). This method will also sanitize the incoming HTML
-     * @see HtmlSanitizer#sanitizeHtml(String) For the HTML sanitization method
-     * @param id The card's id in Base64
+     *
+     * @param id      The card's id in Base64
      * @param request New information for card to have
-     * @throws BadRequestException If any of the following fields of <code>request</code> are null:
-     * bodyHtml, bodyText, bodyDraft, cite
+     * @throws BadRequestException     If any of the following fields of <code>request</code> are null:
+     *                                 bodyHtml, bodyText, bodyDraft, cite
      * @throws ResponseStatusException (Length required) If tag is more than 256 chars, cite is more than 128 chars, or cite information is more than 2048 chars
-     * @throws CardNotFoundException If the card could not be found
-     * @throws ForbiddenException If the principal doesn't have permission to edit the requested card
+     * @throws CardNotFoundException   If the card could not be found
+     * @throws ForbiddenException      If the principal doesn't have permission to edit the requested card
      * @throws InternalServerException If there is an error while encrypting the new card data
+     * @see HtmlSanitizer#sanitizeHtml(String) For the HTML sanitization method
      */
     public void updateCardById(@NonNull String id, @NonNull CardCreateRequest request) {
         request.validateFields();
@@ -288,6 +299,7 @@ public class CardService {
 
     /**
      * Finds the response cards of a list of ids. Does not preserve order. Does not check if the principal has access to them
+     *
      * @param ids Ids of cards to find
      * @return A list of <code>ResponseCard</code>s that have the requested ids
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
@@ -302,6 +314,7 @@ public class CardService {
 
     /**
      * Gets the (decrypted) <code>CardPreview</code>s of all of the cards that the user has access to
+     *
      * @return The <code>CardPreview</code>s that the user has access to
      * @throws InternalServerException If an error occurs while decrypting the cards
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
@@ -326,6 +339,7 @@ public class CardService {
 
     /**
      * Gets an encrypted <code>CardEntity</code> by its id (in UUID form)
+     *
      * @param cardId Id of card to find
      * @return If card is found: an <code>Optional</code> containing the request card; if not found: <code>Optional.empty()</code>
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer

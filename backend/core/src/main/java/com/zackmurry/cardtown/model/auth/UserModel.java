@@ -10,7 +10,7 @@ public class UserModel extends User {
     private byte[] secretKey;
 
     // Used for easy access by the service layer
-    private byte [] teamSecretKey;
+    private byte[] teamSecretKey;
 
     public UserModel(User u, byte[] secretKey, byte[] teamSecretKey) {
         this.setId(u.getId());

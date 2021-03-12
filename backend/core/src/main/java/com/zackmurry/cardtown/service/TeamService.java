@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,11 +34,12 @@ public class TeamService {
 
     /**
      * Creates a team with the specified information
+     *
      * @param teamCreateRequest Details of new team
      * @return An object containing the id of the new team (encoded in Base64url) and the team's secret key (for an invite)
      * @throws com.zackmurry.cardtown.exception.LengthRequiredException If the team's name is > 128 chars or < 1 char
-     * @throws InternalServerException If an error occurs during encryption
-     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @throws InternalServerException                                  If an error occurs during encryption
+     * @throws InternalServerException                                  If a <code>SQLException</code> occurs in the DAO layer
      */
     public TeamCreationResponse createTeam(@NonNull TeamCreateRequest teamCreateRequest) {
         // todo show user an invite link after creating a team and include teamSecretKey in the invite link
@@ -78,9 +78,10 @@ public class TeamService {
 
     /**
      * Registers the principal with a team
+     *
      * @param teamJoinRequest Details of team to join
-     * @throws TeamNotFoundException If the team could not be found
-     * @throws BadRequestException If the alleged secret key does not match the actual secret key
+     * @throws TeamNotFoundException   If the team could not be found
+     * @throws BadRequestException     If the alleged secret key does not match the actual secret key
      * @throws InternalServerException If an error occurs during encryption
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
@@ -108,8 +109,9 @@ public class TeamService {
 
     /**
      * Deletes the team of the current user
-     * @throws BadRequestException If the current user is not part of a team
-     * @throws ForbiddenException If the current user is not the owner of their team
+     *
+     * @throws BadRequestException     If the current user is not part of a team
+     * @throws ForbiddenException      If the current user is not the owner of their team
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
     public void deleteTeam() {
@@ -125,6 +127,7 @@ public class TeamService {
 
     /**
      * Gets the details of the current user's team (decrypted)
+     *
      * @return If found: an <code>Optional</code> containing the current user's team details; else: <code>Optional.empty()</code>
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
@@ -153,7 +156,8 @@ public class TeamService {
 
     /**
      * Gets the team secret key of a given user
-     * @param userId Id of user to get team secret key of
+     *
+     * @param userId        Id of user to get team secret key of
      * @param userSecretKey Secret key of user
      * @return If user is in a team: an <code>Optional</code> containing the team's secret key; else: <code>Optional.empty()</code>
      */

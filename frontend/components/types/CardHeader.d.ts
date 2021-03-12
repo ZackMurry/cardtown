@@ -5,4 +5,6 @@ export default interface CardHeader {
   owner: ResponseUserDetails,
   tag: string,
   cite: string,
+  timeCreatedAt: number
+  lastModified: number
 }

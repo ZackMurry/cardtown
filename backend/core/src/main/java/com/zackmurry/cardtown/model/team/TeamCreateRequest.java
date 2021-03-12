@@ -17,6 +17,7 @@ public class TeamCreateRequest extends EncryptedTeam {
 
     /**
      * Checks if the fields are valid
+     *
      * @throws LengthRequiredException If the name is greater than 128 chars or less than one
      */
     public void validateFields() {

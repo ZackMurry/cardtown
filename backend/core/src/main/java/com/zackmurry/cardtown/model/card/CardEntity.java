@@ -18,15 +18,20 @@ public final class CardEntity extends EncryptedCard implements UUIDIdCard, UUIDO
 
     private UUID id;
     private UUID ownerId;
+    private long timeCreatedAt;
+    private long lastModified;
 
     public CardEntity(UUID ownerId, String tag, String cite, String citeInformation, String bodyHtml, String bodyDraft, String bodyText) {
         super(tag, cite, citeInformation, bodyHtml, bodyDraft, bodyText);
         this.ownerId = ownerId;
     }
 
-    public CardEntity(UUID id, UUID ownerId, String tag, String cite, String citeInformation, String bodyHtml, String bodyDraft, String bodyText) {
+    public CardEntity(UUID id, UUID ownerId, String tag, String cite, String citeInformation, String bodyHtml,
+                      String bodyDraft, String bodyText, long timeCreatedAt, long lastModified) {
         super(tag, cite, citeInformation, bodyHtml, bodyDraft, bodyText);
         this.id = id;
         this.ownerId = ownerId;
+        this.timeCreatedAt = timeCreatedAt;
+        this.lastModified = lastModified;
     }
 }

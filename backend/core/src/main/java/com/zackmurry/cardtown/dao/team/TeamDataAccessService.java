@@ -32,7 +32,7 @@ public class TeamDataAccessService implements TeamDao {
     public UUID createTeam(@NonNull TeamEntity request) {
         final String sql = "INSERT INTO teams (name, secret_key_hash) VALUES (?, ?)";
         try {
-            final String[] returnId = { "id" };
+            final String[] returnId = {"id"};
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
             preparedStatement.setString(1, request.getName());
             preparedStatement.setString(2, request.getSecretKeyHash());

@@ -3,10 +3,10 @@ package com.zackmurry.cardtown.dao.arg;
 import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
 import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.InternalServerException;
-import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
+import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     public UUID createArgument(@NonNull ArgumentCreateRequest request) {
         final String sql = "INSERT INTO arguments (owner_id, name) VALUES (?, ?)";
         try {
-            final String[] returnId = { "id" };
+            final String[] returnId = {"id"};
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
             preparedStatement.setObject(1, request.getOwnerId());
             preparedStatement.setString(2, request.getName());
@@ -83,7 +83,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
                 );
             }
             return Optional.empty();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -5,7 +5,9 @@ interface CardPreview {
   owner: ResponseUserDetails,
   tag: string,
   cite: string,
-  bodyText: string
+  bodyText: string,
+  timeCreatedAt: number
+  lastModified: number
 }
 
 export default CardPreview

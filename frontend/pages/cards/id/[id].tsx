@@ -1,5 +1,5 @@
 import { parse } from 'cookie'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
 import DashboardNavbar from '../../../components/dash/DashboardNavbar'
 import theme from '../../../components/utils/theme'
@@ -57,7 +57,7 @@ const ViewCard: NextPage<Props> = ({
         }
       </div>
       {
-        relatedArguments && relatedArguments.length && (
+        (relatedArguments && relatedArguments.length !== 0) && (
           <CardArgumentsDisplay relatedArguments={relatedArguments} />
         )
       }

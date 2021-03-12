@@ -15,10 +15,12 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Repository
 public class CardDataAccessService implements CardDao {
@@ -37,9 +39,10 @@ public class CardDataAccessService implements CardDao {
      */
     @Override
     public UUID createCard(@NonNull CardEntity card) {
-        final String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body_html, body_draft, body_text) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        final String sql = "INSERT INTO cards (owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        final long currentTime = System.currentTimeMillis();
         try {
-            final String[] returnId = { "id" };
+            final String[] returnId = {"id"};
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnId);
             preparedStatement.setObject(1, card.getOwnerId());
             preparedStatement.setString(2, card.getTag());
@@ -48,6 +51,8 @@ public class CardDataAccessService implements CardDao {
             preparedStatement.setString(5, card.getBodyHtml());
             preparedStatement.setString(6, card.getBodyDraft());
             preparedStatement.setString(7, card.getBodyText());
+            preparedStatement.setLong(8, currentTime);
+            preparedStatement.setLong(9, currentTime);
             final int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 logger.warn("Card creation by {} didn't generate an id.", card.getOwnerId());
@@ -58,7 +63,7 @@ public class CardDataAccessService implements CardDao {
             if (resultSet.next()) {
                 return UUID.fromString(resultSet.getString("id"));
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         throw new InternalServerException();
@@ -66,7 +71,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public Optional<CardEntity> getCardById(@NonNull UUID id) {
-        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text FROM cards WHERE id = ?";
+        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -77,16 +82,18 @@ public class CardDataAccessService implements CardDao {
                 return Optional.empty();
             }
             return Optional.of(
-                new CardEntity(
-                    id,
-                    UUID.fromString(resultSet.getString("owner_id")),
-                    resultSet.getString("tag"),
-                    resultSet.getString("cite"),
-                    resultSet.getString("cite_information"),
-                    resultSet.getString("body_html"),
-                    resultSet.getString("body_draft"),
-                    resultSet.getString("body_text")
-                )
+                    new CardEntity(
+                            id,
+                            UUID.fromString(resultSet.getString("owner_id")),
+                            resultSet.getString("tag"),
+                            resultSet.getString("cite"),
+                            resultSet.getString("cite_information"),
+                            resultSet.getString("body_html"),
+                            resultSet.getString("body_draft"),
+                            resultSet.getString("body_text"),
+                            resultSet.getLong("time_created_at"),
+                            resultSet.getLong("last_modified")
+                    )
             );
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,24 +103,26 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public List<CardEntity> getCardsByUser(@NonNull UUID id) {
-        final String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft, body_text FROM cards WHERE owner_id = ?";
+        final String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE owner_id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
-            final ResultSet rs = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
 
             final List<CardEntity> cards = new ArrayList<>();
-            while (rs.next()) {
+            while (resultSet.next()) {
                 cards.add(
                         new CardEntity(
-                                UUID.fromString(rs.getString("id")),
+                                UUID.fromString(resultSet.getString("id")),
                                 id,
-                                rs.getString("tag"),
-                                rs.getString("cite"),
-                                rs.getString("cite_information"),
-                                rs.getString("body_html"),
-                                rs.getString("body_draft"),
-                                rs.getString("body_text")
+                                resultSet.getString("tag"),
+                                resultSet.getString("cite"),
+                                resultSet.getString("cite_information"),
+                                resultSet.getString("body_html"),
+                                resultSet.getString("body_draft"),
+                                resultSet.getString("body_text"),
+                                resultSet.getLong("time_created_at"),
+                                resultSet.getLong("last_modified")
                         )
                 );
             }
@@ -180,7 +189,8 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public void updateCardById(@NonNull UUID id, @NonNull EncryptedCard request) {
-        final String sql = "UPDATE cards SET tag = ?, cite = ?, cite_information = ?, body_html = ?, body_draft = ?, body_text = ? WHERE id = ?";
+        final String sql = "UPDATE cards SET tag = ?, cite = ?, cite_information = ?, body_html = ?, body_draft = ?, body_text = ?, last_modified = ? WHERE id = ?";
+        final long currentTime = System.currentTimeMillis();
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setString(1, request.getTag());
@@ -189,7 +199,8 @@ public class CardDataAccessService implements CardDao {
             preparedStatement.setString(4, request.getBodyHtml());
             preparedStatement.setString(5, request.getBodyDraft());
             preparedStatement.setString(6, request.getBodyText());
-            preparedStatement.setObject(7, id);
+            preparedStatement.setLong(7, currentTime);
+            preparedStatement.setObject(8, id);
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -200,7 +211,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public List<CardEntity> getCardsByTeamId(@NonNull UUID teamId) {
-        final String sql = "SELECT id, owner_id, tag, cite, cite_information, body_html, body_draft, body_text FROM cards INNER JOIN team_members ON cards.owner_id = team_members.user_id WHERE team_members.team_id = ?";
+        final String sql = "SELECT id, owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards INNER JOIN team_members ON cards.owner_id = team_members.user_id WHERE team_members.team_id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);
@@ -209,16 +220,18 @@ public class CardDataAccessService implements CardDao {
             final List<CardEntity> cards = new ArrayList<>();
             while (resultSet.next()) {
                 cards.add(
-                    new CardEntity(
-                        UUID.fromString(resultSet.getString("id")),
-                        UUID.fromString(resultSet.getString("owner_id")),
-                        resultSet.getString("tag"),
-                        resultSet.getString("cite"),
-                        resultSet.getString("cite_information"),
-                        resultSet.getString("body_html"),
-                        resultSet.getString("body_draft"),
-                        resultSet.getString("body_text")
-                    )
+                        new CardEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                UUID.fromString(resultSet.getString("owner_id")),
+                                resultSet.getString("tag"),
+                                resultSet.getString("cite"),
+                                resultSet.getString("cite_information"),
+                                resultSet.getString("body_html"),
+                                resultSet.getString("body_draft"),
+                                resultSet.getString("body_text"),
+                                resultSet.getLong("time_created_at"),
+                                resultSet.getLong("last_modified")
+                        )
                 );
             }
             return cards;

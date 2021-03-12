@@ -25,6 +25,7 @@ public class EncryptionUtils {
 
     /**
      * takes a user's plain-text text and generates and encryption key
+     *
      * @param text user's plain-text text
      * @return a base64-encoded SHA-256 hash of the text
      */
@@ -37,6 +38,7 @@ public class EncryptionUtils {
 
     /**
      * takes a user's plain-text text and generates and encryption key
+     *
      * @param plainText user's plain-text text
      * @return a SHA-256 hash of the text
      */
@@ -52,6 +54,7 @@ public class EncryptionUtils {
 
     /**
      * generates a strong AES key
+     *
      * @param keySize number of bits to generate
      * @return the new AES key
      */
@@ -132,6 +135,7 @@ public class EncryptionUtils {
 
     /**
      * converts a UTF-8 String to an AES-encrypted, hex-encoded String
+     *
      * @param plainText text to encrypt
      * @param secretKey secret key for AES
      * @return cipher in hex
@@ -143,7 +147,8 @@ public class EncryptionUtils {
 
     /**
      * uses AES encryption with hex byte encoding and switches to UTF-8 character encoding
-     * @param cipher text to decrypt
+     *
+     * @param cipher    text to decrypt
      * @param secretKey AES secret key
      * @return output in hex
      */

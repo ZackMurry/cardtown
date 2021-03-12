@@ -24,8 +24,10 @@ public class ResponseCard implements ShortenedIdCard {
     private String bodyHtml;
     private String bodyDraft;
     private String bodyText;
+    private long timeCreatedAt;
+    private long lastModified;
 
-    public static ResponseCard fromCard(UUIDOwnerCard card, ResponseUserDetails responseUserDetails, String shortenedId) {
+    public static ResponseCard fromCard(CardEntity card, ResponseUserDetails responseUserDetails, String shortenedId) {
         return new ResponseCard(
                 shortenedId,
                 responseUserDetails,
@@ -34,7 +36,9 @@ public class ResponseCard implements ShortenedIdCard {
                 card.getCiteInformation(),
                 card.getBodyHtml(),
                 card.getBodyDraft(),
-                card.getBodyText()
+                card.getBodyText(),
+                card.getTimeCreatedAt(),
+                card.getLastModified()
         );
     }
 

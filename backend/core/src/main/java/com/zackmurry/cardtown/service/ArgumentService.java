@@ -2,7 +2,10 @@ package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
 import com.zackmurry.cardtown.exception.*;
-import com.zackmurry.cardtown.model.arg.*;
+import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
+import com.zackmurry.cardtown.model.arg.ArgumentEntity;
+import com.zackmurry.cardtown.model.arg.ArgumentPreview;
+import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentWithCardModel;
@@ -22,7 +25,10 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -44,9 +50,10 @@ public class ArgumentService {
 
     /**
      * Creates an argument with the specified information, with the owner id as the current principal
+     *
      * @param request Details of the new argument
      * @return The new argument's id, in Base64
-     * @throws BadRequestException If the name field is null
+     * @throws BadRequestException     If the name field is null
      * @throws LengthRequiredException If the name is more than 128 characters or less than 1 character
      * @throws InternalServerException If an error occurs while encrypting the argument's name
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
@@ -84,13 +91,14 @@ public class ArgumentService {
 
     /**
      * Gets an argument by its id
+     *
      * @param id Id of argument, in Base64
      * @return Details of argument
      * @throws ArgumentNotFoundException If the argument could not be found
-     * @throws ForbiddenException If the principal does not have access to the requested argument, but it is found
-     * @throws InternalServerException If an error occurs while decrypting the argument's name
-     * @throws InternalServerException If the owner of the argument could not be found
-     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @throws ForbiddenException        If the principal does not have access to the requested argument, but it is found
+     * @throws InternalServerException   If an error occurs while decrypting the argument's name
+     * @throws InternalServerException   If the owner of the argument could not be found
+     * @throws InternalServerException   If a <code>SQLException</code> occurs in the DAO layer
      */
     public ResponseArgument getResponseArgumentById(@NonNull String id) {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -126,11 +134,12 @@ public class ArgumentService {
 
     /**
      * Adds a card to the end of an argument
+     *
      * @param argumentId Id of argument to add to
-     * @param cardId Id of card to add
-     * @throws CardNotFoundException If the card could not be found
+     * @param cardId     Id of card to add
+     * @throws CardNotFoundException     If the card could not be found
      * @throws ArgumentNotFoundException If the argument could not be found
-     * @throws ForbiddenException If the user does not have access to the card and write permission to the argument
+     * @throws ForbiddenException        If the user does not have access to the card and write permission to the argument
      */
     public void addCardToArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
         final short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
@@ -154,6 +163,7 @@ public class ArgumentService {
 
     /**
      * Adds a card to the end of an argument, using Base64 ids
+     *
      * @see ArgumentService#addCardToArgument(UUID, UUID)
      */
     public void addCardToArgument(@NonNull String argumentId, @NonNull String cardId) {
@@ -164,6 +174,7 @@ public class ArgumentService {
 
     /**
      * Retrieves all arguments that the user has access to. Only retrieves previews for them
+     *
      * @return Argument previews that the user has access to
      * @throws InternalServerException If an error occurs while decrypting information
      * @throws InternalServerException If a user was said to be the owner of an entity, but not found in the database
@@ -216,6 +227,7 @@ public class ArgumentService {
 
     /**
      * Gets the number of arguments that a user has access to
+     *
      * @return The number of arguments
      */
     public int getNumberOfArgumentsByUser() {
@@ -226,6 +238,7 @@ public class ArgumentService {
     /**
      * Gets the cards in an argument, by the argument's id.
      * Does not validate credentials! Returns a list of cards in the argument, sorted by index
+     *
      * @param argumentId Id of argument to search
      * @return List of cards in argument
      */
@@ -245,11 +258,12 @@ public class ArgumentService {
 
     /**
      * Removes a card from an argument, adjusting indices and whatnot.
+     *
      * @param argumentId Id of argument to remove from
-     * @param cardId Id of card to remove
-     * @param index Index that the card appears in the argument at
+     * @param cardId     Id of card to remove
+     * @param index      Index that the card appears in the argument at
      * @throws ArgumentNotFoundException If the argument could not be found
-     * @throws ForbiddenException If the principal does not have permission to view/modify this argument
+     * @throws ForbiddenException        If the principal does not have permission to view/modify this argument
      */
     public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
@@ -265,6 +279,7 @@ public class ArgumentService {
 
     /**
      * Removes a card from an argument, using Base64 ids
+     *
      * @see ArgumentService#removeCardFromArgument(UUID, UUID, short)
      */
     public void removeCardFromArgument(@NonNull String argumentId, @NonNull String cardId, @NonNull short index) {
@@ -275,10 +290,11 @@ public class ArgumentService {
 
     /**
      * Deletes an argument (including the argument_cards data)
+     *
      * @param argumentId Id of argument to delete (in Base64)
      * @throws ArgumentNotFoundException If the argument could not be found
-     * @throws ForbiddenException If the user does not have permission to delete the argument
-     * @throws InternalServerException If a <code>SQLException</code> occurs
+     * @throws ForbiddenException        If the user does not have permission to delete the argument
+     * @throws InternalServerException   If a <code>SQLException</code> occurs
      */
     public void deleteArgument(@NonNull String argumentId) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
@@ -295,13 +311,14 @@ public class ArgumentService {
 
     /**
      * Renames an argument
+     *
      * @param argumentId Id of the argument to rename (in Base64)
-     * @param newName New name of argument (in plain text)
+     * @param newName    New name of argument (in plain text)
      * @throws ArgumentNotFoundException If the argument could not be found
-     * @throws ForbiddenException If the user does not have permission to rename the argument
-     * @throws InternalServerException If an error occurs while encrypting the name
-     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
-     * @throws BadRequestException If the name is longer than 128 characters
+     * @throws ForbiddenException        If the user does not have permission to rename the argument
+     * @throws InternalServerException   If an error occurs while encrypting the name
+     * @throws InternalServerException   If a <code>SQLException</code> occurs in the DAO layer
+     * @throws BadRequestException       If the name is longer than 128 characters
      */
     public void renameArgument(@NonNull String argumentId, @NonNull String newName) {
         if (newName.length() > 128 || newName.length() < 1) {
@@ -328,14 +345,15 @@ public class ArgumentService {
 
     /**
      * Changes the position of a card in an argument, pushing along any other cards
+     *
      * @param argumentId Id of argument to modify
-     * @param newIndex New index of card in argument
-     * @param oldIndex Old index of card in argument
+     * @param newIndex   New index of card in argument
+     * @param oldIndex   Old index of card in argument
      * @throws ArgumentNotFoundException If the argument could not be found
-     * @throws ForbiddenException If the user does not have access to the requested argument
-     * @throws BadRequestException If the new position list does not have the same number of cards as the argument currently does
-     * @throws BadRequestException If the new position list contains either a card that is not in the argument or one card more than it appears in the argument
-     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     * @throws ForbiddenException        If the user does not have access to the requested argument
+     * @throws BadRequestException       If the new position list does not have the same number of cards as the argument currently does
+     * @throws BadRequestException       If the new position list contains either a card that is not in the argument or one card more than it appears in the argument
+     * @throws InternalServerException   If a <code>SQLException</code> occurs in the DAO layer
      */
     public void updateCardPositions(@NonNull String argumentId, @NonNull Short newIndex, @NonNull Short oldIndex) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
@@ -363,6 +381,7 @@ public class ArgumentService {
     /**
      * Removes all appearances of cards from arguments.
      * Checks authorization for accessing argument, but not the card
+     *
      * @param cardId Id of card to remove
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
@@ -376,6 +395,7 @@ public class ArgumentService {
 
     /**
      * Gets a list of <code>ArgumentsIncludingCardModel</code>s, describing arguments that contain a card with an id of cardId
+     *
      * @param cardId Id of card to search arguments for
      * @return Arguments containing the specified card
      */

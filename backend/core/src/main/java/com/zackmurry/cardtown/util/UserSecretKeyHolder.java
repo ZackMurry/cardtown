@@ -18,6 +18,7 @@ public class UserSecretKeyHolder {
 
     /**
      * Gets the user's secret key that is used for encryption of data that is shared across a team
+     *
      * @return If the user is in a team: the team's secret key; else: the user's secret key
      * @throws ForbiddenException If the user is unauthenticated
      */

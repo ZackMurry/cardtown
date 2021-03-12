@@ -2,7 +2,6 @@ package com.zackmurry.cardtown.model.card;
 
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.LengthRequiredException;
-import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.PayloadTooLargeException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,15 +43,16 @@ public class CardCreateRequest implements EmailOwnerCard {
     /**
      * Validates fields to make sure that this request is valid.
      * If an optional field is null, this will replace it with an empty string.
-     * @throws BadRequestException If any of the following are null: bodyHtml, bodyDraft, bodyText, and cite
-     * @throws LengthRequiredException If the tag is longer than 256 characters, the cite is longer than 128 characters, or citeInformation is longer than 2048 characters.
+     *
+     * @throws BadRequestException      If any of the following are null: bodyHtml, bodyDraft, bodyText, and cite
+     * @throws LengthRequiredException  If the tag is longer than 256 characters, the cite is longer than 128 characters, or citeInformation is longer than 2048 characters.
      * @throws PayloadTooLargeException If any of the body fields are too large
      */
     public void validateFields() {
         if (bodyHtml == null ||
-            bodyDraft == null ||
-            bodyText == null ||
-            cite == null) {
+                bodyDraft == null ||
+                bodyText == null ||
+                cite == null) {
             throw new BadRequestException();
         }
         if (tag == null) {

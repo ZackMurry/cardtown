@@ -54,7 +54,7 @@ public class UserDataAccessService implements UserDao {
                 return Optional.of(users.get(0));
             }
             return Optional.empty();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();
         }
@@ -73,7 +73,7 @@ public class UserDataAccessService implements UserDao {
                 return Optional.of((UUID) list.get(0));
             }
             return Optional.empty();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();
         }
@@ -104,7 +104,7 @@ public class UserDataAccessService implements UserDao {
                     Base64.encodeBase64String(user.getSecretKey()), // encrypted with AES by SHA-256 hash of password
                     user.getRoles().get(0).getName()
             );
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();
         }
@@ -127,7 +127,7 @@ public class UserDataAccessService implements UserDao {
                     sql,
                     email
             );
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();
         }
@@ -139,11 +139,11 @@ public class UserDataAccessService implements UserDao {
         try {
             return Optional.of(
                     jdbcTemplate.queryForString(
-                        sql,
-                        email
+                            sql,
+                            email
                     )
             );
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();
         }
@@ -169,7 +169,7 @@ public class UserDataAccessService implements UserDao {
                 );
             }
             return Optional.empty();
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();
         }

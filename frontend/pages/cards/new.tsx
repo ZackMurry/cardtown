@@ -39,7 +39,6 @@ const NewCard: FC = () => {
     const bodyDraft = convertToRaw(content)
     const bodyHtml = stateToHTML(content, draftExportHtmlOptions)
     const bodyText = content.getPlainText('\u0001')
-    console.log(`htmll: ${bodyHtml.length} draftl: ${JSON.stringify(bodyDraft).length} textl: ${bodyText.length}`)
 
     if (tag.length < 1) {
       setErrorText('Your card must have a tag')

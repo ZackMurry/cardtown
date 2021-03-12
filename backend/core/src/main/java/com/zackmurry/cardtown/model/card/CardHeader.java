@@ -18,13 +18,17 @@ public class CardHeader {
     private ResponseUserDetails owner;
     private String tag;
     private String cite;
+    private long timeCreatedAt;
+    private long lastModified;
 
     public static CardHeader of(ResponseCard responseCard) {
         return new CardHeader(
                 responseCard.getId(),
                 responseCard.getOwner(),
                 responseCard.getTag(),
-                responseCard.getCite()
+                responseCard.getCite(),
+                responseCard.getTimeCreatedAt(),
+                responseCard.getLastModified()
         );
     }
 
@@ -33,7 +37,9 @@ public class CardHeader {
                 UUIDCompressor.compress(cardEntity.getId()),
                 owner,
                 cardEntity.getTag(),
-                cardEntity.getCite()
+                cardEntity.getCite(),
+                cardEntity.getTimeCreatedAt(),
+                cardEntity.getLastModified()
         );
     }
 

@@ -1,10 +1,10 @@
 package com.zackmurry.cardtown.dao.arg;
 
 import com.zackmurry.cardtown.exception.InternalServerException;
-import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
+import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -15,6 +15,7 @@ public interface ArgumentDao {
 
     /**
      * Creates an argument with the specified details
+     *
      * @param request Argument to create
      * @return Uuid of the new argument
      * @throws InternalServerException if no new rows are created in the database
@@ -24,6 +25,7 @@ public interface ArgumentDao {
 
     /**
      * Gets an argument entity from the database
+     *
      * @param id Id of the argument
      * @return An <code>Optional</code> of the requested argument
      * @throws InternalServerException if there is a <code>SQLException</code>
@@ -32,6 +34,7 @@ public interface ArgumentDao {
 
     /**
      * Gets cards from an argument with the given id, ordered by their index in the argument
+     *
      * @param argumentId Id of the argument
      * @return A list of cards found in the argument
      * @throws InternalServerException if there is a <code>SQLException</code>
@@ -40,8 +43,9 @@ public interface ArgumentDao {
 
     /**
      * Increments card positions in an argument at or past a specified index
+     *
      * @param argumentId Id of argument to update
-     * @param index Index to update at or past at
+     * @param index      Index to update at or past at
      * @throws InternalServerException If a <code>SQLException</code> occurs
      */
     void incrementCardPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, short index);
@@ -49,18 +53,20 @@ public interface ArgumentDao {
     /**
      * Inserts a card into an argument and the specified index (0-based).
      * If a card already exists there, this pushes it (and other possible cards) to the next index
-     * @param argumentId Argument to add to. Must already be in the database
-     * @param cardId Card to add to argument. Must already be in the database
+     *
+     * @param argumentId      Argument to add to. Must already be in the database
+     * @param cardId          Card to add to argument. Must already be in the database
      * @param indexInArgument The desired zero-based index to set the card at
      * @throws IllegalArgumentException If the index would create a gap between two cards
      * @throws IllegalArgumentException If the index is negative
-     * @throws InternalServerException If there is a <code>SQLException</code>
+     * @throws InternalServerException  If there is a <code>SQLException</code>
      */
     void addCardToArgument(UUID argumentId, UUID cardId, short indexInArgument);
 
     /**
      * Gets the first unused position in an argument.
      * Does not check if the argument exists; returns zero if no cards are found (assumes the argument has no cards)
+     *
      * @param id Id of argument to search
      * @return A zero-based short representing the index
      * @throws InternalServerException If there is a <code>SQLException</code>
@@ -69,6 +75,7 @@ public interface ArgumentDao {
 
     /**
      * Gets all arguments that are owned by a user
+     *
      * @param id User to find arguments for
      * @return Data about the arguments (not the cards in them)
      * @throws InternalServerException If there is a <code>SQLException</code>
@@ -77,6 +84,7 @@ public interface ArgumentDao {
 
     /**
      * Gets the number of arguments that are owned by a user
+     *
      * @param id User to find argument count for
      * @return Number of arguments owned by the user
      * @throws InternalServerException If there is a <code>SQLException</code> or no count is returned from the query
@@ -85,6 +93,7 @@ public interface ArgumentDao {
 
     /**
      * Gets the number of cards in an argument
+     *
      * @param argumentId Id of argument to find number of cards for
      * @return Number of cards in the argument
      * @throws InternalServerException If there is a <code>SQLException</code> or no count is returned from the query
@@ -94,52 +103,58 @@ public interface ArgumentDao {
     /**
      * Removes a card from an argument and left-shifts other cards' indices
      * todo might not need cardId now that index is a param
+     *
      * @param argumentId Id of the argument that the card belongs to
-     * @param cardId Id of the card to remove
-     * @param index Index of the card to remove (in so that you can remove one instance of a card from an argument when >1 appear in it)
+     * @param cardId     Id of the card to remove
+     * @param index      Index of the card to remove (in so that you can remove one instance of a card from an argument when >1 appear in it)
      * @throws com.zackmurry.cardtown.exception.CardNotFoundException If the card could not be found in the argument
-     * @throws InternalServerException If there is a <code>SQLException</code>
+     * @throws InternalServerException                                If there is a <code>SQLException</code>
      */
     void removeCardFromArgument(UUID argumentId, UUID cardId, short index);
 
     /**
      * Gets the position of a card in an argument
+     *
      * @param argumentId Id of argument to search in
-     * @param cardId Card to find index for
+     * @param cardId     Card to find index for
      * @return The (0-based) position of the card in the argument
      * @throws com.zackmurry.cardtown.exception.CardNotFoundException If the card could not be found in the argument
-     * @throws InternalServerException If there is a <code>SQLException</code>
+     * @throws InternalServerException                                If there is a <code>SQLException</code>
      */
     short getIndexOfCardInArgument(UUID argumentId, UUID cardId);
 
     /**
      * Deletes an argument (including the argument_cards data)
+     *
      * @param argumentId Id of argument to delete
-     * @throws InternalServerException If there is a <code>SQLException</code>
+     * @throws InternalServerException                                    If there is a <code>SQLException</code>
      * @throws com.zackmurry.cardtown.exception.ArgumentNotFoundException If the argument was not found
      */
     void deleteArgument(UUID argumentId);
 
     /**
      * Renames an argument
+     *
      * @param argumentId Id of argument to rename
-     * @param newName New name of argument (this should be encrypted before being passed into this method)
-     * @throws InternalServerException If a <code>SQLException</code> occurs
+     * @param newName    New name of argument (this should be encrypted before being passed into this method)
+     * @throws InternalServerException                                    If a <code>SQLException</code> occurs
      * @throws com.zackmurry.cardtown.exception.ArgumentNotFoundException If the argument could not be found
      */
     void renameArgument(UUID argumentId, String newName);
 
     /**
      * Updates a card's index in an argument without checking if the new index is valid
+     *
      * @param argumentId Id of argument to modify
-     * @param newIndex New index of card in argument
-     * @param oldIndex Old index of card in argument
+     * @param newIndex   New index of card in argument
+     * @param oldIndex   Old index of card in argument
      * @throws InternalServerException If a <code>SQLException</code> occurs
      */
     void setCardIndexInArgumentUnchecked(UUID argumentId, short newIndex, short oldIndex);
 
     /**
      * Gets <code>ArgumentCardEntity</code>s that have a card with the specified id
+     *
      * @param cardId Id of card to find <code>ArgumentCardEntity</code>s for
      * @return All found <code>ArgumentCardEntity</code>s
      * @throws InternalServerException If a <code>SQLException</code> occurs
@@ -148,6 +163,7 @@ public interface ArgumentDao {
 
     /**
      * Gets a list of <code>ArgumentCardJoinEntity</code>s that have a cardId matching the cardId inputted
+     *
      * @param cardId Id of card to search for arguments for
      * @return Arguments containing a card with this id; can return multiple of the same argument if a card is in an argument more than once
      * @throws InternalServerException If a <code>SQLException</code> occurs

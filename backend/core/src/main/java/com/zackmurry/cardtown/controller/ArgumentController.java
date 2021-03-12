@@ -30,7 +30,7 @@ public class ArgumentController {
      */
     @PostMapping("")
     public String createArgument(@RequestBody ArgumentCreateRequest request) {
-       return argumentService.createArgument(request);
+        return argumentService.createArgument(request);
     }
 
     @GetMapping("/id/**")
