@@ -3,7 +3,7 @@ import Cookie from 'js-cookie'
 import {
   FC, FormEvent, useEffect, useMemo, useRef, useState
 } from 'react'
-import DashboardSidebar from '../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
@@ -143,7 +143,7 @@ const ImportCards: FC = () => {
         overflow: 'auto'
       }}
     >
-      <DashboardSidebar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
           <div>

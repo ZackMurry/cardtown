@@ -3,7 +3,7 @@ import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import DashboardSidebar from '../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import BlackText from '../../components/utils/BlackText'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../components/utils/redirectToLogin'
@@ -105,7 +105,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardSidebar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' />
 
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>

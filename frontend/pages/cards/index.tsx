@@ -3,7 +3,7 @@ import { parse } from 'cookie'
 import {
   Grid, GridItem, Heading, Text
 } from '@chakra-ui/react'
-import DashboardSidebar from '../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import theme from '../../components/utils/theme'
 import CardCount from '../../components/cards/CardCount'
 import NewCard from '../../components/cards/NewCard'
@@ -22,26 +22,9 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
   const { width } = useWindowSize(1920, 1080)
 
   return (
-    <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardSidebar windowWidth={width} pageName='Cards' />
+    <div style={{ width: '100%' }}>
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
-        <Text
-          color='darkGray'
-          textTransform='uppercase'
-          fontSize={11}
-          paddingTop={19}
-          letterSpacing={0.5}
-        >
-          Overview
-        </Text>
-        <Heading as='h2' fontSize={24} fontWeight='bold'>
-          Cards
-        </Heading>
-        <div
-          style={{
-            width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
-          }}
-        />
         <Grid gap={4} templateColumns='repeat(6, 1fr)'>
           <GridItem
             borderRadius={10}

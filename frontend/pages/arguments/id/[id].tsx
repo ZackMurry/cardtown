@@ -10,7 +10,7 @@ import AddCardToArgumentButton from '../../../components/arguments/AddCardToArgu
 import ArgumentCardDisplay from '../../../components/arguments/ArgumentCardDisplay'
 import ArgumentName from '../../../components/arguments/ArgumentName'
 import DeleteArgumentButton from '../../../components/arguments/DeleteArgumentButton'
-import DashboardSidebar from '../../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../../components/dash/DashboardNavbar'
 import ResponseArgument from '../../../components/types/ResponseArgument'
 import ErrorAlert from '../../../components/utils/ErrorAlert'
 import useWindowSize from '../../../components/utils/hooks/useWindowSize'
@@ -67,7 +67,7 @@ const ViewArgument: NextPage<Props> = ({
       width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
     }}
     >
-      <DashboardSidebar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' />
       {
         argument && (
           <div

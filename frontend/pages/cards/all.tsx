@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Grid, Tooltip, Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
-import DashboardSidebar from '../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import theme from '../../components/utils/theme'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import BlackText from '../../components/utils/BlackText'
@@ -32,7 +32,7 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
         overflow: 'auto'
       }}
     >
-      <DashboardSidebar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
 
         <Typography

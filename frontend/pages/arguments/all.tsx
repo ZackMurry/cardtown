@@ -4,7 +4,7 @@ import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { useState } from 'react'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
-import DashboardSidebar from '../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import ArgumentPreview from '../../components/types/ArgumentPreview'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
@@ -63,7 +63,7 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) =>
         overflow: 'auto'
       }}
     >
-      <DashboardSidebar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
 
         <Typography

@@ -4,7 +4,7 @@ import { parse } from 'cookie'
 import { Grid, Typography } from '@material-ui/core'
 import redirectToLogin from '../../components/utils/redirectToLogin'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
-import DashboardSidebar from '../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import theme from '../../components/utils/theme'
 import BlackText from '../../components/utils/BlackText'
 import NewArgument from '../../components/arguments/NewArgument'
@@ -20,7 +20,7 @@ const ArgumentsPage: NextPage<Props> = ({ jwt, fetchErrorText, argCount }) => {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardSidebar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{

@@ -12,7 +12,7 @@ import {
 import mapStyleToReadable from '../../components/cards/mapStyleToReadable'
 import CardBodyEditor from '../../components/cards/CardBodyEditor'
 import NewCardFormattingPopover from '../../components/cards/NewCardFormattingPopover'
-import DashboardSidebar from '../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import BlackText from '../../components/utils/BlackText'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import theme from '../../components/utils/theme'
@@ -99,7 +99,7 @@ const NewCard: FC = () => {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardSidebar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
 
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '0 auto', padding: '6vh 0' }}>

@@ -1,7 +1,7 @@
 import { parse } from 'cookie'
 import { useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
-import DashboardSidebar from '../../../components/dash/DashboardSidebar'
+import DashboardNavbar from '../../../components/dash/DashboardNavbar'
 import theme from '../../../components/utils/theme'
 import useWindowSize from '../../../components/utils/hooks/useWindowSize'
 import ErrorAlert from '../../../components/utils/ErrorAlert'
@@ -34,7 +34,7 @@ const ViewCard: NextPage<Props> = ({
         width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
       }}
     >
-      <DashboardSidebar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
       <div
         style={{
           width: '50%',

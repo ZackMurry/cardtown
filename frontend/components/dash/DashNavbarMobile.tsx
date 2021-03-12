@@ -10,7 +10,7 @@ interface Props {
   pageName: PageName
 }
 
-const DashSidebarMobile: FC<Props> = ({ pageName }) => {
+const DashNavbarMobile: FC<Props> = ({ pageName }) => {
   const [ isExpanded, setExpanded ] = useState(false)
 
   return (
@@ -125,4 +125,4 @@ const DashSidebarMobile: FC<Props> = ({ pageName }) => {
   )
 }
 
-export default DashSidebarMobile
+export default DashNavbarMobile
