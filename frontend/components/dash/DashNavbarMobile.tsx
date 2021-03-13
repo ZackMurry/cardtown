@@ -5,9 +5,11 @@ import { FC, useState } from 'react'
 import BlackText from '../utils/BlackText'
 import theme from '../utils/theme'
 import PageName from '../types/PageName'
+import JwtBody from '../types/JwtBody'
 
 interface Props {
   pageName: PageName
+  jwt: JwtBody
 }
 
 const DashNavbarMobile: FC<Props> = ({ pageName }) => {

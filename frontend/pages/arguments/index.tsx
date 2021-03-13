@@ -1,6 +1,5 @@
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
-import { parse } from 'cookie'
 import { Grid, Typography } from '@material-ui/core'
 import redirectToLogin from '../../components/utils/redirectToLogin'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
@@ -130,10 +129,7 @@ const ArgumentsPage: NextPage<Props> = ({ jwt, fetchErrorText, argCount }) => {
 export default ArgumentsPage
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
-  let jwt: string | null = null
-  if (req.headers?.cookie) {
-    jwt = parse(req.headers?.cookie)?.jwt
-  }
+  const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/arguments')
     return {

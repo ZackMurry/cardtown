@@ -1,5 +1,4 @@
 import { Button, TextField, Typography } from '@material-ui/core'
-import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
@@ -105,7 +104,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' jwt={jwt} />
 
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
@@ -211,10 +210,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
 export default NewArgument
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
-  let jwt: string | null
-  if (req.headers?.cookie) {
-    jwt = parse(req.headers?.cookie)?.jwt
-  }
+  const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/cards/all')
     return {

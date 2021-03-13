@@ -1,13 +1,8 @@
 import { GetServerSideProps, NextPage } from 'next'
-import { parse } from 'cookie'
 import {
   Grid, GridItem, Heading, Text
 } from '@chakra-ui/react'
 import DashboardNavbar from '../../components/dash/DashboardNavbar'
-import theme from '../../components/utils/theme'
-import CardCount from '../../components/cards/CardCount'
-import NewCard from '../../components/cards/NewCard'
-import ImportCard from '../../components/cards/ImportCard'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../components/utils/redirectToLogin'
 import ErrorAlert from '../../components/utils/ErrorAlert'
@@ -23,7 +18,7 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
 
   return (
     <div style={{ width: '100%' }}>
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
       {
         fetchErrorText && <ErrorAlert disableClose text={fetchErrorText} />
       }
@@ -34,10 +29,7 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
 export default Cards
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
-  let jwt: string | null = null
-  if (req.headers?.cookie) {
-    jwt = parse(req.headers?.cookie)?.jwt
-  }
+  const jwt = req.cookies.jwt
   if (!jwt) {
     redirectToLogin(res, '/cards')
     return {

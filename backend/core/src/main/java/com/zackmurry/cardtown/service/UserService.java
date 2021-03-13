@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -128,12 +129,7 @@ public class UserService implements UserDetailsService {
         final UserModel userModel = new UserModel(user, encryptedSecretKey, null);
         userDao.createAccount(userModel);
 
-        // Put username and encryption key into JWT
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("ek", Base64.encodeBase64String(encryptionKey));
-        final String jwt = jwtUtil.createToken(claims, user.getUsername());
-
-        return new AuthenticationResponse(jwt);
+        return createAuthenticationToken(userModel.getEmail(), userModel.getPassword());
     }
 
     /**
@@ -251,14 +247,18 @@ public class UserService implements UserDetailsService {
     public AuthenticationResponse createAuthenticationToken(@NonNull String email, @NonNull String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
-        final UserDetails userDetails = loadUserByUsername(email);
+        // Generate SHA-256 hash of password as their encryption key (hash is 32 bytes)
+        final byte[] encryptionKey = encryptionUtils.getSHA256Hash(password.getBytes(StandardCharsets.UTF_8));
+
+        final UserModel userModel = getUserModelByEmail(email, encryptionKey).orElseThrow(InternalServerException::new);
         final Map<String, Object> claims = new HashMap<>();
 
-        // generate SHA-256 hash of password as their secret key (hash is 32 bytes)
-        final String encryptionKey = encryptionUtils.getSHA256HashBase64(password);
-        claims.put("ek", encryptionKey);
+        claims.put("ek", Base64.encodeBase64String(encryptionKey));
+        claims.put("f_name", userModel.getFirstName());
+        claims.put("l_name", userModel.getLastName());
+        // todo include pfp url in jwt
 
-        final String jwt = jwtUtil.createToken(claims, userDetails.getUsername());
+        final String jwt = jwtUtil.createToken(claims, userModel.getEmail());
         return new AuthenticationResponse(jwt);
     }
 

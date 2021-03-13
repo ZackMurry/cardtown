@@ -1,5 +1,4 @@
-import { parse } from 'cookie'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
 import DashboardNavbar from '../../../components/dash/DashboardNavbar'
 import theme from '../../../components/utils/theme'
@@ -34,7 +33,7 @@ const ViewCard: NextPage<Props> = ({
         width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
       <div
         style={{
           width: '50%',
@@ -83,10 +82,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
     }
   }
 
-  let jwt: string | null = null
-  if (req.headers?.cookie) {
-    jwt = parse(req.headers?.cookie)?.jwt
-  }
+  const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, `/cards/id/${id}`)
     return {

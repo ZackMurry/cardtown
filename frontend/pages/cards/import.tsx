@@ -1,22 +1,27 @@
 import { Button, TextField, Typography } from '@material-ui/core'
-import Cookie from 'js-cookie'
+import { GetServerSideProps } from 'next'
 import {
-  FC, FormEvent, useEffect, useMemo, useRef, useState
+  FC, FormEvent, useEffect, useRef, useState
 } from 'react'
 import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import BlackText from '../../components/utils/BlackText'
 import ErrorAlert from '../../components/utils/ErrorAlert'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
+import redirectToLogin from '../../components/utils/redirectToLogin'
 import SuccessAlert from '../../components/utils/SuccessAlert'
 import theme from '../../components/utils/theme'
 import styles from '../../styles/ImportCards.module.css'
 
 const IMPORT_SUCCESS_TEXT = 'Card successfully imported'
 
+interface Props {
+  jwt?: string
+}
+
 // this simply doesn't support exporting to draft-js, and it'd be hard to make it
 // if the user wants to edit a card, ig a warning will be shown and it will be imported to
 // draft-js as plain text
-const ImportCards: FC = () => {
+const ImportCards: FC<Props> = ({ jwt }) => {
   const { width } = useWindowSize(1920, 1080)
   const pasteInputRef = useRef(null)
   const [ pasteData, setPasteData ] = useState('')
@@ -26,8 +31,6 @@ const ImportCards: FC = () => {
   const [ bodyHtml, setBodyHtml ] = useState('')
 
   const [ feedbackText, setFeedbackText ] = useState('')
-
-  const jwt = useMemo(() => Cookie.get('jwt'), [ ])
 
   useEffect(() => {
     const processPaste = (elem, pastedData) => {
@@ -143,7 +146,7 @@ const ImportCards: FC = () => {
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
           <div>
@@ -301,3 +304,18 @@ const ImportCards: FC = () => {
 }
 
 export default ImportCards
+
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
+  const { jwt } = req.cookies
+  if (!jwt) {
+    redirectToLogin(res, '/cards/import')
+    return {
+      props: {}
+    }
+  }
+  return {
+    props: {
+      jwt
+    }
+  }
+}

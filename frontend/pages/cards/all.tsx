@@ -19,7 +19,7 @@ interface Props {
 }
 
 // todo sorting
-const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
+const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
   const [ cards, setCards ] = useState(initialCards)
   const { width } = useWindowSize(1920, 1080)
 
@@ -32,7 +32,7 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
 
         <Typography

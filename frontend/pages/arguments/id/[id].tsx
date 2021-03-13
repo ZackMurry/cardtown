@@ -1,5 +1,4 @@
 import { Typography } from '@material-ui/core'
-import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
@@ -188,10 +187,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
     }
   }
 
-  let jwt: string | null = null
-  if (req.headers?.cookie) {
-    jwt = parse(req.headers?.cookie)?.jwt
-  }
+  const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, `/cards/id/${id}`)
     return {

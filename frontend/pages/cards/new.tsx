@@ -19,8 +19,14 @@ import theme from '../../components/utils/theme'
 import initializeDraftContentState from '../../components/cards/initializeDraftEditorState'
 import draftExportHtmlOptions from '../../components/cards/draftExportHtmlOptions'
 import ErrorAlert from '../../components/utils/ErrorAlert'
+import { GetServerSideProps } from 'next'
+import redirectToLogin from '../../components/utils/redirectToLogin'
 
-const NewCard: FC = () => {
+interface Props {
+  jwt?: string
+}
+
+const NewCard: FC<Props> = ({ jwt }) => {
   const { width } = useWindowSize(1920, 1080)
 
   const [ tag, setTag ] = useState('')
@@ -29,7 +35,6 @@ const NewCard: FC = () => {
   const [ bodyState, setBodyState ] = useState(initializeDraftContentState)
   const [ errorText, setErrorText ] = useState('')
 
-  const jwt = useMemo(() => Cookie.get('jwt'), [])
   const router = useRouter()
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -98,7 +103,7 @@ const NewCard: FC = () => {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
 
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '0 auto', padding: '6vh 0' }}>
@@ -232,3 +237,18 @@ const NewCard: FC = () => {
 }
 
 export default NewCard
+
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
+  const { jwt } = req.cookies
+  if (!jwt) {
+    redirectToLogin(res, '/cards/new')
+    return {
+      props: {}
+    }
+  }
+  return {
+    props: {
+      jwt
+    }
+  }
+}

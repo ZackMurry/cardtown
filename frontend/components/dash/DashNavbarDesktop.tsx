@@ -1,13 +1,10 @@
 import Link from 'next/link'
-import { Box, Heading, IconButton, Text } from '@chakra-ui/react'
+import { Avatar, Box, IconButton, Text } from '@chakra-ui/react'
 import { FC, useState } from 'react'
-import theme from '../utils/theme'
-import PageName from '../types/PageName'
 import { AddIcon, BellIcon } from '@chakra-ui/icons'
-
-interface Props {
-  pageName: PageName
-}
+import PageName from '../types/PageName'
+import JwtBody from '../types/JwtBody'
+import DashNavbarDesktopAvatar from './DashNavbarDesktopAvatar'
 
 const PageTitleDisplay: FC<{ href: string, title: string }> = ({ href, title }) => {
   const [ mouseOver, setMouseOver ] = useState(false)
@@ -29,7 +26,12 @@ const PageTitleDisplay: FC<{ href: string, title: string }> = ({ href, title }) 
   )
 }
 
-const DashNavbarDesktop: FC<Props> = ({ pageName }) => (
+interface Props {
+  pageName: PageName
+  jwt: JwtBody
+}
+
+const DashNavbarDesktop: FC<Props> = ({ pageName, jwt }) => (
   <header
     style={{
       display: 'flex',
@@ -57,7 +59,7 @@ const DashNavbarDesktop: FC<Props> = ({ pageName }) => (
         icon={<AddIcon color='darkGray' />}
         bg='transparent'
       />
-      {/* todo profile pic here with account settings popover */}
+      <DashNavbarDesktopAvatar jwt={jwt} />
     </Box>
   </header>
 )

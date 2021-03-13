@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { Grid, IconButton, Typography } from '@material-ui/core'
-import { parse } from 'cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { useState } from 'react'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
@@ -63,7 +62,7 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) =>
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' jwt={jwt} />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
 
         <Typography
@@ -204,10 +203,7 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) =>
 export default AllArguments
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
-  let jwt: string | null
-  if (req.headers?.cookie) {
-    jwt = parse(req.headers?.cookie)?.jwt
-  }
+  const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/arguments/all')
     return {
