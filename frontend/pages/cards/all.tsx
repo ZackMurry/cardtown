@@ -1,4 +1,3 @@
-import { parse } from 'cookie'
 import { useState } from 'react'
 import { Grid, Tooltip, Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
@@ -159,10 +158,7 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
 export default AllCards
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
-  let jwt
-  if (req.headers?.cookie) {
-    jwt = parse(req.headers?.cookie)?.jwt
-  }
+  const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/cards/all')
     return {
@@ -172,7 +168,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
 
   const dev = process.env.NODE_ENV !== 'production'
   const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + '/api/v1/cards', {
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
+    headers: { 'Authorization': `Bearer ${jwt}` }
   })
   let cards: CardPreview[] | null = null
   let errorText: string | null = null

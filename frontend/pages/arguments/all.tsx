@@ -21,7 +21,7 @@ interface Props {
 
 type Sort = { by: 'none' | 'name' | 'cards', ascending: boolean }
 
-const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) => {
+const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText, jwt }) => {
   const [ args, setArgs ] = useState(initialArgs)
   const [ sort, setSort ] = useState<Sort>({ by: 'none', ascending: false })
   const { width } = useWindowSize(1920, 1080)

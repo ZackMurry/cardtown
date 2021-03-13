@@ -19,7 +19,7 @@ const DashNavbarDesktopAvatar: FC<Props> = ({ jwt }) => (
       />
     </MenuButton>
     <MenuList>
-      <Box padding='0.4rem 0.8rem' isFocusable={false}>
+      <Box padding='0.4rem 0.8rem'>
         <Text fontSize={14} paddingBottom='0.4rem' fontWeight='light'>
           Signed in as
           <span style={{ fontWeight: 'normal' }}>

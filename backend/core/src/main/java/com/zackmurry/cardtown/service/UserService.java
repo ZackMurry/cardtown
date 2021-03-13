@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -129,7 +127,7 @@ public class UserService implements UserDetailsService {
         final UserModel userModel = new UserModel(user, encryptedSecretKey, null);
         userDao.createAccount(userModel);
 
-        return createAuthenticationToken(userModel.getEmail(), userModel.getPassword());
+        return new AuthenticationResponse(buildJwtForUser(userModel, encryptionKey));
     }
 
     /**
@@ -251,15 +249,16 @@ public class UserService implements UserDetailsService {
         final byte[] encryptionKey = encryptionUtils.getSHA256Hash(password.getBytes(StandardCharsets.UTF_8));
 
         final UserModel userModel = getUserModelByEmail(email, encryptionKey).orElseThrow(InternalServerException::new);
-        final Map<String, Object> claims = new HashMap<>();
+        return new AuthenticationResponse(buildJwtForUser(userModel, encryptionKey));
+    }
 
+    public String buildJwtForUser(@NonNull UserModel userModel, @NonNull byte[] encryptionKey) {
+        final Map<String, Object> claims = new HashMap<>();
         claims.put("ek", Base64.encodeBase64String(encryptionKey));
         claims.put("f_name", userModel.getFirstName());
         claims.put("l_name", userModel.getLastName());
         // todo include pfp url in jwt
-
-        final String jwt = jwtUtil.createToken(claims, userModel.getEmail());
-        return new AuthenticationResponse(jwt);
+        return jwtUtil.createToken(claims, userModel.getEmail());
     }
 
     /**

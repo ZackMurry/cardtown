@@ -4,7 +4,6 @@ import {
 } from '@chakra-ui/react'
 import { convertToRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
-import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
 import {
   FC, FormEvent, useMemo, useState

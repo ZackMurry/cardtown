@@ -66,7 +66,7 @@ const ViewArgument: NextPage<Props> = ({
       width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
     }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' jwt={jwt} />
       {
         argument && (
           <div

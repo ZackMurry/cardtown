@@ -1,7 +1,4 @@
 import { GetServerSideProps, NextPage } from 'next'
-import {
-  Grid, GridItem, Heading, Text
-} from '@chakra-ui/react'
 import DashboardNavbar from '../../components/dash/DashboardNavbar'
 import useWindowSize from '../../components/utils/hooks/useWindowSize'
 import redirectToLogin from '../../components/utils/redirectToLogin'
