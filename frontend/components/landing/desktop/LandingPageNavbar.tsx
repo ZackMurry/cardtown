@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { FC } from 'react'
 import { Heading, Button } from '@chakra-ui/react'
-import theme from '../../utils/theme'
+import theme from 'lib/theme'
 
 const LandingPageNavbar: FC = () => (
   <>

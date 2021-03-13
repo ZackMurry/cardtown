@@ -1,9 +1,9 @@
 import { FC, useMemo } from 'react'
-import theme from '../utils/theme'
+import theme from 'lib/theme'
+import PageName from 'types/PageName'
+import parseJwt from 'lib/parseJwt'
 import DashNavbarMobile from './DashNavbarMobile'
 import DashNavbarDesktop from './DashNavbarDesktop'
-import PageName from '../types/PageName'
-import parseJwt from '../utils/parseJwt'
 
 interface Props {
   pageName: PageName

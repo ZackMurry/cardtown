@@ -2,10 +2,10 @@ import { useRouter } from 'next/router'
 import { FC, useState } from 'react'
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
 import { Draggable, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd'
-import ArgumentCardOptionsButton from '../arguments/ArgumentCardOptionsButton'
-import ResponseCard from '../types/ResponseCard'
-import BlackText from '../utils/BlackText'
-import EditCard from '../cards/EditCard'
+import ResponseCard from 'types/ResponseCard'
+import BlackText from 'lib/BlackText'
+import EditCard from 'components/cards/EditCard'
+import ArgumentCardOptionsButton from './ArgumentCardOptionsButton'
 
 interface Props {
   card: ResponseCard

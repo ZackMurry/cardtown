@@ -3,14 +3,14 @@ import { GetServerSideProps } from 'next'
 import {
   FC, FormEvent, useEffect, useRef, useState
 } from 'react'
-import DashboardNavbar from '../../components/dash/DashboardNavbar'
-import BlackText from '../../components/utils/BlackText'
-import ErrorAlert from '../../components/utils/ErrorAlert'
-import useWindowSize from '../../components/utils/hooks/useWindowSize'
-import redirectToLogin from '../../components/utils/redirectToLogin'
-import SuccessAlert from '../../components/utils/SuccessAlert'
-import theme from '../../components/utils/theme'
-import styles from '../../styles/ImportCards.module.css'
+import DashboardNavbar from 'components/dash/DashboardNavbar'
+import BlackText from 'lib/BlackText'
+import ErrorAlert from 'lib/ErrorAlert'
+import useWindowSize from 'lib/hooks/useWindowSize'
+import redirectToLogin from 'lib/redirectToLogin'
+import SuccessAlert from 'lib/SuccessAlert'
+import theme from 'lib/theme'
+import styles from 'styles/ImportCards.module.css'
 
 const IMPORT_SUCCESS_TEXT = 'Card successfully imported'
 

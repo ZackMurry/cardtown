@@ -5,16 +5,16 @@ import { useState } from 'react'
 import {
   DragDropContext, Droppable, DroppableProvided, DropResult
 } from 'react-beautiful-dnd'
-import AddCardToArgumentButton from '../../../components/arguments/AddCardToArgumentButton'
-import ArgumentCardDisplay from '../../../components/arguments/ArgumentCardDisplay'
-import ArgumentName from '../../../components/arguments/ArgumentName'
-import DeleteArgumentButton from '../../../components/arguments/DeleteArgumentButton'
-import DashboardNavbar from '../../../components/dash/DashboardNavbar'
-import ResponseArgument from '../../../components/types/ResponseArgument'
-import ErrorAlert from '../../../components/utils/ErrorAlert'
-import useWindowSize from '../../../components/utils/hooks/useWindowSize'
-import redirectToLogin from '../../../components/utils/redirectToLogin'
-import theme from '../../../components/utils/theme'
+import AddCardToArgumentButton from 'components/arguments/AddCardToArgumentButton'
+import ArgumentCardDisplay from 'components/arguments/ArgumentCardDisplay'
+import ArgumentName from 'components/arguments/ArgumentName'
+import DeleteArgumentButton from 'components/arguments/DeleteArgumentButton'
+import DashboardNavbar from 'components/dash/DashboardNavbar'
+import ResponseArgument from 'types/ResponseArgument'
+import ErrorAlert from 'lib/ErrorAlert'
+import useWindowSize from 'lib/hooks/useWindowSize'
+import redirectToLogin from 'lib/redirectToLogin'
+import theme from 'lib/theme'
 
 interface Props {
   id?: string

@@ -3,7 +3,7 @@ import { FC, FormEvent, useState } from 'react'
 import EditIcon from '@material-ui/icons/Edit'
 import DoneIcon from '@material-ui/icons/Done'
 import CloseIcon from '@material-ui/icons/Close'
-import BlackText from '../utils/BlackText'
+import BlackText from 'lib/BlackText'
 
 interface Props {
   jwt: string

@@ -1,9 +1,9 @@
 import Head from 'next/head'
 import { FC } from 'react'
-import theme from '../components/utils/theme'
-import useWindowSize from '../components/utils/hooks/useWindowSize'
-import LandingPageMobile from '../components/landing/mobile/LandingPageMobile'
-import LandingPageDesktop from '../components/landing/desktop/LandingPageDesktop'
+import theme from 'lib/theme'
+import useWindowSize from 'lib/hooks/useWindowSize'
+import LandingPageMobile from 'components/landing/mobile/LandingPageMobile'
+import LandingPageDesktop from 'components/landing/desktop/LandingPageDesktop'
 
 // todo: switch to chakra-ui
 const Home: FC = () => {

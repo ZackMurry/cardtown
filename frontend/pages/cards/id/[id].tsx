@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
-import DashboardNavbar from '../../../components/dash/DashboardNavbar'
-import theme from '../../../components/utils/theme'
-import useWindowSize from '../../../components/utils/hooks/useWindowSize'
-import ErrorAlert from '../../../components/utils/ErrorAlert'
-import redirectToLogin from '../../../components/utils/redirectToLogin'
-import ResponseCard from '../../../components/types/ResponseCard'
-import CardDisplay from '../../../components/cards/CardDisplay'
-import ArgumentWithCardModel from '../../../components/types/ArgumentWithCardModel'
-import CardArgumentsDisplay from '../../../components/cards/CardArgumentsDisplay'
+import DashboardNavbar from 'components/dash/DashboardNavbar'
+import theme from 'lib/theme'
+import useWindowSize from 'lib/hooks/useWindowSize'
+import ErrorAlert from 'lib/ErrorAlert'
+import redirectToLogin from 'lib/redirectToLogin'
+import ResponseCard from 'types/ResponseCard'
+import CardDisplay from 'components/cards/CardDisplay'
+import ArgumentWithCardModel from 'types/ArgumentWithCardModel'
+import CardArgumentsDisplay from 'components/cards/CardArgumentsDisplay'
 
 interface Props {
   id?: string

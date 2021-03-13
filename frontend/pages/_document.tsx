@@ -4,7 +4,7 @@ import Document, {
 } from 'next/document'
 import { ServerStyleSheets } from '@material-ui/core/styles'
 import { resetServerContext } from 'react-beautiful-dnd'
-import theme from '../components/utils/theme'
+import theme from 'lib/theme'
 
 export default class MyDocument extends Document {
   render(): React.ReactElement {

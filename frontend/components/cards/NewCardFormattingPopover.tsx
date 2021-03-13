@@ -1,7 +1,7 @@
 import { Popover, Typography } from '@material-ui/core'
 import { FC, useState } from 'react'
-import BlackText from '../utils/BlackText'
-import theme from '../utils/theme'
+import BlackText from 'lib/BlackText'
+import theme from 'lib/theme'
 
 // todo make this look a bit better
 const NewCardFormattingPopover: FC = () => {

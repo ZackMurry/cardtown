@@ -3,7 +3,7 @@ import {
 } from '@chakra-ui/react'
 import { FC, useState, FormEvent } from 'react'
 import { useRouter } from 'next/router'
-import theme from '../../utils/theme'
+import theme from 'lib/theme'
 
 const LandingPageJoinBeta: FC = () => {
   const [ email, setEmail ] = useState('')

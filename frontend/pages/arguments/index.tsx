@@ -1,12 +1,12 @@
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
 import { Grid, Typography } from '@material-ui/core'
-import redirectToLogin from '../../components/utils/redirectToLogin'
-import useWindowSize from '../../components/utils/hooks/useWindowSize'
-import DashboardNavbar from '../../components/dash/DashboardNavbar'
-import theme from '../../components/utils/theme'
-import BlackText from '../../components/utils/BlackText'
-import NewArgument from '../../components/arguments/NewArgument'
+import redirectToLogin from 'lib/redirectToLogin'
+import useWindowSize from 'lib/hooks/useWindowSize'
+import DashboardNavbar from 'components/dash/DashboardNavbar'
+import theme from 'lib/theme'
+import BlackText from 'lib/BlackText'
+import NewArgument from 'components/arguments/NewArgument'
 
 interface Props {
   jwt?: string

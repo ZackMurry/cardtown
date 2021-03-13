@@ -6,8 +6,8 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { useRouter } from 'next/router'
 import DeleteIcon from '@material-ui/icons/Delete'
 import { FC, useState } from 'react'
-import ErrorAlert from '../utils/ErrorAlert'
-import styles from '../../styles/ViewCard.module.css'
+import ErrorAlert from 'lib/ErrorAlert'
+import styles from 'styles/ViewCard.module.css'
 
 interface Props {
   id: string

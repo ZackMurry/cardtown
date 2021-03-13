@@ -2,10 +2,10 @@ import { Collapse, IconButton, Typography } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 import Link from 'next/link'
 import { FC, useState } from 'react'
-import BlackText from '../utils/BlackText'
-import theme from '../utils/theme'
-import PageName from '../types/PageName'
-import JwtBody from '../types/JwtBody'
+import BlackText from 'lib/BlackText'
+import theme from 'lib/theme'
+import PageName from 'types/PageName'
+import JwtBody from 'types/JwtBody'
 
 interface Props {
   pageName: PageName

@@ -3,10 +3,10 @@ import AddIcon from '@material-ui/icons/Add'
 import CloseIcon from '@material-ui/icons/Close'
 import { Grid, IconButton } from '@material-ui/core'
 import { useRouter } from 'next/router'
-import theme from '../utils/theme'
-import BlackText from '../utils/BlackText'
-import CardSearchMenu from '../cards/CardSearchMenu'
-import CardPreview from '../types/CardPreview'
+import theme from 'lib/theme'
+import BlackText from 'lib/BlackText'
+import CardSearchMenu from 'components/cards/CardSearchMenu'
+import CardPreview from 'types/CardPreview'
 
 interface Props {
   jwt: string

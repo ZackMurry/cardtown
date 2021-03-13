@@ -1,8 +1,8 @@
 import { GetServerSideProps, NextPage } from 'next'
-import DashboardNavbar from '../../components/dash/DashboardNavbar'
-import useWindowSize from '../../components/utils/hooks/useWindowSize'
-import redirectToLogin from '../../components/utils/redirectToLogin'
-import ErrorAlert from '../../components/utils/ErrorAlert'
+import DashboardNavbar from 'components/dash/DashboardNavbar'
+import useWindowSize from 'lib/hooks/useWindowSize'
+import redirectToLogin from 'lib/redirectToLogin'
+import ErrorAlert from 'lib/ErrorAlert'
 
 interface Props {
   jwt?: string
@@ -26,7 +26,7 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
 export default Cards
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
-  const jwt = req.cookies.jwt
+  const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/cards')
     return {

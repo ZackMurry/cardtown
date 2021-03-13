@@ -4,11 +4,11 @@ import { stateToHTML } from 'draft-js-export-html'
 import { IconButton, Tooltip } from '@material-ui/core'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 import React, { FC, useState } from 'react'
-import theme from '../utils/theme'
+import ResponseCard from 'types/ResponseCard'
+import ErrorAlert from 'lib/ErrorAlert'
+import theme from 'lib/theme'
 import CardBodyEditor from './CardBodyEditor'
 import draftExportHtmlOptions from './draftExportHtmlOptions'
-import ResponseCard from '../types/ResponseCard'
-import ErrorAlert from '../utils/ErrorAlert'
 
 interface Props {
   jwt: string

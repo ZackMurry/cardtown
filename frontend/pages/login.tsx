@@ -1,5 +1,5 @@
 import {
-  Heading, Input, InputGroup, InputRightElement, Text, IconButton, Icon, Button
+  Heading, Input, InputGroup, InputRightElement, Text, IconButton, Button
 } from '@chakra-ui/react'
 import { GetServerSideProps, NextPage } from 'next'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
@@ -7,8 +7,8 @@ import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Cookie from 'js-cookie'
-import ErrorAlert from '../components/utils/ErrorAlert'
-import theme from '../components/utils/theme'
+import ErrorAlert from 'lib/ErrorAlert'
+import theme from 'lib/theme'
 
 interface Props {
   redirect?: string

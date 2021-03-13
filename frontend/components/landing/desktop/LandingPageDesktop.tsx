@@ -1,5 +1,5 @@
 import { FC, useRef } from 'react'
-import LandingPageSquares from '../LandingPageSquares'
+import LandingPageSquares from 'components/landing/LandingPageSquares'
 import LandingPageHero from './LandingPageHero'
 import LandingPageNavbar from './LandingPageNavbar'
 

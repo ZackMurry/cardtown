@@ -3,13 +3,13 @@ import { Grid, Tooltip, Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
 import DashboardNavbar from '../../components/dash/DashboardNavbar'
-import theme from '../../components/utils/theme'
-import useWindowSize from '../../components/utils/hooks/useWindowSize'
-import BlackText from '../../components/utils/BlackText'
-import ErrorAlert from '../../components/utils/ErrorAlert'
-import redirectToLogin from '../../components/utils/redirectToLogin'
+import theme from '../../lib/theme'
+import useWindowSize from '../../lib/hooks/useWindowSize'
+import BlackText from '../../lib/BlackText'
+import ErrorAlert from '../../lib/ErrorAlert'
+import redirectToLogin from '../../lib/redirectToLogin'
 import SearchCards from '../../components/cards/SearchCards'
-import CardPreview from '../../components/types/CardPreview'
+import CardPreview from '../../types/CardPreview'
 
 interface Props {
   jwt?: string
@@ -175,7 +175,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   if (response.ok) {
     cards = await response.json()
   } else if (response.status === 500) {
-    errorText = 'There was a server error. Please try again in a few minutes'
+    errorText = 'There was a server error. Please try again'
   } else if (response.status === 406) {
     errorText = 'Account not found. This is likely a bug and has been reported as such. Please try again'
   } else {

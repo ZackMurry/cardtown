@@ -2,7 +2,7 @@ import { FC } from 'react'
 import { Heading } from '@chakra-ui/react'
 import Link from 'next/link'
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
-import theme from '../utils/theme'
+import theme from 'lib/theme'
 
 const ImportCard: FC = () => (
   <>

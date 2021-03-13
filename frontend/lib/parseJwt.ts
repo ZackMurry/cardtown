@@ -1,6 +1,6 @@
 import jwtDecode from 'jwt-decode'
 import Cookie from 'js-cookie'
-import JwtBody from '../types/JwtBody'
+import JwtBody from 'types/JwtBody'
 
 interface RawJwt {
   ek: string

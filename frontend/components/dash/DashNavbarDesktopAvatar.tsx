@@ -1,8 +1,8 @@
-import { Avatar } from '@chakra-ui/avatar'
-import { Box, Divider, Text } from '@chakra-ui/layout'
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react'
+import {
+  Menu, MenuButton, MenuItem, MenuList, Box, Divider, Text, Avatar
+} from '@chakra-ui/react'
 import { FC } from 'react'
-import JwtBody from '../types/JwtBody'
+import JwtBody from 'types/JwtBody'
 
 interface Props {
   jwt: JwtBody

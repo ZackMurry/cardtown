@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react'
-import CardPreview from '../types/CardPreview'
-import theme from '../utils/theme'
+import CardPreview from 'types/CardPreview'
+import theme from 'lib/theme'
 import CardHeaderPreview from './CardHeaderPreview'
 import SearchCards from './SearchCards'
 

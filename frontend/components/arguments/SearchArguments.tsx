@@ -2,7 +2,7 @@ import { IconButton, TextField } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import ClearIcon from '@material-ui/icons/Clear'
 import { FC, useState } from 'react'
-import ArgumentPreview from '../types/ArgumentPreview'
+import ArgumentPreview from 'types/ArgumentPreview'
 
 interface Props {
   args: ArgumentPreview[]

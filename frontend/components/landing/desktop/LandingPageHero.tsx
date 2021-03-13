@@ -2,7 +2,7 @@ import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Heading, Text, IconButton } from '@chakra-ui/react'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { FC, MutableRefObject } from 'react'
-import theme from '../../utils/theme'
+import theme from 'lib/theme'
 import LandingPageJoinBeta from './LandingPageJoinBeta'
 
 interface Props {

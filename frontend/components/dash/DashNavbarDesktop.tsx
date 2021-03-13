@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import { Avatar, Box, IconButton, Text } from '@chakra-ui/react'
+import { Box, IconButton, Text } from '@chakra-ui/react'
 import { FC, useState } from 'react'
 import { AddIcon, BellIcon } from '@chakra-ui/icons'
-import PageName from '../types/PageName'
-import JwtBody from '../types/JwtBody'
+import PageName from 'types/PageName'
+import JwtBody from 'types/JwtBody'
 import DashNavbarDesktopAvatar from './DashNavbarDesktopAvatar'
 
 const PageTitleDisplay: FC<{ href: string, title: string }> = ({ href, title }) => {

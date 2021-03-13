@@ -1,7 +1,7 @@
 import { Heading } from '@chakra-ui/react'
 import Link from 'next/link'
 import { FC } from 'react'
-import theme from '../utils/theme'
+import theme from 'lib/theme'
 
 interface Props {
   count: number

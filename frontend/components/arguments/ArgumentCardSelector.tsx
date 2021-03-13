@@ -1,9 +1,9 @@
 import { Grid, Tooltip, Typography } from '@material-ui/core'
 import { FC, useEffect, useState } from 'react'
-import SearchCards from '../cards/SearchCards'
-import CardPreview from '../types/CardPreview'
-import BlackText from '../utils/BlackText'
-import theme from '../utils/theme'
+import SearchCards from 'components/cards/SearchCards'
+import CardPreview from 'types/CardPreview'
+import BlackText from 'lib/BlackText'
+import theme from 'lib/theme'
 
 interface Props {
   cardsInArgument: CardPreview[],

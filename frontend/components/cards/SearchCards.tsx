@@ -2,7 +2,7 @@ import { IconButton, TextField } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import ClearIcon from '@material-ui/icons/Clear'
 import { FC, useState } from 'react'
-import CardPreview from '../types/CardPreview'
+import CardPreview from 'types/CardPreview'
 
 interface Props {
   cards: CardPreview[]

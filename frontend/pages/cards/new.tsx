@@ -6,20 +6,20 @@ import { convertToRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 import { useRouter } from 'next/router'
 import {
-  FC, FormEvent, useMemo, useState
+  FC, FormEvent, useState
 } from 'react'
-import mapStyleToReadable from '../../components/cards/mapStyleToReadable'
-import CardBodyEditor from '../../components/cards/CardBodyEditor'
-import NewCardFormattingPopover from '../../components/cards/NewCardFormattingPopover'
-import DashboardNavbar from '../../components/dash/DashboardNavbar'
-import BlackText from '../../components/utils/BlackText'
-import useWindowSize from '../../components/utils/hooks/useWindowSize'
-import theme from '../../components/utils/theme'
-import initializeDraftContentState from '../../components/cards/initializeDraftEditorState'
-import draftExportHtmlOptions from '../../components/cards/draftExportHtmlOptions'
-import ErrorAlert from '../../components/utils/ErrorAlert'
 import { GetServerSideProps } from 'next'
-import redirectToLogin from '../../components/utils/redirectToLogin'
+import mapStyleToReadable from 'components/cards/mapStyleToReadable'
+import CardBodyEditor from 'components/cards/CardBodyEditor'
+import NewCardFormattingPopover from 'components/cards/NewCardFormattingPopover'
+import DashboardNavbar from 'components/dash/DashboardNavbar'
+import BlackText from 'lib/BlackText'
+import useWindowSize from 'lib/hooks/useWindowSize'
+import theme from 'lib/theme'
+import initializeDraftContentState from 'components/cards/initializeDraftEditorState'
+import draftExportHtmlOptions from 'components/cards/draftExportHtmlOptions'
+import ErrorAlert from 'lib/ErrorAlert'
+import redirectToLogin from 'lib/redirectToLogin'
 
 interface Props {
   jwt?: string

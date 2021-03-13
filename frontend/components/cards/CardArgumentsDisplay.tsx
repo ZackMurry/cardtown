@@ -1,9 +1,9 @@
 import { Grid, Typography } from '@material-ui/core'
 import Link from 'next/link'
 import { FC } from 'react'
-import ArgumentWithCardModel from '../types/ArgumentWithCardModel'
-import BlackText from '../utils/BlackText'
-import theme from '../utils/theme'
+import ArgumentWithCardModel from 'types/ArgumentWithCardModel'
+import BlackText from 'lib/BlackText'
+import theme from 'lib/theme'
 
 interface Props {
   relatedArguments: ArgumentWithCardModel[]

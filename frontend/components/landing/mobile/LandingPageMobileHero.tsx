@@ -3,7 +3,7 @@ import {
 } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import { FC, MutableRefObject } from 'react'
-import theme from '../../utils/theme'
+import theme from 'lib/theme'
 import LandingPageJoinBetaMobile from './LandingPageJoinBetaMobile'
 
 interface Props {

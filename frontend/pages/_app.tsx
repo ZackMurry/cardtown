@@ -3,9 +3,9 @@ import Head from 'next/head'
 import { ThemeProvider } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { ChakraProvider } from '@chakra-ui/react'
-import theme from '../components/utils/theme'
-import chakraTheme from '../components/utils/chakraTheme'
-import '../styles/globals.css' //todo move some styles into .module.css files
+import theme from 'lib/theme'
+import chakraTheme from 'lib/chakraTheme'
+import 'styles/globals.css' //todo move some styles into .module.css files
 
 interface Props {
   Component: React.ComponentType

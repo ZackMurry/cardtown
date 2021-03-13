@@ -2,7 +2,7 @@ import { Typography } from '@material-ui/core'
 import AddRoundedIcon from '@material-ui/icons/AddRounded'
 import Link from 'next/link'
 import { FC } from 'react'
-import theme from '../utils/theme'
+import theme from 'lib/theme'
 
 const NewArgument: FC = () => (
   <>
