@@ -24,46 +24,6 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
   return (
     <div style={{ width: '100%' }}>
       <DashboardNavbar windowWidth={width} pageName='Cards' />
-      <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
-        <Grid gap={4} templateColumns='repeat(6, 1fr)'>
-          <GridItem
-            borderRadius={10}
-            backgroundColor='white'
-            border={`1px solid ${theme.palette.lightGrey.main}`}
-            minHeight='7.5vh'
-            display='flex'
-            padding={5}
-            alignItems='center'
-          >
-            <CardCount count={cardCount} />
-          </GridItem>
-
-          <GridItem
-            borderRadius={10}
-            backgroundColor='white'
-            border={`1px solid ${theme.palette.lightGrey.main}`}
-            minHeight='7.5vh'
-            display='flex'
-            padding={5}
-            alignItems='center'
-          >
-            <NewCard />
-          </GridItem>
-
-          <GridItem
-            borderRadius={10}
-            backgroundColor='white'
-            border={`1px solid ${theme.palette.lightGrey.main}`}
-            minHeight='7.5vh'
-            display='flex'
-            padding={5}
-            alignItems='center'
-          >
-            <ImportCard />
-          </GridItem>
-
-        </Grid>
-      </div>
       {
         fetchErrorText && <ErrorAlert disableClose text={fetchErrorText} />
       }

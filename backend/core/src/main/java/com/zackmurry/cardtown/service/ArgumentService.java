@@ -15,6 +15,7 @@ import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardHeader;
 import com.zackmurry.cardtown.model.card.ResponseCard;
+import com.zackmurry.cardtown.model.team.TeamEntity;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.UUIDCompressor;
 import com.zackmurry.cardtown.util.UserSecretKeyHolder;
@@ -25,10 +26,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +45,9 @@ public class ArgumentService {
 
     @Autowired
     private CardService cardService;
+
+    @Autowired
+    private TeamService teamService;
 
     /**
      * Creates an argument with the specified information, with the owner id as the current principal
@@ -109,8 +110,7 @@ public class ArgumentService {
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
-        if (!argumentEntity.getOwnerId().equals(userId)) {
-            // todo sharing
+        if (!teamService.usersInSameTeam(argumentEntity.getOwnerId(), userId)) {
             throw new ForbiddenException();
         }
         try {
@@ -126,7 +126,7 @@ public class ArgumentService {
         final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentEntity.getId());
         final List<ResponseCard> responseCards = cardService.getResponseCardsByIds(
                 argumentCardEntities.stream()
-                        .map(ArgumentCardEntity::getCardId) // get card  id
+                        .map(ArgumentCardEntity::getCardId)
                         .collect(Collectors.toList())
         );
         return ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner), responseCards);
@@ -148,14 +148,14 @@ public class ArgumentService {
             throw new CardNotFoundException();
         }
         final UUID principalId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        if (!cardEntity.getOwnerId().equals(principalId)) {
+        if (!teamService.usersInSameTeam(cardEntity.getOwnerId(), principalId)) {
             throw new ForbiddenException();
         }
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
-        if (!argumentEntity.getOwnerId().equals(principalId)) {
+        if (!teamService.usersInSameTeam(argumentEntity.getOwnerId(), principalId)) {
             throw new ForbiddenException();
         }
         argumentDao.addCardToArgument(argumentId, cardId, index);
@@ -172,6 +172,52 @@ public class ArgumentService {
         addCardToArgument(decompressedArgId, decompressedCardId);
     }
 
+    public List<ArgumentPreview> listArgumentsByTeam(@NonNull UUID teamId) {
+        final List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByTeam(teamId);
+        final List<ArgumentPreview> argumentPreviews = new ArrayList<>();
+        final byte[] teamSecretKey = UserSecretKeyHolder.getSecretKey();
+        final Map<UUID, ResponseUserDetails> userDetailsMap = new HashMap<>();
+        for (ArgumentEntity argumentEntity : argumentEntities) {
+            try {
+                argumentEntity.decryptFields(teamSecretKey);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new InternalServerException();
+            }
+
+            final List<CardEntity> cardEntities = getCardsInArgument(argumentEntity.getId());
+            final List<CardHeader> cardHeaders = new ArrayList<>();
+            for (CardEntity cardEntity : cardEntities) {
+                final ResponseUserDetails cardOwnerDetails;
+                if (userDetailsMap.containsKey(cardEntity.getOwnerId())) {
+                    cardOwnerDetails = userDetailsMap.get(cardEntity.getOwnerId());
+                } else {
+                    cardOwnerDetails = userService.getResponseUserDetailsById(cardEntity.getOwnerId()).orElseThrow(InternalServerException::new);
+                    userDetailsMap.put(cardEntity.getOwnerId(), cardOwnerDetails);
+                }
+                final ResponseCard responseCard = ResponseCard.fromCard(cardEntity, cardOwnerDetails);
+                final CardHeader cardHeader = CardHeader.of(responseCard);
+                try {
+                    cardHeader.decryptFields(teamSecretKey);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new InternalServerException();
+                }
+                cardHeaders.add(cardHeader);
+            }
+            final ResponseUserDetails argumentOwnerDetails;
+            if (userDetailsMap.containsKey(argumentEntity.getOwnerId())) {
+                argumentOwnerDetails = userDetailsMap.get(argumentEntity.getOwnerId());
+            } else {
+                argumentOwnerDetails = userService.getResponseUserDetailsById(argumentEntity.getOwnerId()).orElseThrow(InternalServerException::new);
+                userDetailsMap.put(argumentEntity.getOwnerId(), argumentOwnerDetails);
+            }
+            final ArgumentPreview argumentPreview = ArgumentPreview.of(argumentEntity, argumentOwnerDetails, cardHeaders);
+            argumentPreviews.add(argumentPreview);
+        }
+        return argumentPreviews;
+    }
+
     /**
      * Retrieves all arguments that the user has access to. Only retrieves previews for them
      *
@@ -181,16 +227,22 @@ public class ArgumentService {
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
     public List<ArgumentPreview> listArgumentsByUser() {
+        // todo add unit tests
+        final Optional<UUID> teamId = teamService.getTeamOfUser().map(TeamEntity::getId);
+        // Delegate to listArgumentsByTeam if part of team
+        if (teamId.isPresent()) {
+            return listArgumentsByTeam(teamId.get());
+        }
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
         final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
         final List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByUser(userId);
         final List<ArgumentPreview> argumentPreviews = new ArrayList<>();
+        final ResponseUserDetails responseUserDetails = userService.getResponseUserDetailsById(userId).orElseThrow(InternalServerException::new);
         for (ArgumentEntity argumentEntity : argumentEntities) {
             try {
                 argumentEntity.decryptFields(secretKey);
             } catch (Exception e) {
-                // probably something wrong with the card
                 e.printStackTrace();
                 throw new InternalServerException();
             }
@@ -198,13 +250,7 @@ public class ArgumentService {
             final List<CardEntity> cardEntities = getCardsInArgument(argumentEntity.getId());
             final List<CardHeader> cardHeaders = new ArrayList<>();
             for (CardEntity cardEntity : cardEntities) {
-                // todo greedily fetch ResponseUserDetails when sharing is implemented
-                final ResponseUserDetails responseUserDetails = userService.getResponseUserDetailsById(cardEntity.getOwnerId()).orElse(null);
-                if (responseUserDetails == null) {
-                    throw new InternalServerException();
-                }
                 final ResponseCard responseCard = ResponseCard.fromCard(cardEntity, responseUserDetails);
-
                 final CardHeader cardHeader = CardHeader.of(responseCard);
                 try {
                     cardHeader.decryptFields(secretKey);
@@ -213,11 +259,6 @@ public class ArgumentService {
                     throw new InternalServerException();
                 }
                 cardHeaders.add(cardHeader);
-            }
-
-            final ResponseUserDetails responseUserDetails = userService.getResponseUserDetailsById(argumentEntity.getOwnerId()).orElse(null);
-            if (responseUserDetails == null) {
-                throw new InternalServerException();
             }
             final ArgumentPreview argumentPreview = ArgumentPreview.of(argumentEntity, responseUserDetails, cardHeaders);
             argumentPreviews.add(argumentPreview);
@@ -231,8 +272,12 @@ public class ArgumentService {
      * @return The number of arguments
      */
     public int getNumberOfArgumentsByUser() {
-        final UUID id = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        return argumentDao.getNumberOfArgumentsByUser(id);
+        final UUID userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final UUID teamId = teamService.getTeamOfUser().map(TeamEntity::getId).orElse(null);
+        if (teamId != null) {
+            return argumentDao.getNumberOfArgumentsByTeam(teamId);
+        }
+        return argumentDao.getNumberOfArgumentsByUser(userId);
     }
 
     /**
@@ -242,7 +287,7 @@ public class ArgumentService {
      * @param argumentId Id of argument to search
      * @return List of cards in argument
      */
-    public List<CardEntity> getCardsInArgument(UUID argumentId) {
+    private List<CardEntity> getCardsInArgument(UUID argumentId) {
         final List<ArgumentCardEntity> argumentCardEntities = argumentDao.getCardsByArgumentId(argumentId);
         final List<CardEntity> cardEntities = new ArrayList<>();
         for (ArgumentCardEntity argumentCardEntity : argumentCardEntities) {
@@ -266,15 +311,26 @@ public class ArgumentService {
      * @throws ForbiddenException        If the principal does not have permission to view/modify this argument
      */
     public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
+        checkAccessToArgument(argumentId);
+        argumentDao.removeCardFromArgument(argumentId, cardId, index);
+    }
+
+    /**
+     * Checks whether the principal has permission to access an argument
+     *
+     * @param argumentId Id of argument to check access to
+     * @throws ForbiddenException If the principal does not have access to the argument
+     * @throws ArgumentNotFoundException If the argument could not be found
+     */
+    private void checkAccessToArgument(@NonNull UUID argumentId) {
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
         final UUID userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        if (!argumentEntity.getOwnerId().equals(userId)) {
+        if (!teamService.usersInSameTeam(argumentEntity.getOwnerId(), userId)) {
             throw new ForbiddenException();
         }
-        argumentDao.removeCardFromArgument(argumentId, cardId, index);
     }
 
     /**
@@ -298,14 +354,7 @@ public class ArgumentService {
      */
     public void deleteArgument(@NonNull String argumentId) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
-        if (argumentEntity == null) {
-            throw new ArgumentNotFoundException();
-        }
-        final UUID userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        if (!argumentEntity.getOwnerId().equals(userId)) {
-            throw new ForbiddenException();
-        }
+        checkAccessToArgument(decompressedArgId);
         argumentDao.deleteArgument(decompressedArgId);
     }
 
@@ -325,17 +374,10 @@ public class ArgumentService {
             throw new BadRequestException();
         }
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
-        if (argumentEntity == null) {
-            throw new ArgumentNotFoundException();
-        }
-        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!argumentEntity.getOwnerId().equals(principal.getId())) {
-            throw new ForbiddenException();
-        }
-        String encryptedName;
+        checkAccessToArgument(decompressedArgId);
+        final String encryptedName;
         try {
-            encryptedName = EncryptionUtils.encryptStringAES(newName, principal.getSecretKey());
+            encryptedName = EncryptionUtils.encryptStringAES(newName, UserSecretKeyHolder.getSecretKey());
         } catch (Exception e) {
             e.printStackTrace();
             throw new InternalServerException();
@@ -357,16 +399,7 @@ public class ArgumentService {
      */
     public void updateCardPositions(@NonNull String argumentId, @NonNull Short newIndex, @NonNull Short oldIndex) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
-
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElse(null);
-        if (argumentEntity == null) {
-            throw new ArgumentNotFoundException();
-        }
-        final UUID userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-        if (!argumentEntity.getOwnerId().equals(userId)) {
-            throw new ForbiddenException();
-        }
-
+        checkAccessToArgument(decompressedArgId);
         final short argumentSize = argumentDao.getNumberOfCardsInArgument(decompressedArgId);
         if (newIndex >= argumentSize || oldIndex >= argumentSize || newIndex < 0 || oldIndex < 0) {
             throw new BadRequestException();
@@ -403,16 +436,18 @@ public class ArgumentService {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         final CardEntity cardEntity = cardService.getCardEntityById(decompressedCardId).orElseThrow(CardNotFoundException::new);
-        if (!cardEntity.getOwnerId().equals(principal.getId())) {
+        if (!teamService.usersInSameTeam(cardEntity.getOwnerId(), principal.getId())) {
             throw new ForbiddenException();
         }
+        // A user must have access to a card (meaning that they are in the same team as the owner) to add it to an argument, so there is no need
+        // to check for permission to access the argument
         final List<ArgumentCardJoinEntity> argumentCardJoinEntities = argumentDao.getArgumentCardJoinEntitiesByCardId(decompressedCardId);
         // todo use a HashMap for greedily getting user details once sharing is implemented
         final ResponseUserDetails ownerDetails = ResponseUserDetails.fromUser(principal);
         final List<ArgumentWithCardModel> argList = new ArrayList<>();
         for (ArgumentCardJoinEntity e : argumentCardJoinEntities) {
             try {
-                e.decryptFields(principal.getSecretKey());
+                e.decryptFields(UserSecretKeyHolder.getSecretKey());
             } catch (Exception exception) {
                 exception.printStackTrace();
                 throw new InternalServerException();

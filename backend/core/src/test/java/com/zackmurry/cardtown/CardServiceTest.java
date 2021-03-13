@@ -218,7 +218,6 @@ public class CardServiceTest {
         @DisplayName("Test team encryption")
         @Test
         public void testTeamEncryption() {
-            // todo have to add team tests for a lot of things :|
             for (int i = 0; i < 25; i++) {
                 // Create card as testUser
                 final CardCreateRequest cardCreateRequest = generateMockCard(testEmail);

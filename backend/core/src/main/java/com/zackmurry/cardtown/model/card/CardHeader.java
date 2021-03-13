@@ -18,7 +18,7 @@ public class CardHeader {
     private ResponseUserDetails owner;
     private String tag;
     private String cite;
-    private long timeCreatedAt;
+    private long timeCreatedAt; // todo maybe remove times from CardHeader
     private long lastModified;
 
     public static CardHeader of(ResponseCard responseCard) {

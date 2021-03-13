@@ -14,6 +14,7 @@ spring:
         username: ${CARDTOWN_ADMIN_USERNAME}
         password: ${CARDTOWN_ADMIN_PASSWORD}
         instance:
+          service-base-url: http://localhost:8080
           metadata:
             user:
               name: client # todo have these be environment variables

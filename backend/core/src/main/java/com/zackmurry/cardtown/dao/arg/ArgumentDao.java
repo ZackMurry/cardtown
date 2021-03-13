@@ -170,4 +170,8 @@ public interface ArgumentDao {
      */
     List<ArgumentCardJoinEntity> getArgumentCardJoinEntitiesByCardId(UUID cardId);
 
+    int getNumberOfArgumentsByTeam(UUID teamId);
+
+    List<ArgumentEntity> getArgumentsByTeam(UUID teamId);
+
 }

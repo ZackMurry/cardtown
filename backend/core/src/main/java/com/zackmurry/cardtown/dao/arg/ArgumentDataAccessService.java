@@ -360,5 +360,44 @@ public class ArgumentDataAccessService implements ArgumentDao {
         }
     }
 
+    @Override
+    public int getNumberOfArgumentsByTeam(@NonNull UUID teamId) {
+        final String sql = "SELECT COUNT(arguments.id) FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, teamId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new InternalServerException();
+    }
+
+    @Override
+    public List<ArgumentEntity> getArgumentsByTeam(@NonNull UUID teamId) {
+        final String sql = "SELECT id, name FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, teamId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ArgumentEntity> args = new ArrayList<>();
+            while (resultSet.next()) {
+                args.add(
+                        new ArgumentEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                teamId,
+                                resultSet.getString("name")
+                        )
+                );
+            }
+            return args;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
 
 }
