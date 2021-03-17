@@ -20,13 +20,15 @@ CREATE TABLE IF NOT EXISTS cards (
     body_draft TEXT NOT NULL DEFAULT '',
     body_text TEXT NOT NULL DEFAULT '', -- just the raw text of the card -- no styling
     time_created_at BIGINT NOT NULL,
-    last_modified BIGINT NOT NULL
+    last_modified BIGINT NOT NULL,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE -- keep cards in database after deleting for restoring etc.
 );
 
 CREATE TABLE IF NOT EXISTS arguments (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     owner_id UUID NOT NULL REFERENCES users ON DELETE CASCADE,
-    name VARCHAR(216) NOT NULL -- limited length: 128
+    name VARCHAR(216) NOT NULL, -- limited length: 128
+    deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS argument_cards (
@@ -56,7 +58,7 @@ CREATE TABLE IF NOT EXISTS actions (
     subject_id UUID NOT NULL REFERENCES users ON DELETE CASCADE, -- user who took an action
     action_type VARCHAR(32) NOT NULL, -- type of action (e.g. "CREATE_CARD")
     time BIGINT NOT NULL,
-    user_id UUID REFERENCES users ON DELETE CASCADE, -- id of user if another user is involved. cascading so that users who have deleted their accounts aren't shown (would be kinda invasive)
-    card_id UUID REFERENCES cards ON DELETE NO ACTION, -- if this action involves a card, the id of the card (NO ACTION is because deleting a card is an event)
-    argument_id UUID REFERENCES arguments ON DELETE NO ACTION -- if an argument is involved, the id of the argument
+    user_id UUID REFERENCES users ON DELETE CASCADE, -- id of user if another user is involved
+    card_id UUID REFERENCES cards ON DELETE CASCADE, -- if this action involves a card, the id of the card
+    argument_id UUID REFERENCES arguments ON DELETE CASCADE -- if an argument is involved, the id of the argument
 );

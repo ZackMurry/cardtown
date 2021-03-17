@@ -68,7 +68,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public Optional<ArgumentEntity> getArgumentEntity(@NonNull UUID id) {
-        final String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ?";
+        final String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -126,7 +126,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentEntity> getArgumentsByUser(@NonNull UUID id) {
-        final String sql = "SELECT id, name FROM arguments WHERE owner_id = ?";
+        final String sql = "SELECT id, name FROM arguments WHERE owner_id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -150,7 +150,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public int getNumberOfArgumentsByUser(@NonNull UUID id) {
-        final String sql = "SELECT COUNT(id) FROM arguments WHERE owner_id = ?";
+        final String sql = "SELECT COUNT(id) FROM arguments WHERE owner_id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -262,9 +262,8 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void deleteArgument(@NonNull UUID argumentId) {
-        // This will cascade to argument_cards
-        final String sql = "DELETE FROM arguments WHERE id = ?";
+    public void markArgumentAsDeleted(@NonNull UUID argumentId) {
+        final String sql = "UPDATE arguments SET deleted = TRUE WHERE id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, argumentId);
@@ -312,7 +311,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentCardEntity> getArgumentCardEntitiesByCardId(@NonNull UUID cardId) {
-        final String sql = "SELECT argument_id, index_in_argument FROM argument_cards WHERE card_id = ?";
+        final String sql = "SELECT argument_id, index_in_argument FROM argument_cards AS ac INNER JOIN arguments as a ON a.id = ac.argument_id WHERE ac.card_id = ? AND a.deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, cardId);
@@ -336,7 +335,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentCardJoinEntity> getArgumentCardJoinEntitiesByCardId(@NonNull UUID cardId) {
-        final String sql = "SELECT argument_id, index_in_argument, owner_id, name FROM argument_cards AS ac INNER JOIN arguments ON arguments.id = ac.argument_id WHERE ac.card_id = ?";
+        final String sql = "SELECT argument_id, index_in_argument, owner_id, name FROM argument_cards AS ac INNER JOIN arguments ON arguments.id = ac.argument_id WHERE ac.card_id = ? AND arguments.deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, cardId);
@@ -362,7 +361,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public int getNumberOfArgumentsByTeam(@NonNull UUID teamId) {
-        final String sql = "SELECT COUNT(arguments.id) FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ?";
+        final String sql = "SELECT COUNT(arguments.id) FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ? AND arguments.deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);
@@ -378,7 +377,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentEntity> getArgumentsByTeam(@NonNull UUID teamId) {
-        final String sql = "SELECT id, name FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ?";
+        final String sql = "SELECT id, name FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);

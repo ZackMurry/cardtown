@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown.dao.card;
 
+import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.EncryptedCard;
@@ -71,7 +72,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public Optional<CardEntity> getCardById(@NonNull UUID id) {
-        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE id = ?";
+        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -103,7 +104,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public List<CardEntity> getCardsByUser(@NonNull UUID id) {
-        final String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE owner_id = ?";
+        final String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE owner_id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -135,7 +136,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public int getNumberOfCardsByUser(@NonNull UUID id) {
-        final String sql = "SELECT COUNT(id) FROM cards WHERE owner_id = ?";
+        final String sql = "SELECT COUNT(id) FROM cards WHERE owner_id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -169,14 +170,14 @@ public class CardDataAccessService implements CardDao {
     }
 
     @Override
-    public void deleteCardById(@NonNull UUID id) {
-        final String sql = "DELETE FROM cards WHERE id = ?";
+    public void markCardAsDeleted(@NonNull UUID id) {
+        final String sql = "UPDATE cards SET deleted = TRUE WHERE id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
             final int rowsChanged = preparedStatement.executeUpdate();
             if (rowsChanged == 0) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                throw new CardNotFoundException();
             } else if (rowsChanged > 1) {
                 logger.warn("There were more than one rows changed in a statement to delete a card.");
             }
@@ -211,7 +212,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public List<CardEntity> getCardsByTeamId(@NonNull UUID teamId) {
-        final String sql = "SELECT id, owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards INNER JOIN team_members ON cards.owner_id = team_members.user_id WHERE team_members.team_id = ?";
+        final String sql = "SELECT id, owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards INNER JOIN team_members ON cards.owner_id = team_members.user_id WHERE team_members.team_id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);

@@ -124,13 +124,14 @@ public interface ArgumentDao {
     short getIndexOfCardInArgument(UUID argumentId, UUID cardId);
 
     /**
-     * Deletes an argument (including the argument_cards data)
+     * Marks an argument as deleted
+     * todo allow user to permanently delete
      *
      * @param argumentId Id of argument to delete
      * @throws InternalServerException                                    If there is a <code>SQLException</code>
      * @throws com.zackmurry.cardtown.exception.ArgumentNotFoundException If the argument was not found
      */
-    void deleteArgument(UUID argumentId);
+    void markArgumentAsDeleted(UUID argumentId);
 
     /**
      * Renames an argument

@@ -257,7 +257,7 @@ public class CardService {
             throw new ForbiddenException();
         }
         argumentService.removeCardFromAllArguments(cardId);
-        cardDao.deleteCardById(cardId);
+        cardDao.markCardAsDeleted(cardId);
         actionService.createAction(
                 ActionEntity.builder()
                         .type(ActionType.DELETE_CARD)

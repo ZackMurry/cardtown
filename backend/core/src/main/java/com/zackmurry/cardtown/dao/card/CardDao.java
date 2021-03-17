@@ -20,7 +20,7 @@ public interface CardDao {
     UUID createCard(CardEntity card);
 
     /**
-     * Gets a card from the database with the specified id
+     * Gets a card from the database with the specified id. Ignores deleted cards.
      *
      * @param id Id of card to get
      * @return If found: an optional containing the card; if not: <code>Optional.empty()</code>
@@ -56,13 +56,14 @@ public interface CardDao {
     Optional<UUID> getOwnerIdByCardId(UUID cardId);
 
     /**
-     * Deletes a card with the given id
+     * Marks a card as deleted
+     * todo add option to permanently delete card and a way to restore it
      *
-     * @param id Id of card to delete
+     * @param cardId Id of card to delete
      * @throws InternalServerException                                If there is an <code>SQLException</code>
      * @throws com.zackmurry.cardtown.exception.CardNotFoundException If the card is not found
      */
-    void deleteCardById(UUID id);
+    void markCardAsDeleted(UUID cardId);
 
     /**
      * Updates a card with the given id and details. Also updates last_modified to the current time

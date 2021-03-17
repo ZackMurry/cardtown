@@ -384,7 +384,7 @@ public class ArgumentService {
     public void deleteArgument(@NonNull String argumentId) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         checkAccessToArgument(decompressedArgId);
-        argumentDao.deleteArgument(decompressedArgId);
+        argumentDao.markArgumentAsDeleted(decompressedArgId);
         actionService.createAction(
                 ActionEntity.builder()
                         .type(ActionType.DELETE_ARGUMENT)
