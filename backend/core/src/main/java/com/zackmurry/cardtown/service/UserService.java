@@ -136,7 +136,7 @@ public class UserService implements UserDetailsService {
      * @param email     The email of the new account
      * @param firstName The first name of the new user
      * @param lastName  The last name of the new user
-     * @param password  The password of this user. this should not be encoded.
+     * @param password  The (plaintext) password of this user
      * @return An <code>AuthenticationResponse</code> containing the user's new JWT
      * @throws InternalServerException If an error occurred while creating a hash or secret key for the user
      * @throws BadRequestException     If any of the fields in the <code>User</code> object is null

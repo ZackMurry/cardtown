@@ -49,3 +49,14 @@ CREATE TABLE IF NOT EXISTS team_members (
     team_secret_key VARCHAR(128) NOT NULL,
     role VARCHAR(32) NOT NULL DEFAULT 'MEMBER' -- 'MEMBER' or 'OWNER'
 );
+
+-- table for keeping track of action history (create card, modify card, etc)
+CREATE TABLE IF NOT EXISTS actions (
+    id UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    subject_id UUID NOT NULL REFERENCES users ON DELETE CASCADE, -- user who took an action
+    action_type VARCHAR(32) NOT NULL, -- type of action (e.g. "CREATE_CARD")
+    time BIGINT NOT NULL,
+    user_id UUID REFERENCES users ON DELETE CASCADE, -- id of user if another user is involved. cascading so that users who have deleted their accounts aren't shown (would be kinda invasive)
+    card_id UUID REFERENCES cards ON DELETE NO ACTION, -- if this action involves a card, the id of the card (NO ACTION is because deleting a card is an event)
+    argument_id UUID REFERENCES arguments ON DELETE NO ACTION -- if an argument is involved, the id of the argument
+);

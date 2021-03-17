@@ -5,6 +5,8 @@ import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.ForbiddenException;
 import com.zackmurry.cardtown.exception.InternalServerException;
+import com.zackmurry.cardtown.model.action.ActionEntity;
+import com.zackmurry.cardtown.model.action.ActionType;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -44,6 +46,9 @@ public class CardService {
 
     @Autowired
     private TeamService teamService;
+
+    @Autowired
+    private ActionService actionService;
 
     /**
      * Returns a <code>ResponseCard</code> by its id.
@@ -137,6 +142,13 @@ public class CardService {
             throw new BadRequestException();
         }
         final UUID cardId = cardDao.createCard(cardEntity);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.CREATE_CARD)
+                        .principal()
+                        .card(cardId)
+                        .build()
+        );
         return UUIDCompressor.compress(cardId);
     }
 
@@ -246,6 +258,13 @@ public class CardService {
         }
         argumentService.removeCardFromAllArguments(cardId);
         cardDao.deleteCardById(cardId);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.DELETE_CARD)
+                        .principal()
+                        .card(cardId)
+                        .build()
+        );
     }
 
     /**
@@ -295,6 +314,13 @@ public class CardService {
             throw new InternalServerException();
         }
         cardDao.updateCardById(cardId, cardEntity);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.EDIT_CARD)
+                        .principal()
+                        .card(cardId)
+                        .build()
+        );
     }
 
     /**

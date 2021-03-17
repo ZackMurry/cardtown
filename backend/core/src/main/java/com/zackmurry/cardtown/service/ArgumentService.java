@@ -2,6 +2,8 @@ package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
 import com.zackmurry.cardtown.exception.*;
+import com.zackmurry.cardtown.model.action.ActionEntity;
+import com.zackmurry.cardtown.model.action.ActionType;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentPreview;
@@ -49,6 +51,9 @@ public class ArgumentService {
     @Autowired
     private TeamService teamService;
 
+    @Autowired
+    private ActionService actionService;
+
     /**
      * Creates an argument with the specified information, with the owner id as the current principal
      *
@@ -60,7 +65,8 @@ public class ArgumentService {
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
     public String createArgument(@NonNull ArgumentCreateRequest request) {
-        request.setOwnerId(((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+        final UUID userId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        request.setOwnerId(userId);
 
         if (request.getName() == null) {
             throw new BadRequestException();
@@ -84,9 +90,16 @@ public class ArgumentService {
         if (request.getCardIds() != null && request.getCardIds().size() != 0) {
             final List<UUID> cardIds = request.getCardIds().stream().map(UUIDCompressor::decompress).collect(Collectors.toList());
             for (UUID cardId : cardIds) {
-                addCardToArgument(argId, cardId);
+                addCardToArgument(argId, cardId); // this method notably doesn't create an action
             }
         }
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.CREATE_ARGUMENT)
+                        .principal()
+                        .argument(argId)
+                        .build()
+        );
         return UUIDCompressor.compress(argId);
     }
 
@@ -162,7 +175,7 @@ public class ArgumentService {
     }
 
     /**
-     * Adds a card to the end of an argument, using Base64 ids
+     * Adds a card to the end of an argument, using Base64 ids. Creates an action.
      *
      * @see ArgumentService#addCardToArgument(UUID, UUID)
      */
@@ -170,6 +183,14 @@ public class ArgumentService {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         addCardToArgument(decompressedArgId, decompressedCardId);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.ADD_CARD_TO_ARGUMENT)
+                        .principal()
+                        .card(decompressedCardId)
+                        .argument(decompressedArgId)
+                        .build()
+        );
     }
 
     public List<ArgumentPreview> listArgumentsByTeam(@NonNull UUID teamId) {
@@ -334,7 +355,7 @@ public class ArgumentService {
     }
 
     /**
-     * Removes a card from an argument, using Base64 ids
+     * Removes a card from an argument, using Base64 ids. Creates an action
      *
      * @see ArgumentService#removeCardFromArgument(UUID, UUID, short)
      */
@@ -342,10 +363,18 @@ public class ArgumentService {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
         removeCardFromArgument(decompressedArgId, decompressedCardId, index);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.REMOVE_CARD_FROM_ARGUMENT)
+                        .principal()
+                        .card(decompressedCardId)
+                        .argument(decompressedArgId)
+                        .build()
+        );
     }
 
     /**
-     * Deletes an argument (including the argument_cards data)
+     * Deletes an argument (including the argument_cards data). Creates an action.
      *
      * @param argumentId Id of argument to delete (in Base64)
      * @throws ArgumentNotFoundException If the argument could not be found
@@ -356,10 +385,17 @@ public class ArgumentService {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         checkAccessToArgument(decompressedArgId);
         argumentDao.deleteArgument(decompressedArgId);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.DELETE_ARGUMENT)
+                        .principal()
+                        .argument(decompressedArgId)
+                        .build()
+        );
     }
 
     /**
-     * Renames an argument
+     * Renames an argument. Creates an action.
      *
      * @param argumentId Id of the argument to rename (in Base64)
      * @param newName    New name of argument (in plain text)
@@ -383,10 +419,17 @@ public class ArgumentService {
             throw new InternalServerException();
         }
         argumentDao.renameArgument(decompressedArgId, encryptedName);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.EDIT_ARGUMENT)
+                        .principal()
+                        .argument(decompressedArgId)
+                        .build()
+        );
     }
 
     /**
-     * Changes the position of a card in an argument, pushing along any other cards
+     * Changes the position of a card in an argument, pushing along any other cards. Creates an action.
      *
      * @param argumentId Id of argument to modify
      * @param newIndex   New index of card in argument
@@ -409,6 +452,14 @@ public class ArgumentService {
         final UUID cardId = argumentDao.getCardsByArgumentId(decompressedArgId).get(oldIndex).getCardId();
         argumentDao.removeCardFromArgument(decompressedArgId, cardId, oldIndex);
         argumentDao.addCardToArgument(decompressedArgId, cardId, newIndex);
+
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.EDIT_ARGUMENT)
+                        .principal()
+                        .argument(decompressedArgId)
+                        .build()
+        );
     }
 
     /**

@@ -5,6 +5,8 @@ import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.ForbiddenException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.TeamNotFoundException;
+import com.zackmurry.cardtown.model.action.ActionEntity;
+import com.zackmurry.cardtown.model.action.ActionType;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.team.*;
 import com.zackmurry.cardtown.util.EncryptionUtils;
@@ -28,6 +30,9 @@ public class TeamService {
 
     @Autowired
     private TeamDao teamDao;
+
+    @Autowired
+    private ActionService actionService;
 
     @Autowired
     private EncryptionUtils encryptionUtils;
@@ -105,6 +110,13 @@ public class TeamService {
         }
         final TeamMemberEntity teamMemberEntity = new TeamMemberEntity(teamId, principal.getId(), Base64.encodeBase64String(encryptedTeamSecretKey));
         teamDao.addMemberToTeam(teamMemberEntity);
+
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.JOIN_TEAM)
+                        .principal() // Not including teamId because that'd require another column in the table and it's kinda implied
+                        .build()
+        );
     }
 
     /**
