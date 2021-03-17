@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { FC, useState } from 'react'
 import ResponseCard from 'types/ResponseCard'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import CardOptionsButton from './CardOptionsButton'
 import EditCard from './EditCard'
 

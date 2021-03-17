@@ -5,7 +5,7 @@ import redirectToLogin from 'lib/redirectToLogin'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import theme from 'lib/theme'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import NewArgument from 'components/arguments/NewArgument'
 
 interface Props {

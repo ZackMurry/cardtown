@@ -2,7 +2,7 @@ import { Grid, Tooltip, Typography } from '@material-ui/core'
 import { FC, useEffect, useState } from 'react'
 import SearchCards from 'components/cards/SearchCards'
 import CardPreview from 'types/CardPreview'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import theme from 'lib/theme'
 
 interface Props {

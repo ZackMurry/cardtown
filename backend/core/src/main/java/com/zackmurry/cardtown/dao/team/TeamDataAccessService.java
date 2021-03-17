@@ -145,4 +145,20 @@ public class TeamDataAccessService implements TeamDao {
         }
     }
 
+    @Override
+    public int getMemberCountByTeam(@NonNull UUID teamId) {
+        final String sql = "SELECT COUNT(id) FROM team_members WHERE team_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, teamId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("count");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new InternalServerException();
+    }
+
 }

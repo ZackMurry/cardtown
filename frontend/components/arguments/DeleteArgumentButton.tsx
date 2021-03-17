@@ -1,7 +1,7 @@
 import { IconButton } from '@material-ui/core'
 import { FC, useState } from 'react'
 import DeleteIcon from '@material-ui/icons/Delete'
-import ConfirmationDialog from 'lib/ConfirmationDialog'
+import ConfirmationDialog from 'components/utils/ConfirmationDialog'
 
 interface Props {
   jwt: string

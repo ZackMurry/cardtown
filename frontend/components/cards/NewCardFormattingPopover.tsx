@@ -1,6 +1,6 @@
 import { Popover, Typography } from '@material-ui/core'
 import { FC, useState } from 'react'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import theme from 'lib/theme'
 
 // todo make this look a bit better

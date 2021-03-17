@@ -4,7 +4,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import { Grid, IconButton } from '@material-ui/core'
 import { useRouter } from 'next/router'
 import theme from 'lib/theme'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import CardSearchMenu from 'components/cards/CardSearchMenu'
 import CardPreview from 'types/CardPreview'
 

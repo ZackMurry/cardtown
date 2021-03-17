@@ -2,7 +2,7 @@ import { Grid, Typography } from '@material-ui/core'
 import Link from 'next/link'
 import { FC } from 'react'
 import ArgumentWithCardModel from 'types/ArgumentWithCardModel'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import theme from 'lib/theme'
 
 interface Props {

@@ -7,7 +7,7 @@ import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Cookie from 'js-cookie'
-import ErrorAlert from 'lib/ErrorAlert'
+import ErrorAlert from 'components/utils/ErrorAlert'
 import theme from 'lib/theme'
 
 interface Props {
@@ -74,7 +74,7 @@ const Login: NextPage<Props> = ({ redirect }) => {
             placeholder='Email address'
             value={email}
             onChange={e => setEmail(e.target.value)}
-            focusBorderColor='blue.400'
+            focusBorderColor='cardtownBlue'
             minHeight={50}
             size='md'
           />
@@ -89,6 +89,7 @@ const Login: NextPage<Props> = ({ redirect }) => {
               autoComplete='current-password'
               minHeight={50}
               size='md'
+              focusBorderColor='cardtownBlue'
             />
             <InputRightElement width='4.5rem' marginTop={15}>
               <IconButton
@@ -109,6 +110,7 @@ const Login: NextPage<Props> = ({ redirect }) => {
             marginTop={15}
             colorScheme='blue'
             isFullWidth
+            bg='cardtownBlue'
           >
             Log in
           </Button>

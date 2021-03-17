@@ -5,7 +5,7 @@ import {
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import DeleteIcon from '@material-ui/icons/Delete'
 import React, { FC, useState } from 'react'
-import ErrorAlert from 'lib/ErrorAlert'
+import ErrorAlert from 'components/utils/ErrorAlert'
 import styles from 'styles/ViewCard.module.css'
 
 interface Props {

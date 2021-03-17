@@ -2,7 +2,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
-import ErrorAlert from 'lib/ErrorAlert'
+import ErrorAlert from 'components/utils/ErrorAlert'
 
 interface Props {
   jwt?: string

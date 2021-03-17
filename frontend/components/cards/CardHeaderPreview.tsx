@@ -1,6 +1,6 @@
 import { Grid, Tooltip } from '@material-ui/core'
 import { FC } from 'react'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import theme from 'lib/theme'
 
 interface Props {

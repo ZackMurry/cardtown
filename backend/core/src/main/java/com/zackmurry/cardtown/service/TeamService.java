@@ -202,4 +202,17 @@ public class TeamService {
         return teamMemberEntity1.getTeamId().equals(teamMemberEntity2.getTeamId());
     }
 
+    public Optional<TeamHeader> getTeamInformation() {
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final UUID teamId = teamDao.getTeamIdWithUser(principal.getId()).orElse(null);
+        if (teamId == null) {
+            return Optional.empty();
+        }
+        final int memberCount = teamDao.getMemberCountByTeam(teamId);
+        final TeamEntity teamEntity = getTeamOfUser().orElse(null);
+        if (teamEntity == null) {
+            return Optional.empty();
+        }
+        return Optional.of(TeamHeader.of(teamEntity, memberCount));
+    }
 }

@@ -7,7 +7,7 @@ import {
 import Cookie from 'js-cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
-import ErrorAlert from 'lib/ErrorAlert'
+import ErrorAlert from 'components/utils/ErrorAlert'
 import theme from 'lib/theme'
 
 interface Props {

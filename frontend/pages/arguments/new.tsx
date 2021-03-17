@@ -3,13 +3,13 @@ import { GetServerSideProps, NextPage } from 'next'
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
 import ArgumentCardSelector from 'components/arguments/ArgumentCardSelector'
 import CardPreview from 'types/CardPreview'
-import ErrorAlert from 'lib/ErrorAlert'
+import ErrorAlert from 'components/utils/ErrorAlert'
 
 interface Props {
   jwt?: string

@@ -3,7 +3,7 @@ import { FC, useState } from 'react'
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
 import { Draggable, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd'
 import ResponseCard from 'types/ResponseCard'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import EditCard from 'components/cards/EditCard'
 import ArgumentCardOptionsButton from './ArgumentCardOptionsButton'
 

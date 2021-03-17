@@ -1,5 +1,5 @@
 import { useState, FC } from 'react'
-import { Grid, Typography } from '@material-ui/core'
+import { Typography } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import BuildIcon from '@material-ui/icons/Build'
 import LockIcon from '@material-ui/icons/Lock'
@@ -9,10 +9,10 @@ import CodeIcon from '@material-ui/icons/Code'
 import GetAppIcon from '@material-ui/icons/GetApp'
 import LanguageIcon from '@material-ui/icons/Language'
 import Link from 'next/link'
-import BlackText from 'lib/BlackText'
+import BlackText from 'components/utils/BlackText'
 import theme from 'lib/theme'
 import styles from 'styles/Home.module.css'
-import ToggleIcon from 'lib/ToggleIcon'
+import ToggleIcon from 'components/utils/ToggleIcon'
 
 // todo maybe have the icons' animations automatically trigger once every ~15 secs (independently)
 const LandingPageSquares: FC = () => {

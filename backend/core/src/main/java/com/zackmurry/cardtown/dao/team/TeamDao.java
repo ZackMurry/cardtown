@@ -49,4 +49,6 @@ public interface TeamDao {
 
     Optional<TeamMemberEntity> getTeamMemberEntityByUserId(UUID userId);
 
+    int getMemberCountByTeam(UUID teamId);
+
 }

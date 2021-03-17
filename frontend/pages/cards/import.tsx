@@ -4,11 +4,11 @@ import {
   FC, FormEvent, useEffect, useRef, useState
 } from 'react'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
-import BlackText from 'lib/BlackText'
-import ErrorAlert from 'lib/ErrorAlert'
+import BlackText from 'components/utils/BlackText'
+import ErrorAlert from 'components/utils/ErrorAlert'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
-import SuccessAlert from 'lib/SuccessAlert'
+import SuccessAlert from 'components/utils/SuccessAlert'
 import theme from 'lib/theme'
 import styles from 'styles/ImportCards.module.css'
 

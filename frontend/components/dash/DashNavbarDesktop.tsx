@@ -36,6 +36,7 @@ const DashNavbarDesktop: FC<Props> = ({ pageName, jwt }) => (
     style={{
       display: 'flex',
       padding: '10px 5%',
+      height: '7vh',
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: 'white'

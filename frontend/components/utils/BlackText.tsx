@@ -1,6 +1,6 @@
 import { Typography } from '@material-ui/core'
 import { CSSProperties, FC } from 'react'
-import theme from './theme'
+import theme from '../../lib/theme'
 
 interface Props {
   style?: CSSProperties
