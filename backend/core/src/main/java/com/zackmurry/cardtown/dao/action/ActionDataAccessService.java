@@ -42,8 +42,35 @@ public class ActionDataAccessService implements ActionDao {
         }
     }
 
+    private static ActionEntity convertResultSetRowToActionEntity(ResultSet resultSet) throws SQLException {
+        final String userIdStr = resultSet.getString("user_id");
+        UUID userId = null;
+        if (userIdStr != null) {
+            userId = UUID.fromString(userIdStr);
+        }
+        final String cardIdStr = resultSet.getString("card_id");
+        UUID cardId = null;
+        if (cardIdStr != null) {
+            cardId = UUID.fromString(cardIdStr);
+        }
+        final String argumentIdStr = resultSet.getString("argument_id");
+        UUID argumentId = null;
+        if (argumentIdStr != null) {
+            argumentId = UUID.fromString(argumentIdStr);
+        }
+        return new ActionEntity(
+                UUID.fromString(resultSet.getString("id")),
+                UUID.fromString(resultSet.getString("subject_id")),
+                ActionType.valueOf(resultSet.getString("action_type")),
+                resultSet.getLong("time"),
+                userId,
+                cardId,
+                argumentId
+        );
+    }
+
     @Override
-    public List<ActionEntity> getActionsByTeam(@NonNull UUID teamId) {
+    public List<ActionEntity> getAllActionsByTeam(@NonNull UUID teamId) {
         final String sql = "SELECT id, subject_id, action_type, time, user_id, card_id, argument_id FROM actions INNER JOIN team_members ON team_members.user_id = subject_id WHERE team_members.team_id = ? ORDER BY time DESC";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -77,24 +104,32 @@ public class ActionDataAccessService implements ActionDao {
 
     @Override
     public List<ActionEntity> getRecentActionsByTeam(@NonNull UUID teamId, int count, int offset) {
-        final String sql = "SELECT id, subject_id, action_type, time, user_id, card_id, argument_id FROM actions INNER JOIN team_members ON team_members.user_id = subject_id WHERE team_members.team_id = ? ORDER BY time DESC LIMIT ? OFFSET ?";
+        final String sql = "SELECT * FROM actions INNER JOIN team_members ON team_members.user_id = subject_id WHERE team_members.team_id = ? ORDER BY time DESC LIMIT ? OFFSET ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);
             final ResultSet resultSet = preparedStatement.executeQuery();
             final List<ActionEntity> actionEntities = new ArrayList<>();
             while (resultSet.next()) {
-                actionEntities.add(
-                        new ActionEntity(
-                                UUID.fromString(resultSet.getString("id")),
-                                UUID.fromString(resultSet.getString("subject_id")),
-                                ActionType.valueOf(resultSet.getString("action_type")),
-                                resultSet.getLong("time"),
-                                UUID.fromString(resultSet.getString("user_id")),
-                                UUID.fromString(resultSet.getString("card_id")),
-                                UUID.fromString(resultSet.getString("argument_id"))
-                        )
-                );
+                actionEntities.add(convertResultSetRowToActionEntity(resultSet));
+            }
+            return actionEntities;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public List<ActionEntity> getAllActionsByUser(@NonNull UUID userId) {
+        final String sql = "SELECT * FROM actions WHERE subject_id = ? ORDER BY time DESC";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, userId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ActionEntity> actionEntities = new ArrayList<>();
+            while (resultSet.next()) {
+                actionEntities.add(convertResultSetRowToActionEntity(resultSet));
             }
             return actionEntities;
         } catch (SQLException e) {
