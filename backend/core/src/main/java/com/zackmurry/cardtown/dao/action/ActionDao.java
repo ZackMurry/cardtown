@@ -47,6 +47,17 @@ public interface ActionDao {
     List<ActionEntity> getRecentActionsByTeam(UUID teamId, int count, int offset);
 
     /**
+     * Gets the <code>count</code> most recent actions by a user, ordered by time occurred (DESC), skipping the first <code>offset</code> actions
+     *
+     * @param userId Id of user to find actions of
+     * @param count Number of actions to find
+     * @param offset Number of actions to skip (for pagination and infinite scroll)
+     * @return The associated actions
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    List<ActionEntity> getRecentActionsByUser(UUID userId, int count, int offset);
+
+    /**
      * Gets all actions by a user, ordered by time occurred (DESC)
      *
      * @param userId Id of user to find actions of

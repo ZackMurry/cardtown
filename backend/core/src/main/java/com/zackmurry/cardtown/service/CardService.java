@@ -374,4 +374,25 @@ public class CardService {
         return cardDao.getCardById(cardId);
     }
 
+    /**
+     * Gets a <code>CardPreview</code> by its id, even if it has been deleted. Internal method; assumes that the user has the correct privileges
+     *
+     * @param cardId Id of card to find
+     * @return If found: an <code>Optional</code> containing the card preview; else <code>Optional.empty()</code>
+     */
+    public Optional<CardPreview> getCardPreviewByIdIncludingDeleted(@NonNull UUID cardId) {
+        final CardEntity cardEntity = cardDao.getCardById(cardId, true).orElse(null);
+        if (cardEntity == null) {
+            return Optional.empty();
+        }
+        final CardPreview cardPreview = CardPreview.of(cardEntity, userService.getResponseUserDetailsById(cardEntity.getOwnerId()).orElseThrow(InternalServerException::new));
+        try {
+            cardPreview.decryptFields(UserSecretKeyHolder.getSecretKey());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+        return Optional.of(cardPreview);
+    }
+
 }

@@ -103,6 +103,42 @@ public class CardDataAccessService implements CardDao {
     }
 
     @Override
+    public Optional<CardEntity> getCardById(@NonNull UUID id, boolean includeDeleted) {
+        if (!includeDeleted) {
+            return getCardById(id);
+        }
+        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+
+            // if card not found
+            if (!resultSet.next()) {
+                return Optional.empty();
+            }
+            return Optional.of(
+                    new CardEntity(
+                            id,
+                            UUID.fromString(resultSet.getString("owner_id")),
+                            resultSet.getString("tag"),
+                            resultSet.getString("cite"),
+                            resultSet.getString("cite_information"),
+                            resultSet.getString("body_html"),
+                            resultSet.getString("body_draft"),
+                            resultSet.getString("body_text"),
+                            resultSet.getLong("time_created_at"),
+                            resultSet.getLong("last_modified")
+                    )
+            );
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+
+    }
+
+    @Override
     public List<CardEntity> getCardsByUser(@NonNull UUID id) {
         final String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE owner_id = ? AND deleted = FALSE";
         try {

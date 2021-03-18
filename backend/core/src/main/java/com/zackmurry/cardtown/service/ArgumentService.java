@@ -514,4 +514,53 @@ public class ArgumentService {
         }
         return argList;
     }
+
+    public int getNumRelatedArgumentsByCardId(@NonNull UUID cardId) {
+        return argumentDao.getArgumentCardEntitiesByCardId(cardId).size();
+    }
+
+    public int getNumCardsInArgument(@NonNull UUID argumentId) {
+        return argumentDao.getNumberOfCardsInArgument(argumentId);
+    }
+
+    /**
+     * Gets a decrypted argument entity by its id. Assumes privileges. Ignores deleted arguments.
+     *
+     * @param argumentId Id of argument to get
+     * @return If found: an <code>Optional</code> containing the argument; else <code>Optional.empty()</code>
+     */
+    public Optional<ArgumentEntity> getArgumentEntityById(@NonNull UUID argumentId) {
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
+        if (argumentEntity == null) {
+            return Optional.empty();
+        }
+        try {
+            argumentEntity.decryptFields(UserSecretKeyHolder.getSecretKey());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+        return Optional.of(argumentEntity);
+    }
+
+    /**
+     * Gets a decrypted argument entity by its id. Assumes privileges.
+     *
+     * @param argumentId Id of argument to get
+     * @param includeDeleted Whether to include deleted arguments in the results
+     * @return If found: an <code>Optional</code> containing the argument; else <code>Optional.empty()</code>
+     */
+    public Optional<ArgumentEntity> getArgumentEntityById(@NonNull UUID argumentId, boolean includeDeleted) {
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId, includeDeleted).orElse(null);
+        if (argumentEntity == null) {
+            return Optional.empty();
+        }
+        try {
+            argumentEntity.decryptFields(UserSecretKeyHolder.getSecretKey());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+        return Optional.of(argumentEntity);
+    }
 }

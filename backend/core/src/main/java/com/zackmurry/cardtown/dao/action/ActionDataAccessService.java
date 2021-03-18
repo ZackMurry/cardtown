@@ -108,6 +108,28 @@ public class ActionDataAccessService implements ActionDao {
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);
+            preparedStatement.setInt(2, count);
+            preparedStatement.setInt(3, offset);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ActionEntity> actionEntities = new ArrayList<>();
+            while (resultSet.next()) {
+                actionEntities.add(convertResultSetRowToActionEntity(resultSet));
+            }
+            return actionEntities;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public List<ActionEntity> getRecentActionsByUser(@NonNull UUID userId, int count, int offset) {
+        final String sql = "SELECT * FROM actions WHERE subject_id = ? ORDER BY time DESC LIMIT ? OFFSET ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, userId);
+            preparedStatement.setInt(2, count);
+            preparedStatement.setInt(3, offset);
             final ResultSet resultSet = preparedStatement.executeQuery();
             final List<ActionEntity> actionEntities = new ArrayList<>();
             while (resultSet.next()) {

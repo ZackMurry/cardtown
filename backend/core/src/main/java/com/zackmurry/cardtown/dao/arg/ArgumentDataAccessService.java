@@ -90,6 +90,32 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
+    public Optional<ArgumentEntity> getArgumentEntity(@NonNull UUID id, boolean includeDeleted) {
+        if (!includeDeleted) {
+            return getArgumentEntity(id);
+        }
+        final String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(
+                        new ArgumentEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                UUID.fromString(resultSet.getString("owner_id")),
+                                resultSet.getString("name")
+                        )
+                );
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
     public List<ArgumentCardEntity> getCardsByArgumentId(@NonNull UUID argumentId) {
         final String sql = "SELECT card_id, index_in_argument FROM argument_cards WHERE argument_id = ? ORDER BY index_in_argument";
         try {

@@ -29,6 +29,16 @@ public interface CardDao {
     Optional<CardEntity> getCardById(UUID id);
 
     /**
+     * Gets a card from the database with the specified id.
+     *
+     * @param id Id of card to get
+     * @param includeDeleted Whether deleted cards should be included in the results
+     * @return If found: an optional containing the card; if not: <code>Optional.empty()</code>
+     * @throws InternalServerException If there is a <code>SQLException</code>
+     */
+    Optional<CardEntity> getCardById(UUID id, boolean includeDeleted);
+
+    /**
      * Gets all of the cards that are by the user with the specified id
      *
      * @param id Id of user

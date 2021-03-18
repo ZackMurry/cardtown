@@ -33,6 +33,16 @@ public interface ArgumentDao {
     Optional<ArgumentEntity> getArgumentEntity(UUID id);
 
     /**
+     * Gets an argument entity from the database
+     *
+     * @param id Id of the argument
+     * @param includeDeleted Whether to include deleted arguments in the results
+     * @return An <code>Optional</code> of the requested argument
+     * @throws InternalServerException if there is a <code>SQLException</code>
+     */
+    Optional<ArgumentEntity> getArgumentEntity(UUID id, boolean includeDeleted);
+
+    /**
      * Gets cards from an argument with the given id, ordered by their index in the argument
      *
      * @param argumentId Id of the argument

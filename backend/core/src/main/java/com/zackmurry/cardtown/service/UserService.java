@@ -9,6 +9,7 @@ import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.model.team.TeamEntity;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -124,7 +125,7 @@ public class UserService implements UserDetailsService {
             throw new InternalServerException();
         }
 
-        final UserModel userModel = new UserModel(user, encryptedSecretKey, null);
+        final UserModel userModel = new UserModel(user, encryptedSecretKey, null, Optional.empty());
         userDao.createAccount(userModel);
 
         return new AuthenticationResponse(buildJwtForUser(userModel, encryptionKey));
@@ -290,7 +291,8 @@ public class UserService implements UserDetailsService {
         }
         final byte[] secretKey = getUserSecretKey(email, encryptionKey);
         final byte[] teamSecretKey = teamService.getTeamSecretKeyByUser(user.getId(), secretKey).orElse(null);
-        return Optional.of(new UserModel(user, secretKey, teamSecretKey));
+        final Optional<UUID> teamId = teamService.getTeamIdByUserId(user.getId());
+        return Optional.of(new UserModel(user, secretKey, teamSecretKey, teamId));
     }
 
     /**

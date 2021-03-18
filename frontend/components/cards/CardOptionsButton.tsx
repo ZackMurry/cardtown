@@ -27,7 +27,7 @@ const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
   }
 
   const handleDelete = async () => {
-    const response = await fetch(`/api/v1/cards/${encodeURIComponent(id)}`, {
+    const response = await fetch(`/api/v1/cards/id/${encodeURIComponent(id)}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwt}` }
     })

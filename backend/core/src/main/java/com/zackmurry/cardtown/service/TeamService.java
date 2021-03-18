@@ -168,6 +168,10 @@ public class TeamService {
         return Optional.of(teamEntity);
     }
 
+    public Optional<UUID> getTeamIdByUserId(@NonNull UUID userId) {
+        return teamDao.getTeamIdWithUser(userId);
+    }
+
     /**
      * Gets the team secret key of a given user
      *

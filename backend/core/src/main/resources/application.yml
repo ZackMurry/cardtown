@@ -21,6 +21,8 @@ spring:
               password: client
   application:
     name: Cardtown Backend Core
+  jackson:
+    default-property-inclusion: non_null
 management:
   endpoints:
     web:
