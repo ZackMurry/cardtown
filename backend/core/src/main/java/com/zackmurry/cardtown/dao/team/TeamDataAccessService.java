@@ -147,7 +147,7 @@ public class TeamDataAccessService implements TeamDao {
 
     @Override
     public int getMemberCountByTeam(@NonNull UUID teamId) {
-        final String sql = "SELECT COUNT(id) FROM team_members WHERE team_id = ?";
+        final String sql = "SELECT COUNT(user_id) FROM team_members WHERE team_id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);
@@ -159,6 +159,19 @@ public class TeamDataAccessService implements TeamDao {
             e.printStackTrace();
         }
         throw new InternalServerException();
+    }
+
+    @Override
+    public void removeUserFromTeam(@NonNull UUID userId) {
+        final String sql = "DELETE FROOM team_members WHERE user_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
     }
 
 }

@@ -41,4 +41,9 @@ public class TeamController {
         return teamHeader.get();
     }
 
+    @PostMapping("/leave")
+    public void leaveTeam() {
+        teamService.leaveTeam();
+    }
+
 }

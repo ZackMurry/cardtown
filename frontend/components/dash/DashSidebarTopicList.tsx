@@ -47,7 +47,7 @@ const DashSidebarTopicList: FC = () => {
         marginTop='10px'
         focusBorderColor='cardtownBlue'
       />
-      <Box padding='15px 0px 15px 15px'>
+      <Box p='15px 0px 15px 15px'>
         {
           // sample topics for now
           // todo use id as key

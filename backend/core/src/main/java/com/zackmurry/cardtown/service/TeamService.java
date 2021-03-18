@@ -15,9 +15,11 @@ import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.crypto.SecretKey;
 import java.util.Optional;
@@ -214,5 +216,23 @@ public class TeamService {
             return Optional.empty();
         }
         return Optional.of(TeamHeader.of(teamEntity, memberCount));
+    }
+
+    /**
+     * Removes the principal from their team
+     *
+     * @throws ResponseStatusException (HttpStatus.NOT_MODIFIED) If the user is not in a team
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
+    public void leaveTeam() {
+        // todo: if user is team's owner, prompt for who the new owner should be
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final TeamMemberEntity teamMemberEntity = teamDao.getTeamMemberEntityByUserId(principal.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_MODIFIED));
+        final int memberCount = teamDao.getMemberCountByTeam(teamMemberEntity.getTeamId());
+        if (memberCount <= 1) {
+            deleteTeam();
+        } else {
+            teamDao.removeUserFromTeam(principal.getId());
+        }
     }
 }

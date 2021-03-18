@@ -51,4 +51,6 @@ public interface TeamDao {
 
     int getMemberCountByTeam(UUID teamId);
 
+    void removeUserFromTeam(UUID userId);
+
 }
