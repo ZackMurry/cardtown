@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { Box } from '@chakra-ui/react'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import theme from 'lib/theme'
@@ -7,20 +8,29 @@ import redirectToLogin from 'lib/redirectToLogin'
 import DashboardSidebar from 'components/dash/DashboardSidebar'
 import TeamHeader from 'types/TeamHeader'
 import ErrorAlert from 'components/utils/ErrorAlert'
+import DashActionFeed from 'components/dash/DashActionFeed'
+import { ResponseAction } from 'types/action'
 
 interface Props {
   jwt?: string
   team?: TeamHeader
   fetchErrorText?: string
+  actions?: ResponseAction[]
 }
 
 // todo wrap dash pages in a DashboardPage component instead of rewriting layout
-const Dash: FC<Props> = ({ jwt, team, fetchErrorText }) => {
+// todo improve responsiveness of sidebar etc
+const Dash: FC<Props> = ({
+  jwt, team, fetchErrorText, actions
+}) => {
   const { width } = useWindowSize(1920, 1080)
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
       <DashboardNavbar pageName='Dashboard' windowWidth={width} jwt={jwt} />
-      <DashboardSidebar team={team} />
+      <Box d='flex'>
+        <DashboardSidebar team={team} />
+        <DashActionFeed actions={actions} jwt={jwt} />
+      </Box>
       {
         fetchErrorText && <ErrorAlert text={fetchErrorText} disableClose />
       }
@@ -39,35 +49,53 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     }
   }
   const domain = process.env.NODE_ENV !== 'production' ? 'http://localhost' : 'https://cardtown.co'
-  const response = await fetch(`${domain}/api/v1/teams`, {
+  const teamResponse = await fetch(`${domain}/api/v1/teams`, {
     headers: { Authorization: `Bearer ${jwt}` }
   })
-  if (response.status === 200) {
-    const teamHeader = (await response.json()) as TeamHeader
-    return {
-      props: {
-        jwt,
-        team: teamHeader as TeamHeader
-      }
+  let teamHeader: TeamHeader | null
+  if (teamResponse.ok && teamResponse.status !== 204) { // 204 means that user is not in a team
+    teamHeader = (await teamResponse.json()) as TeamHeader
+  } else if (!teamResponse.ok) {
+    let errorText: string | null = null
+    if (teamResponse.status === 500) {
+      errorText = 'A server error occurred while getting data. Please try again'
+    } else {
+      errorText = `An error occurred white getting data. Status code: ${teamResponse.status}`
     }
-  }
-  if (response.status === 204) {
     return {
       props: {
+        fetchErrorText: errorText,
         jwt
       }
     }
   }
-  let errorText: string | null = null
-  if (response.status === 500) {
-    errorText = 'A server error occurred during your request. Please try again'
+
+  const actionResponse = await fetch(`${domain}/api/v1/actions/recent`, {
+    headers: { Authorization: `Bearer ${jwt}` }
+  })
+  let actions: ResponseAction[] | null
+  if (actionResponse.ok) {
+    actions = (await actionResponse.json()) as ResponseAction[]
   } else {
-    errorText = `An error occurred during your request. Status code: ${response.status}`
+    let errorText: string | null = null
+    if (actionResponse.status === 500) {
+      errorText = 'A server error occurred while getting recent events. Please try again'
+    } else {
+      errorText = `An error occurred while getting recent events. Please try again. Status code: ${actionResponse.status}`
+    }
+    return {
+      props: {
+        fetchErrorText: errorText,
+        jwt,
+        team: teamHeader
+      }
+    }
   }
   return {
     props: {
-      fetchErrorText: errorText,
-      jwt
+      jwt,
+      team: teamHeader,
+      actions
     }
   }
 }

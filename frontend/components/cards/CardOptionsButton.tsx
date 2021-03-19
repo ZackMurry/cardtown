@@ -15,7 +15,7 @@ interface Props {
   onEdit: () => void
 }
 
-// todo: copy card
+// todo: clone card
 const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
   const [ anchorEl, setAnchorEl ] = useState<HTMLButtonElement | null>(null)
   const [ errorText, setErrorText ] = useState('')
