@@ -1,22 +1,65 @@
-import { Text } from '@chakra-ui/react'
+import { Box, Flex, Text } from '@chakra-ui/react'
+import Link from 'next/link'
 import { FC } from 'react'
 import { ResponseAction } from 'types/action'
 import JwtBody from 'types/JwtBody'
 
 const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }) => (
-  <div>
+  <Box w='100%' mb='10px'>
     {children}
-    Card preview
-  </div>
+    <Link href={`/cards/id/${action.card.id}`}>
+      <a>
+        <Box bg='white' borderWidth='1px' borderStyle='solid' borderColor='grayBorder' borderRadius='5px' p='15px 20px' mt='10px' w='100%'>
+          <Text fontWeight='medium' fontSize='14px'>
+            {action.card.tag}
+          </Text>
+          <Text fontWeight='medium' fontSize='14px'>
+            {action.card.cite}
+          </Text>
+          <Flex justifyContent='space-between' pt='3px'>
+            <Text color='darkGray' fontSize='14px'>
+              {`${action.card.bodyText.split(' ').length} words`}
+            </Text>
+            <Text color='darkGray' fontSize='14px'>
+              {
+                action.card.numRelatedArguments === 0 ? 'Not in any arguments' : `In ${action.card.numRelatedArguments} argument`
+              }
+              {
+                action.card.numRelatedArguments > 1 ? 's' : ''
+              }
+            </Text>
+          </Flex>
+        </Box>
+      </a>
+    </Link>
+  </Box>
 )
 
 const DashActionArgumentItem: FC<{ action: ResponseAction }> = ({ action, children }) => (
-  <div>
+  <Box w='100%' mb='10px'>
     {children}
-    Argument preview
-  </div>
+    <Link href={`/arguments/id/${action.argument.id}`}>
+      <a>
+        <Box bg='white' borderWidth='1px' borderStyle='solid' borderColor='grayBorder' borderRadius='5px' p='15px 20px' mt='10px' w='100%'>
+          <Text fontWeight='medium' fontSize='14px'>
+            {action.argument.name}
+          </Text>
+          <Flex justifyContent='space-between' pt='3px'>
+            <Text color='darkGray' fontSize='14px'>
+              {`${action.argument.numCards} card${action.argument.numCards !== 1 ? 's' : ''}`}
+            </Text>
+            <Text color='darkGray' fontSize='14px'>
+              Not in any speeches
+              {/* hard-coded for now */}
+            </Text>
+          </Flex>
+        </Box>
+      </a>
+    </Link>
+  </Box>
 )
 
+// todo once teams are better implemented on the frontend
 const DashActionUserItem: FC<{ action: ResponseAction }> = ({ action, children }) => (
   <div>
     {children}
@@ -42,18 +85,27 @@ const DashActionItem: FC<Props> = ({ action, jwt }) => {
         <Text fontSize={14}>
           <b>{`${subjectName} `}</b>
           created a card
-          <b>{` ${action.card.cite}`}</b>
+          <Link href={`/cards/id/${action.card.id}`} passHref>
+            <a>
+              <b>{` ${action.card.cite}`}</b>
+            </a>
+          </Link>
         </Text>
       </DashActionCardItem>
     )
   }
   if (action.actionType === 'DELETE_CARD') {
+    // todo the linked card page needs to show that this card has been deleted instead of 404
     return (
       <DashActionCardItem action={action}>
         <Text fontSize={14}>
           <b>{`${subjectName} `}</b>
           deleted
-          <b>{` ${action.card.cite}`}</b>
+          <Link href={`/cards/id/${action.card.id}`} passHref>
+            <a>
+              <b>{` ${action.card.cite}`}</b>
+            </a>
+          </Link>
         </Text>
       </DashActionCardItem>
     )
@@ -64,7 +116,11 @@ const DashActionItem: FC<Props> = ({ action, jwt }) => {
         <Text fontSize={14}>
           <b>{`${subjectName} `}</b>
           edited
-          <b>{` ${action.card.cite}`}</b>
+          <Link href={`/cards/id/${action.card.id}`} passHref>
+            <a>
+              <b>{` ${action.card.cite}`}</b>
+            </a>
+          </Link>
         </Text>
       </DashActionCardItem>
     )
@@ -75,9 +131,17 @@ const DashActionItem: FC<Props> = ({ action, jwt }) => {
         <Text fontSize={14}>
           <b>{`${subjectName} `}</b>
           added
-          <b>{` ${action.card.cite} `}</b>
+          <Link href={`/cards/id/${action.card.id}`} passHref>
+            <a>
+              <b>{` ${action.card.cite} `}</b>
+            </a>
+          </Link>
           to
-          <b>{` ${action.argument.name}`}</b>
+          <Link href={`/arguments/id/${action.argument.id}`} passHref>
+            <a>
+              <b>{` ${action.argument.name}`}</b>
+            </a>
+          </Link>
         </Text>
       </DashActionCardItem>
     )
@@ -88,9 +152,17 @@ const DashActionItem: FC<Props> = ({ action, jwt }) => {
         <Text fontSize={14}>
           <b>{`${subjectName} `}</b>
           removed
-          <b>{` ${action.card.cite} `}</b>
+          <Link href={`/cards/id/${action.card.id}`} passHref>
+            <a>
+              <b>{` ${action.card.cite} `}</b>
+            </a>
+          </Link>
           from
-          <b>{` ${action.argument.name}`}</b>
+          <Link href={`/arguments/id/${action.argument.id}`} passHref>
+            <a>
+              <b>{` ${action.argument.name}`}</b>
+            </a>
+          </Link>
         </Text>
       </DashActionCardItem>
     )
@@ -101,7 +173,11 @@ const DashActionItem: FC<Props> = ({ action, jwt }) => {
         <Text fontSize={14}>
           <b>{`${subjectName} `}</b>
           created an argument
-          <b>{` ${action.argument.name}`}</b>
+          <Link href={`/arguments/id/${action.argument.id}`} passHref>
+            <a>
+              <b>{` ${action.argument.name}`}</b>
+            </a>
+          </Link>
         </Text>
       </DashActionArgumentItem>
     )
@@ -112,7 +188,11 @@ const DashActionItem: FC<Props> = ({ action, jwt }) => {
         <Text fontSize={14}>
           <b>{`${subjectName}`}</b>
           deleted
-          <b>{` ${action.argument.name}`}</b>
+          <Link href={`/arguments/id/${action.argument.id}`} passHref>
+            <a>
+              <b>{` ${action.argument.name}`}</b>
+            </a>
+          </Link>
         </Text>
       </DashActionArgumentItem>
     )
@@ -123,7 +203,11 @@ const DashActionItem: FC<Props> = ({ action, jwt }) => {
         <Text fontSize={14}>
           <b>{`${subjectName}`}</b>
           edited
-          <b>{` ${action.argument.name}`}</b>
+          <Link href={`/arguments/id/${action.argument.id}`} passHref>
+            <a>
+              <b>{` ${action.argument.name}`}</b>
+            </a>
+          </Link>
         </Text>
       </DashActionArgumentItem>
     )

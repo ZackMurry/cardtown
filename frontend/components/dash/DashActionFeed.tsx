@@ -15,7 +15,7 @@ const DashActionFeed: FC<Props> = ({ actions: initialActions, jwt: jwtStr }) => 
   const [ actions, setActions ] = useState(initialActions)
   const jwt = useMemo(() => parseJwt(jwtStr), [])
   return (
-    <Box padding='3%'>
+    <Box p='3%' w='50%'>
       {
         actions && actions.map(action => (
           <DashActionItem action={action} key={action.time} jwt={jwt} />
