@@ -9,7 +9,7 @@ interface Props {
   team: TeamHeader
 }
 
-// todo
+// todo add more info
 const DashSidebarTeamInformation: FC<Props> = ({ team }) => (
   <Box p='10%'>
     <Heading as='h4' fontSize={16}>
@@ -26,8 +26,8 @@ const DashSidebarTeamInformation: FC<Props> = ({ team }) => (
           </Text>
         </a>
       </Link>
-      <Button colorScheme='blue' bg='cardtownBlue' size='xs' mt='10px'>
-        Create invite link
+      <Button variant='outline' size='xs' mt='10px' fontWeight='normal'>
+        Invite teammates
       </Button>
     </Box>
   </Box>

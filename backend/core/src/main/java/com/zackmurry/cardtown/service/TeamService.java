@@ -47,9 +47,13 @@ public class TeamService {
      * @throws com.zackmurry.cardtown.exception.LengthRequiredException If the team's name is > 128 chars or < 1 char
      * @throws InternalServerException                                  If an error occurs during encryption
      * @throws InternalServerException                                  If a <code>SQLException</code> occurs in the DAO layer
+     * @throws ResponseStatusException (HttpStatus.CONFLICT)            If the user is already in a team
      */
     public TeamCreationResponse createTeam(@NonNull TeamCreateRequest teamCreateRequest) {
         // todo show user an invite link after creating a team and include teamSecretKey in the invite link
+        if (getTeamOfUser().isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
         teamCreateRequest.validateFields();
 
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

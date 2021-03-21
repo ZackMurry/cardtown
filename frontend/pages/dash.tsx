@@ -87,14 +87,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
       props: {
         fetchErrorText: errorText,
         jwt,
-        team: teamHeader
+        team: teamHeader ?? null
       }
     }
   }
   return {
     props: {
       jwt,
-      team: teamHeader,
+      team: teamHeader ?? null,
       actions
     }
   }
