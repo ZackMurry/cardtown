@@ -1,7 +1,5 @@
 import EditIcon from '@material-ui/icons/Edit'
-import {
-  Button, IconButton, MenuItem, Paper, Popover
-} from '@material-ui/core'
+import { Button, IconButton, MenuItem, Paper, Popover } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { useRouter } from 'next/router'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -17,8 +15,8 @@ interface Props {
 
 // todo: clone card
 const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
-  const [ anchorEl, setAnchorEl ] = useState<HTMLButtonElement | null>(null)
-  const [ errorText, setErrorText ] = useState('')
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
+  const [errorText, setErrorText] = useState('')
 
   const router = useRouter()
 
@@ -44,7 +42,12 @@ const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
         <MoreVertIcon />
       </IconButton>
       <div>
-        <Popover open={!!anchorEl} anchorEl={anchorEl} anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }} onClose={() => setAnchorEl(null)}>
+        <Popover
+          open={!!anchorEl}
+          anchorEl={anchorEl}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          onClose={() => setAnchorEl(null)}
+        >
           <Paper elevation={1} style={{ borderRadius: 7, padding: '5px 0' }}>
             <MenuItem style={{ padding: 0, minHeight: 36 }}>
               <Button
@@ -77,11 +80,7 @@ const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
           </Paper>
         </Popover>
       </div>
-      {
-        errorText && (
-          <ErrorAlert text={errorText} onClose={() => setErrorText(errorText)} />
-        )
-      }
+      {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText(errorText)} />}
     </div>
   )
 }

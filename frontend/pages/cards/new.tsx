@@ -1,13 +1,9 @@
 import { Typography } from '@material-ui/core'
-import {
-  Button, Heading, Text, Input, Textarea
-} from '@chakra-ui/react'
+import { Button, Heading, Text, Input, Textarea } from '@chakra-ui/react'
 import { convertToRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 import { useRouter } from 'next/router'
-import {
-  FC, FormEvent, useState
-} from 'react'
+import { FC, FormEvent, useState } from 'react'
 import { GetServerSideProps } from 'next'
 import mapStyleToReadable from 'components/cards/mapStyleToReadable'
 import CardBodyEditor from 'components/cards/CardBodyEditor'
@@ -28,11 +24,11 @@ interface Props {
 const NewCard: FC<Props> = ({ jwt }) => {
   const { width } = useWindowSize(1920, 1080)
 
-  const [ tag, setTag ] = useState('')
-  const [ cite, setCite ] = useState('')
-  const [ citeInformation, setCiteInformation ] = useState('')
-  const [ bodyState, setBodyState ] = useState(initializeDraftContentState)
-  const [ errorText, setErrorText ] = useState('')
+  const [tag, setTag] = useState('')
+  const [cite, setCite] = useState('')
+  const [citeInformation, setCiteInformation] = useState('')
+  const [bodyState, setBodyState] = useState(initializeDraftContentState)
+  const [errorText, setErrorText] = useState('')
 
   const router = useRouter()
 
@@ -49,7 +45,7 @@ const NewCard: FC<Props> = ({ jwt }) => {
       return
     }
     if (tag.length > 256) {
-      setErrorText('Your card\'s tag cannot be longer than 256 characters')
+      setErrorText("Your card's tag cannot be longer than 256 characters")
       return
     }
     if (cite.length === 0) {
@@ -57,21 +53,21 @@ const NewCard: FC<Props> = ({ jwt }) => {
       return
     }
     if (cite.length > 128) {
-      setErrorText('Your card\'s cite cannot be longer than 128 characters')
+      setErrorText("Your card's cite cannot be longer than 128 characters")
       return
     }
     if (citeInformation.length > 2048) {
-      setErrorText('Your card\'s cite information cannot be longer than 2048 characters')
+      setErrorText("Your card's cite information cannot be longer than 2048 characters")
       return
     }
     if (bodyHtml.length > 100000 || bodyText.length > 50000) {
-      setErrorText('Your card\'s body is too long!')
+      setErrorText("Your card's body is too long!")
       return
     }
 
     const response = await fetch('/api/v1/cards', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
       body: JSON.stringify({
         tag,
         cite,
@@ -107,13 +103,7 @@ const NewCard: FC<Props> = ({ jwt }) => {
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '0 auto', padding: '6vh 0' }}>
           <div>
-            <Text
-              color='darkGray'
-              textTransform='uppercase'
-              fontSize='11'
-              marginTop={19}
-              letterSpacing={0.5}
-            >
+            <Text color='darkGray' textTransform='uppercase' fontSize='11' marginTop={19} letterSpacing={0.5}>
               New card
             </Text>
             <Heading as='h2' fontSize={24} fontWeight='bold' paddingTop={1}>
@@ -121,20 +111,20 @@ const NewCard: FC<Props> = ({ jwt }) => {
             </Heading>
             <div
               style={{
-                width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+                width: '100%',
+                margin: '2vh 0',
+                height: 1,
+                backgroundColor: theme.palette.lightGrey.main
               }}
             />
           </div>
           <form onSubmit={handleSubmit}>
-
             {/* tag */}
             <div>
               <label htmlFor='tag' id='tagLabel'>
                 <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
                   Tag
-                  <span style={{ fontWeight: 300 }}>
-                    *
-                  </span>
+                  <span style={{ fontWeight: 300 }}>*</span>
                 </BlackText>
               </label>
               <Typography color='textSecondary' id='tagDescription' style={{ fontSize: 14, margin: '6px 0' }}>
@@ -157,13 +147,12 @@ const NewCard: FC<Props> = ({ jwt }) => {
               <label htmlFor='cite' id='citeLabel'>
                 <Heading as='h3' fontSize={18} fontWeight={500}>
                   Cite
-                  <span style={{ fontWeight: 300 }}>
-                    *
-                  </span>
+                  <span style={{ fontWeight: 300 }}>*</span>
                 </Heading>
               </label>
               <Text color='lightBlue' id='citeDescription' fontSize={14} margin='6px 0'>
-                Put the last name of the author and the year it was written. You can also put more information. Example: Miller 18.
+                Put the last name of the author and the year it was written. You can also put more information. Example:
+                Miller 18.
               </Text>
               <Input
                 value={cite}
@@ -182,7 +171,8 @@ const NewCard: FC<Props> = ({ jwt }) => {
                 </Heading>
               </label>
               <Text color='lightBlue' id='citeInfoDescription' style={{ fontSize: 14, margin: '6px 0' }}>
-                Put some more information about the source of this card, like the author’s credentials and a link to the place you found it.
+                Put some more information about the source of this card, like the author’s credentials and a link to the
+                place you found it.
               </Text>
               <Textarea
                 value={citeInformation}
@@ -199,24 +189,16 @@ const NewCard: FC<Props> = ({ jwt }) => {
             <div style={{ marginTop: 20 }}>
               <Heading as='h3' fontSize={18} fontWeight={500}>
                 Body
-                <span style={{ fontWeight: 300 }}>
-                  *
-                </span>
+                <span style={{ fontWeight: 300 }}>*</span>
               </Heading>
               <NewCardFormattingPopover />
-              <CardBodyEditor
-                editorState={bodyState}
-                setEditorState={setBodyState}
-                style={{ padding: 10 }}
-              />
+              <CardBodyEditor editorState={bodyState} setEditorState={setBodyState} style={{ padding: 10 }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Text color='lightBlue' fontSize={11}>
                   *required field
                 </Text>
                 <Text color='lightBlue' fontSize={width >= theme.breakpoints.values.md ? 15 : 11}>
-                  {
-                    currentInlineStyles.toString()
-                  }
+                  {currentInlineStyles.toString()}
                 </Text>
               </div>
             </div>
@@ -228,9 +210,7 @@ const NewCard: FC<Props> = ({ jwt }) => {
           </form>
         </div>
       </div>
-      {
-        errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />
-      }
+      {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />}
     </div>
   )
 }

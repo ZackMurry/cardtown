@@ -18,14 +18,12 @@ interface Props {
   windowWidth: number
 }
 
-const EditCard: FC<Props> = ({
-  jwt, onCancel, onDone, card
-}) => {
-  const [ tag, setTag ] = useState(card.tag)
-  const [ cite, setCite ] = useState(card.cite)
-  const [ citeInformation, setCiteInformation ] = useState(card.citeInformation)
-  const [ bodyState, setBodyState ] = useState(() => EditorState.createWithContent(convertFromRaw(JSON.parse(card.bodyDraft))))
-  const [ errorText, setErrorText ] = useState('')
+const EditCard: FC<Props> = ({ jwt, onCancel, onDone, card }) => {
+  const [tag, setTag] = useState(card.tag)
+  const [cite, setCite] = useState(card.cite)
+  const [citeInformation, setCiteInformation] = useState(card.citeInformation)
+  const [bodyState, setBodyState] = useState(() => EditorState.createWithContent(convertFromRaw(JSON.parse(card.bodyDraft))))
+  const [errorText, setErrorText] = useState('')
 
   const handleDone = async (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     if (!jwt) {
@@ -42,7 +40,7 @@ const EditCard: FC<Props> = ({
       return
     }
     if (tag.length > 256) {
-      setErrorText('Your card\'s tag cannot be longer than 256 characters')
+      setErrorText("Your card's tag cannot be longer than 256 characters")
       return
     }
     if (cite.length === 0) {
@@ -50,15 +48,15 @@ const EditCard: FC<Props> = ({
       return
     }
     if (cite.length > 128) {
-      setErrorText('Your card\'s cite cannot be longer than 128 characters')
+      setErrorText("Your card's cite cannot be longer than 128 characters")
       return
     }
     if (citeInformation.length > 2048) {
-      setErrorText('Your card\'s cite information cannot be longer than 2048 characters')
+      setErrorText("Your card's cite information cannot be longer than 2048 characters")
       return
     }
     if (bodyHtml.length > 100000 || bodyText.length > 50000) {
-      setErrorText('Your card\'s body is too long!')
+      setErrorText("Your card's body is too long!")
       return
     }
 
@@ -143,14 +141,8 @@ const EditCard: FC<Props> = ({
         }}
         rows={3}
       />
-      <CardBodyEditor
-        editorState={bodyState}
-        setEditorState={setBodyState}
-        disableOutline
-      />
-      {
-        errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />
-      }
+      <CardBodyEditor editorState={bodyState} setEditorState={setBodyState} disableOutline />
+      {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />}
     </div>
   )
 }

@@ -16,7 +16,7 @@ import ToggleIcon from 'components/utils/ToggleIcon'
 
 // todo maybe have the icons' animations automatically trigger once every ~15 secs (independently)
 const LandingPageSquares: FC = () => {
-  const [ lockState, setLockState ] = useState(false)
+  const [lockState, setLockState] = useState(false)
 
   return (
     <>
@@ -33,12 +33,10 @@ const LandingPageSquares: FC = () => {
             </div>
           </div>
           <div style={{ marginLeft: 25 }}>
-            <BlackText variant='h5'>
-              Searchable cards
-            </BlackText>
+            <BlackText variant='h5'>Searchable cards</BlackText>
             <Typography color='textSecondary'>
-              Instead of endlessly looking through documents for the exact card you want,
-              you can easily search all of your cards — by tag, cite, and body.
+              Instead of endlessly looking through documents for the exact card you want, you can easily search all of your
+              cards — by tag, cite, and body.
             </Typography>
           </div>
         </div>
@@ -51,12 +49,10 @@ const LandingPageSquares: FC = () => {
             </div>
           </div>
           <div style={{ marginLeft: 25 }}>
-            <BlackText variant='h5'>
-              Form speeches with ease
-            </BlackText>
+            <BlackText variant='h5'>Form speeches with ease</BlackText>
             <Typography color='textSecondary'>
-              Click a single button to add a card to a speech. Once you have your speech ready,
-              you can export your speech as a PDF for file sharing.
+              Click a single button to add a card to a speech. Once you have your speech ready, you can export your speech as
+              a PDF for file sharing.
             </Typography>
           </div>
         </div>
@@ -69,12 +65,8 @@ const LandingPageSquares: FC = () => {
             </div>
           </div>
           <div style={{ marginLeft: 25 }}>
-            <BlackText variant='h5'>
-              Collaborative work
-            </BlackText>
-            <Typography color='textSecondary'>
-              Share cards, arguments, speeches, and more with your entire team.
-            </Typography>
+            <BlackText variant='h5'>Collaborative work</BlackText>
+            <Typography color='textSecondary'>Share cards, arguments, speeches, and more with your entire team.</Typography>
           </div>
         </div>
         <Box display='flex'>
@@ -86,14 +78,12 @@ const LandingPageSquares: FC = () => {
             </div>
           </div>
           <div style={{ marginLeft: 25 }}>
-              <BlackText variant='h5'>
-                Easily import and export cards
-              </BlackText>
-              <Typography color='textSecondary'>
-                {/* todo see if microsoft word works for this */}
-                Importing your cards is as simple as copying them into an box and selecting the different parts.
-                You can export all of your cards to a PDF at any time.
-              </Typography>
+            <BlackText variant='h5'>Easily import and export cards</BlackText>
+            <Typography color='textSecondary'>
+              {/* todo see if microsoft word works for this */}
+              Importing your cards is as simple as copying them into an box and selecting the different parts. You can export
+              all of your cards to a PDF at any time.
+            </Typography>
           </div>
         </Box>
         <div style={{ display: 'flex' }}>
@@ -110,12 +100,9 @@ const LandingPageSquares: FC = () => {
             </div>
           </div>
           <div style={{ marginLeft: 25 }}>
-            <BlackText variant='h5'>
-              Privacy first
-            </BlackText>
+            <BlackText variant='h5'>Privacy first</BlackText>
             <Typography color='textSecondary'>
-              Your data is always secured — even we can't access it. Everything in our database
-              is encrypted.
+              Your data is always secured — even we can't access it. Everything in our database is encrypted.
             </Typography>
           </div>
         </div>
@@ -128,9 +115,7 @@ const LandingPageSquares: FC = () => {
             </div>
           </div>
           <div style={{ marginLeft: 25 }}>
-            <BlackText variant='h5'>
-              Open source
-            </BlackText>
+            <BlackText variant='h5'>Open source</BlackText>
             <Typography color='textSecondary'>
               Cardtown is proudly open source. You can find the code on
               <Link href='https://github.com/ZackMurry/cardtown'>

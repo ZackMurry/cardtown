@@ -25,11 +25,7 @@ const DashboardSidebar: FC<Props> = ({ team }) => (
     >
       <DashSidebarTopicList />
       <Divider color='darkGray' width='75%' margin='0 auto' />
-      {
-        team
-          ? <DashSidebarTeamInformation team={team} />
-          : <DashSidebarNoTeamSection />
-      }
+      {team ? <DashSidebarTeamInformation team={team} /> : <DashSidebarNoTeamSection />}
     </Box>
   </Box>
 )

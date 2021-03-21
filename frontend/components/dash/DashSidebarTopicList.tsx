@@ -1,6 +1,4 @@
-import {
-  Box, Heading, Input, Text
-} from '@chakra-ui/react'
+import { Box, Heading, Input, Text } from '@chakra-ui/react'
 import React, { FC, useState } from 'react'
 import chakraTheme from 'lib/chakraTheme'
 import styles from 'styles/Dashboard.module.css'
@@ -33,49 +31,41 @@ const TopicNameDisplay: FC<{ name: string }> = ({ name }) => (
 )
 
 const DashSidebarTopicList: FC = () => {
-  const [ showAllTopics, setShowAllTopics ] = useState(false)
+  const [showAllTopics, setShowAllTopics] = useState(false)
 
   return (
     <div style={{ padding: '10%' }}>
       <Heading as='h4' fontSize={16} fontWeight='medium'>
         Topics
       </Heading>
-      <Input
-        type='text'
-        placeholder='Find a topic...'
-        size='sm'
-        marginTop='10px'
-        focusBorderColor='cardtownBlue'
-      />
+      <Input type='text' placeholder='Find a topic...' size='sm' marginTop='10px' focusBorderColor='cardtownBlue' />
       <Box p='15px 0px 15px 15px'>
         {
           // sample topics for now
           // todo use id as key
           showAllTopics
-            ? (
-              sampleTopics.map(name => <TopicNameDisplay key={name} name={name} />)
-            )
-            : (
-              sampleTopics.slice(0, 7).map(name => <TopicNameDisplay key={name} name={name} />)
-            )
+            ? sampleTopics.map(name => <TopicNameDisplay key={name} name={name} />)
+            : sampleTopics.slice(0, 7).map(name => <TopicNameDisplay key={name} name={name} />)
         }
-        {
-          showAllTopics
-            ? (
-              <button onClick={() => setShowAllTopics(false)} type='button' style={{ fontSize: 12, color: chakraTheme.colors.darkGray }}>
-                Show less
-              </button>
-            )
-            : (
-              <button onClick={() => setShowAllTopics(true)} type='button' style={{ fontSize: 12, color: chakraTheme.colors.darkGray }}>
-                Show more
-              </button>
-            )
-        }
+        {showAllTopics ? (
+          <button
+            onClick={() => setShowAllTopics(false)}
+            type='button'
+            style={{ fontSize: 12, color: chakraTheme.colors.darkGray }}
+          >
+            Show less
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowAllTopics(true)}
+            type='button'
+            style={{ fontSize: 12, color: chakraTheme.colors.darkGray }}
+          >
+            Show more
+          </button>
+        )}
       </Box>
-
     </div>
-
   )
 }
 

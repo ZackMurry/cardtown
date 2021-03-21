@@ -12,10 +12,8 @@ interface Props {
   onError: (msg: string) => void
 }
 
-const CardDisplay: FC<Props> = ({
-  card, jwt, windowWidth, onError
-}) => {
-  const [ editing, setEditing ] = useState(false)
+const CardDisplay: FC<Props> = ({ card, jwt, windowWidth, onError }) => {
+  const [editing, setEditing] = useState(false)
   const router = useRouter()
 
   const handleEdit = () => {
@@ -41,39 +39,29 @@ const CardDisplay: FC<Props> = ({
 
   return (
     <div>
-      {
-        editing
-          ? (
-            <EditCard
-              jwt={jwt}
-              card={card}
-              windowWidth={windowWidth}
-              onDone={handleDoneEditing}
-              onCancel={handleCancelEditing}
-            />
-          )
-          : (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
-                  {card.tag}
-                </BlackText>
-                <CardOptionsButton id={card.id} jwt={jwt} onEdit={handleEdit} />
-              </div>
-              <div>
-                <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
-                  {card.cite}
-                </BlackText>
-                <BlackText style={{ fontWeight: 'normal', fontSize: 11 }}>
-                  {card.citeInformation}
-                </BlackText>
-              </div>
-              {/* all my homies just disable warnings :) */}
-              {/* eslint-disable-next-line react/no-danger */}
-              <div dangerouslySetInnerHTML={{ __html: card.bodyHtml }} />
-            </>
-          )
-      }
+      {editing ? (
+        <EditCard
+          jwt={jwt}
+          card={card}
+          windowWidth={windowWidth}
+          onDone={handleDoneEditing}
+          onCancel={handleCancelEditing}
+        />
+      ) : (
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>{card.tag}</BlackText>
+            <CardOptionsButton id={card.id} jwt={jwt} onEdit={handleEdit} />
+          </div>
+          <div>
+            <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>{card.cite}</BlackText>
+            <BlackText style={{ fontWeight: 'normal', fontSize: 11 }}>{card.citeInformation}</BlackText>
+          </div>
+          {/* all my homies just disable warnings :) */}
+          {/* eslint-disable-next-line react/no-danger */}
+          <div dangerouslySetInnerHTML={{ __html: card.bodyHtml }} />
+        </>
+      )}
     </div>
   )
 }

@@ -1,6 +1,4 @@
-import {
-  Heading, Input, InputGroup, InputRightElement, Text, IconButton, Button
-} from '@chakra-ui/react'
+import { Heading, Input, InputGroup, InputRightElement, Text, IconButton, Button } from '@chakra-ui/react'
 import { GetServerSideProps, NextPage } from 'next'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { FormEvent, useState } from 'react'
@@ -15,11 +13,11 @@ interface Props {
 }
 
 const Login: NextPage<Props> = ({ redirect }) => {
-  const [ email, setEmail ] = useState('')
-  const [ password, setPassword ] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
-  const [ showPassword, setShowPassword ] = useState(false)
-  const [ errorText, setErrorText ] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [errorText, setErrorText] = useState('')
 
   const router = useRouter()
 
@@ -54,12 +52,21 @@ const Login: NextPage<Props> = ({ redirect }) => {
   return (
     <div
       style={{
-        display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '90vh'
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '90vh'
       }}
     >
-      <div style={{
-        width: '25%', minWidth: 400, display: 'flex', flexDirection: 'column', alignItems: 'center'
-      }}
+      <div
+        style={{
+          width: '25%',
+          minWidth: 400,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
       >
         <Heading as='h3' fontSize={42} textAlign='center'>
           Sign in
@@ -94,29 +101,16 @@ const Login: NextPage<Props> = ({ redirect }) => {
             <InputRightElement width='4.5rem' marginTop={15}>
               <IconButton
                 aria-label='Show password'
-                icon={
-                  showPassword
-                    ? <ViewIcon />
-                    : <ViewOffIcon />
-                }
+                icon={showPassword ? <ViewIcon /> : <ViewOffIcon />}
                 onClick={() => setShowPassword(!showPassword)}
                 background='none'
               />
             </InputRightElement>
           </InputGroup>
-          <Button
-            type='submit'
-            height={50}
-            marginTop={15}
-            colorScheme='blue'
-            isFullWidth
-            bg='cardtownBlue'
-          >
+          <Button type='submit' height={50} marginTop={15} colorScheme='blue' isFullWidth bg='cardtownBlue'>
             Log in
           </Button>
-          {
-            errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />
-          }
+          {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />}
         </form>
         <Text color='lightBlue' fontSize={14} marginTop={5}>
           Don't have an account?
@@ -142,9 +136,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query }) =
   }
   return {
     props: {
-      redirect: (typeof query.redirect === 'string'
-        ? query?.redirect
-        : query?.redirect[0]) || null
+      redirect: (typeof query.redirect === 'string' ? query?.redirect : query?.redirect[0]) || null
     }
   }
 }

@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 
 // from https://usehooks.com/useWindowSize/
-const useWindowSize = (initialWidth: number, initialHeight: number): {
-  width: number, height: number
+const useWindowSize = (
+  initialWidth: number,
+  initialHeight: number
+): {
+  width: number
+  height: number
 } => {
-  const [ windowSize, setWindowSize ] = useState({
+  const [windowSize, setWindowSize] = useState({
     width: initialWidth,
     height: initialHeight
   })
@@ -19,7 +23,7 @@ const useWindowSize = (initialWidth: number, initialHeight: number): {
     window.addEventListener('resize', handleResize)
     handleResize()
     return () => window.removeEventListener('resize', handleResize)
-  }, [ ])
+  }, [])
 
   return windowSize
 }

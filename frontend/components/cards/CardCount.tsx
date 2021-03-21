@@ -19,13 +19,9 @@ const CardCount: FC<Props> = ({ count }) => (
       }}
     >
       <Heading as='h5' fontSize={20} fontWeight='normal'>
-        <span style={{ fontWeight: 500, paddingRight: 5 }}>
-          { count }
-        </span>
+        <span style={{ fontWeight: 500, paddingRight: 5 }}>{count}</span>
         card
-        {
-          count !== 1 ? 's' : ''
-        }
+        {count !== 1 ? 's' : ''}
       </Heading>
       <div style={{ marginRight: 10 }}>
         <div

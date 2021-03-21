@@ -1,8 +1,6 @@
 import { Button, TextField, Typography } from '@material-ui/core'
 import { GetServerSideProps } from 'next'
-import {
-  FC, FormEvent, useEffect, useRef, useState
-} from 'react'
+import { FC, FormEvent, useEffect, useRef, useState } from 'react'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import BlackText from 'components/utils/BlackText'
 import ErrorAlert from 'components/utils/ErrorAlert'
@@ -24,13 +22,13 @@ interface Props {
 const ImportCards: FC<Props> = ({ jwt }) => {
   const { width } = useWindowSize(1920, 1080)
   const pasteInputRef = useRef(null)
-  const [ pasteData, setPasteData ] = useState('')
-  const [ tag, setTag ] = useState('')
-  const [ cite, setCite ] = useState('')
-  const [ citeInformation, setCiteInformation ] = useState('')
-  const [ bodyHtml, setBodyHtml ] = useState('')
+  const [pasteData, setPasteData] = useState('')
+  const [tag, setTag] = useState('')
+  const [cite, setCite] = useState('')
+  const [citeInformation, setCiteInformation] = useState('')
+  const [bodyHtml, setBodyHtml] = useState('')
 
-  const [ feedbackText, setFeedbackText ] = useState('')
+  const [feedbackText, setFeedbackText] = useState('')
 
   useEffect(() => {
     const processPaste = (elem, pastedData) => {
@@ -55,7 +53,10 @@ const ImportCards: FC<Props> = ({ jwt }) => {
     const handlePaste = e => {
       if (e && e.clipboardData && e.clipboardData.types && e.clipboardData.getData) {
         const { types } = e.clipboardData
-        if (((types instanceof DOMStringList) && types.contains('text/html')) || (types.indexOf && types.indexOf('text/html') !== -1)) {
+        if (
+          (types instanceof DOMStringList && types.contains('text/html')) ||
+          (types.indexOf && types.indexOf('text/html') !== -1)
+        ) {
           const pastedData = e.clipboardData.getData('text/html')
           processPaste(pasteInputRef, pastedData)
           e.stopPropagation()
@@ -76,7 +77,7 @@ const ImportCards: FC<Props> = ({ jwt }) => {
     // zero shame: the pasting mechanism is straight from stackoverflow
     pasteInputRef.current.addEventListener('paste', handlePaste)
     return () => pasteInputRef.current?.removeEventListener('paste', handlePaste)
-  }, [ ])
+  }, [])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -104,9 +105,7 @@ const ImportCards: FC<Props> = ({ jwt }) => {
       return
     }
 
-    const bodyText = new DOMParser()
-      .parseFromString(bodyHtml, 'text/html')
-      .documentElement.textContent
+    const bodyText = new DOMParser().parseFromString(bodyHtml, 'text/html').documentElement.textContent
 
     if (bodyText.length > 15000 || bodyHtml.length > 100000) {
       setFeedbackText('Your card is too long!')
@@ -161,31 +160,28 @@ const ImportCards: FC<Props> = ({ jwt }) => {
             >
               Import
             </Typography>
-            <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
-              Import cards
-            </BlackText>
+            <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>Import cards</BlackText>
             <div
               style={{
-                width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+                width: '100%',
+                margin: '2vh 0',
+                height: 1,
+                backgroundColor: theme.palette.lightGrey.main
               }}
             />
           </div>
           <div>
             <Typography color='textSecondary' id='tagDescription' style={{ fontSize: 15, margin: '6px 0' }}>
-              First, paste the card into the box below. If you're importing it from a program that supports styled copying and pasting,
-              the card will retain its formatting. With your mouse, select the tag of the card and then press 't' on your keyboard.
-              This will automatically set the selected text to the tag. You can do the same for the rest of the fields using 'c' for cite,
-              'i' for cite information, and 'b' for body. You'll see their values in the input boxes below your card.
-              You can edit the values of tag, cite, and cite information with the input boxes.
+              First, paste the card into the box below. If you're importing it from a program that supports styled copying
+              and pasting, the card will retain its formatting. With your mouse, select the tag of the card and then press
+              't' on your keyboard. This will automatically set the selected text to the tag. You can do the same for the
+              rest of the fields using 'c' for cite, 'i' for cite information, and 'b' for body. You'll see their values in
+              the input boxes below your card. You can edit the values of tag, cite, and cite information with the input
+              boxes.
             </Typography>
           </div>
           <div>
-            <input
-              ref={pasteInputRef}
-              type='text'
-              placeholder='Paste here'
-              className={styles['paste-card-input']}
-            />
+            <input ref={pasteInputRef} type='text' placeholder='Paste here' className={styles['paste-card-input']} />
             <div
               // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
               tabIndex={0}
@@ -204,9 +200,7 @@ const ImportCards: FC<Props> = ({ jwt }) => {
               <label htmlFor='tag' id='tagLabel'>
                 <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500, marginBottom: 5 }}>
                   Tag
-                  <span style={{ fontWeight: 300 }}>
-                    *
-                  </span>
+                  <span style={{ fontWeight: 300 }}>*</span>
                 </BlackText>
               </label>
               <TextField
@@ -233,9 +227,7 @@ const ImportCards: FC<Props> = ({ jwt }) => {
               <label htmlFor='cite' id='citeLabel'>
                 <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500, marginBottom: 5 }}>
                   Cite
-                  <span style={{ fontWeight: 300 }}>
-                    *
-                  </span>
+                  <span style={{ fontWeight: 300 }}>*</span>
                 </BlackText>
               </label>
               <TextField
@@ -282,21 +274,18 @@ const ImportCards: FC<Props> = ({ jwt }) => {
             <div style={{ marginTop: 25 }}>
               <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
                 Body
-                <span style={{ fontWeight: 300 }}>
-                  *
-                </span>
+                <span style={{ fontWeight: 300 }}>*</span>
               </BlackText>
               {/* eslint-disable-next-line react/no-danger */}
               <div dangerouslySetInnerHTML={{ __html: bodyHtml }} />
             </div>
           </form>
-          {
-            feedbackText && (
-              feedbackText === IMPORT_SUCCESS_TEXT
-                ? <SuccessAlert text={feedbackText} onClose={() => setFeedbackText('')} />
-                : <ErrorAlert text={feedbackText} onClose={() => setFeedbackText('')} />
-            )
-          }
+          {feedbackText &&
+            (feedbackText === IMPORT_SUCCESS_TEXT ? (
+              <SuccessAlert text={feedbackText} onClose={() => setFeedbackText('')} />
+            ) : (
+              <ErrorAlert text={feedbackText} onClose={() => setFeedbackText('')} />
+            ))}
         </div>
       </div>
     </div>

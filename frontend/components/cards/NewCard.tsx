@@ -16,12 +16,7 @@ const NewCard: FC = () => (
           height: '100%'
         }}
       >
-        <Heading
-          as='h5'
-          fontSize={20}
-          fontWeight='normal'
-          paddingRight='5'
-        >
+        <Heading as='h5' fontSize={20} fontWeight='normal' paddingRight='5'>
           New card
         </Heading>
         <AddRoundedIcon style={{ fontSize: 50, color: theme.palette.text.secondary }} />

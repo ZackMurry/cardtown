@@ -16,11 +16,11 @@ interface Props {
 }
 
 const NewArgument: NextPage<Props> = ({ jwt }) => {
-  const [ name, setName ] = useState('')
-  const [ unselectedCards, setUnselectedCards ] = useState<CardPreview[] | null>(null)
-  const [ selectedCards, setSelectedCards ] = useState<CardPreview[]>([])
+  const [name, setName] = useState('')
+  const [unselectedCards, setUnselectedCards] = useState<CardPreview[] | null>(null)
+  const [selectedCards, setSelectedCards] = useState<CardPreview[]>([])
 
-  const [ errorText, setErrorText ] = useState('')
+  const [errorText, setErrorText] = useState('')
 
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
@@ -29,7 +29,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
     e.preventDefault()
 
     if (name.length > 128) {
-      setErrorText('Your argument\'s name cannot be more than 128 characters')
+      setErrorText("Your argument's name cannot be more than 128 characters")
       return
     }
     if (name.length < 1) {
@@ -88,7 +88,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
       setErrorText('Error selecting a card. Please try again')
     }
     const fullCard = filtered[0]
-    setSelectedCards([ ...selectedCards, fullCard ])
+    setSelectedCards([...selectedCards, fullCard])
     setUnselectedCards(unselectedCards.filter(c => c.id !== id))
   }
 
@@ -98,7 +98,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
       setErrorText('Error unselecting a card. Please try again')
     }
     const fullCard = filtered[0]
-    setUnselectedCards([ ...unselectedCards, fullCard ])
+    setUnselectedCards([...unselectedCards, fullCard])
     setSelectedCards(selectedCards.filter(c => c.id !== id))
   }
 
@@ -120,12 +120,13 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
             >
               New argument
             </Typography>
-            <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
-              Create a new argument
-            </BlackText>
+            <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>Create a new argument</BlackText>
             <div
               style={{
-                width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+                width: '100%',
+                margin: '2vh 0',
+                height: 1,
+                backgroundColor: theme.palette.lightGrey.main
               }}
             />
           </div>
@@ -133,21 +134,18 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
           {/* description of arguments */}
           <div>
             <Typography color='textSecondary' style={{ fontSize: 16, margin: '10px 0' }}>
-              Arguments are lists of cards (or analytics) that go together. You can include all of the cards in an argument in a speech, making
-              them very convenient for grouping cards that are commonly read together.
+              Arguments are lists of cards (or analytics) that go together. You can include all of the cards in an argument
+              in a speech, making them very convenient for grouping cards that are commonly read together.
             </Typography>
           </div>
 
           <form onSubmit={handleSubmit}>
-
             {/* tag */}
             <div>
               <label htmlFor='name' id='nameLabel'>
                 <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
                   Name
-                  <span style={{ fontWeight: 300 }}>
-                    *
-                  </span>
+                  <span style={{ fontWeight: 300 }}>*</span>
                 </BlackText>
               </label>
               <Typography color='textSecondary' id='nameDescription' style={{ fontSize: 14, margin: '6px 0' }}>
@@ -177,32 +175,26 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
               <Typography color='textSecondary' style={{ fontSize: 14, margin: '6px 0' }}>
                 Add some cards to your argument. If you're still working on them, you can always modify arguments later.
               </Typography>
-              {
-                unselectedCards && (
-                  <ArgumentCardSelector
-                    cardsInArgument={selectedCards}
-                    cardsNotInArgument={unselectedCards}
-                    onCardSelect={handleCardSelect}
-                    onCardRemove={handleCardRemove}
-                    windowWidth={width}
-                  />
-                )
-              }
+              {unselectedCards && (
+                <ArgumentCardSelector
+                  cardsInArgument={selectedCards}
+                  cardsNotInArgument={unselectedCards}
+                  onCardSelect={handleCardSelect}
+                  onCardRemove={handleCardRemove}
+                  windowWidth={width}
+                />
+              )}
             </div>
 
             <div style={{ marginTop: 10, marginBottom: -5 }}>
               <Button type='submit' variant='contained' color='primary' style={{ textTransform: 'none' }}>
-                <Typography>
-                  Finish
-                </Typography>
+                <Typography>Finish</Typography>
               </Button>
             </div>
           </form>
         </div>
       </div>
-      {
-        errorText && <ErrorAlert onClose={() => setErrorText('')} text={errorText} />
-      }
+      {errorText && <ErrorAlert onClose={() => setErrorText('')} text={errorText} />}
     </div>
   )
 }

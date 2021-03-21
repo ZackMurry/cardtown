@@ -6,8 +6,8 @@ import PageName from 'types/PageName'
 import JwtBody from 'types/JwtBody'
 import DashNavbarDesktopAvatar from './DashNavbarDesktopAvatar'
 
-const PageTitleDisplay: FC<{ href: string, title: string }> = ({ href, title }) => {
-  const [ mouseOver, setMouseOver ] = useState(false)
+const PageTitleDisplay: FC<{ href: string; title: string }> = ({ href, title }) => {
+  const [mouseOver, setMouseOver] = useState(false)
   return (
     <Link href={href} passHref>
       <a>
@@ -50,16 +50,8 @@ const DashNavbarDesktop: FC<Props> = ({ pageName, jwt }) => (
       <PageTitleDisplay href='/rounds' title='Rounds' />
     </Box>
     <Box display='flex' alignItems='center'>
-      <IconButton
-        aria-label='Notifications'
-        icon={<BellIcon fontSize='large' color='darkGray' />}
-        bg='transparent'
-      />
-      <IconButton
-        aria-label='New'
-        icon={<AddIcon color='darkGray' />}
-        bg='transparent'
-      />
+      <IconButton aria-label='Notifications' icon={<BellIcon fontSize='large' color='darkGray' />} bg='transparent' />
+      <IconButton aria-label='New' icon={<AddIcon color='darkGray' />} bg='transparent' />
       <DashNavbarDesktopAvatar jwt={jwt} />
     </Box>
   </header>

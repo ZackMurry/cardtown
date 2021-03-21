@@ -13,11 +13,9 @@ interface Props {
   onError: (msg: string) => void
 }
 
-const ArgumentName: FC<Props> = ({
-  name: initialName, jwt, argumentId, onNameChange, onError
-}) => {
-  const [ editMode, setEditMode ] = useState(false)
-  const [ name, setName ] = useState(initialName)
+const ArgumentName: FC<Props> = ({ name: initialName, jwt, argumentId, onNameChange, onError }) => {
+  const [editMode, setEditMode] = useState(false)
+  const [name, setName] = useState(initialName)
 
   const handleCancel = () => {
     setName(initialName)
@@ -56,41 +54,39 @@ const ArgumentName: FC<Props> = ({
 
   return (
     <>
-      {
-        editMode
-          ? (
-            <form onSubmit={handleDone} style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-              <TextField
-                value={name}
-                onChange={e => setName(e.target.value)}
-                variant='outlined'
-                style={{ width: '100%' }}
-                InputProps={{ inputProps: { style: { padding: 14 } } }}
-              />
-              <div
-                style={{
-                  display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingLeft: '5%'
-                }}
-              >
-                <IconButton onClick={handleCancel} style={{ height: 48, width: 48 }}>
-                  <CloseIcon fontSize='small' />
-                </IconButton>
-                <IconButton type='submit' style={{ height: 48, width: 48 }}>
-                  <DoneIcon fontSize='small' />
-                </IconButton>
-              </div>
-            </form>
-          ) : (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <BlackText style={{ fontSize: 24, fontWeight: 'bold', overflowWrap: 'anywhere' }}>
-                {name}
-              </BlackText>
-              <IconButton onClick={() => setEditMode(true)} style={{ height: 48, width: 48 }}>
-                <EditIcon fontSize='small' />
-              </IconButton>
-            </div>
-          )
-      }
+      {editMode ? (
+        <form onSubmit={handleDone} style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          <TextField
+            value={name}
+            onChange={e => setName(e.target.value)}
+            variant='outlined'
+            style={{ width: '100%' }}
+            InputProps={{ inputProps: { style: { padding: 14 } } }}
+          />
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              paddingLeft: '5%'
+            }}
+          >
+            <IconButton onClick={handleCancel} style={{ height: 48, width: 48 }}>
+              <CloseIcon fontSize='small' />
+            </IconButton>
+            <IconButton type='submit' style={{ height: 48, width: 48 }}>
+              <DoneIcon fontSize='small' />
+            </IconButton>
+          </div>
+        </form>
+      ) : (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <BlackText style={{ fontSize: 24, fontWeight: 'bold', overflowWrap: 'anywhere' }}>{name}</BlackText>
+          <IconButton onClick={() => setEditMode(true)} style={{ height: 48, width: 48 }}>
+            <EditIcon fontSize='small' />
+          </IconButton>
+        </div>
+      )}
     </>
   )
 }

@@ -32,42 +32,26 @@ const CardHeaderPreview: FC<Props> = ({ tag, cite, onClick }) => {
       onClick={onClick}
     >
       <Grid item xs={12} lg={3}>
-        {
-          shortenedCite === cite
-            ? (
-              <BlackText style={{ fontWeight: 500 }}>
-                {shortenedCite}
-              </BlackText>
-            )
-            : (
-              <Tooltip title={cite} style={{ maxHeight: 50 }}>
-                <div>
-                  <BlackText style={{ fontWeight: 500 }}>
-                    {shortenedCite}
-                  </BlackText>
-                </div>
-              </Tooltip>
-            )
-        }
+        {shortenedCite === cite ? (
+          <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+        ) : (
+          <Tooltip title={cite} style={{ maxHeight: 50 }}>
+            <div>
+              <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+            </div>
+          </Tooltip>
+        )}
       </Grid>
       <Grid item xs={12} lg={6}>
-        {
-          shortenedTag === tag
-            ? (
-              <BlackText>
-                {shortenedTag}
-              </BlackText>
-            )
-            : (
-              <Tooltip title={tag}>
-                <div>
-                  <BlackText>
-                    {shortenedTag}
-                  </BlackText>
-                </div>
-              </Tooltip>
-            )
-        }
+        {shortenedTag === tag ? (
+          <BlackText>{shortenedTag}</BlackText>
+        ) : (
+          <Tooltip title={tag}>
+            <div>
+              <BlackText>{shortenedTag}</BlackText>
+            </div>
+          </Tooltip>
+        )}
       </Grid>
     </Grid>
   )

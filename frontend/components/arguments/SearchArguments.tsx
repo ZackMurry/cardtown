@@ -16,10 +16,8 @@ interface SearchPoint {
   arg: ArgumentPreview
 }
 
-const SearchArguments: FC<Props> = ({
-  args, onResults, onClear, windowWidth
-}) => {
-  const [ query, setQuery ] = useState('')
+const SearchArguments: FC<Props> = ({ args, onResults, onClear, windowWidth }) => {
+  const [query, setQuery] = useState('')
 
   const handleSearch = () => {
     if (!query) {
@@ -43,15 +41,17 @@ const SearchArguments: FC<Props> = ({
       })
       searchPoints.push({ points, arg })
     })
-    searchPoints = searchPoints.filter(({ points }) => points > 0).sort((a, b) => {
-      if (a.points < b.points) {
-        return 1
-      }
-      if (a.points > b.points) {
-        return -1
-      }
-      return 0
-    })
+    searchPoints = searchPoints
+      .filter(({ points }) => points > 0)
+      .sort((a, b) => {
+        if (a.points < b.points) {
+          return 1
+        }
+        if (a.points > b.points) {
+          return -1
+        }
+        return 0
+      })
     const results = searchPoints.map(({ arg }) => arg)
     onResults(results)
   }

@@ -20,9 +20,7 @@ interface Props {
 
 // todo wrap dash pages in a DashboardPage component instead of rewriting layout
 // todo improve responsiveness of sidebar etc
-const Dash: FC<Props> = ({
-  jwt, team, fetchErrorText, actions
-}) => {
+const Dash: FC<Props> = ({ jwt, team, fetchErrorText, actions }) => {
   const { width } = useWindowSize(1920, 1080)
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
@@ -31,9 +29,7 @@ const Dash: FC<Props> = ({
         <DashboardSidebar team={team} />
         <DashActionFeed actions={actions} jwt={jwt} />
       </Box>
-      {
-        fetchErrorText && <ErrorAlert text={fetchErrorText} disableClose />
-      }
+      {fetchErrorText && <ErrorAlert text={fetchErrorText} disableClose />}
     </div>
   )
 }
@@ -53,7 +49,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     headers: { Authorization: `Bearer ${jwt}` }
   })
   let teamHeader: TeamHeader | null
-  if (teamResponse.ok && teamResponse.status !== 204) { // 204 means that user is not in a team
+  if (teamResponse.ok && teamResponse.status !== 204) {
+    // 204 means that user is not in a team
     teamHeader = (await teamResponse.json()) as TeamHeader
   } else if (!teamResponse.ok) {
     let errorText: string | null = null

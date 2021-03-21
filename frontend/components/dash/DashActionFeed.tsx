@@ -12,15 +12,11 @@ interface Props {
 // todo extract conversion of jwt to parent since both this and the navbar do the same thing
 // todo styling and infinite scrolling
 const DashActionFeed: FC<Props> = ({ actions: initialActions, jwt: jwtStr }) => {
-  const [ actions, setActions ] = useState(initialActions)
+  const [actions, setActions] = useState(initialActions)
   const jwt = useMemo(() => parseJwt(jwtStr), [])
   return (
     <Box p='3%' w='50%'>
-      {
-        actions && actions.map(action => (
-          <DashActionItem action={action} key={action.time} jwt={jwt} />
-        ))
-      }
+      {actions && actions.map(action => <DashActionItem action={action} key={action.time} jwt={jwt} />)}
     </Box>
   )
 }

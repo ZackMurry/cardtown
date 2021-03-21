@@ -1,13 +1,11 @@
-import {
-  Button, Heading, Grid, GridItem, Text
-} from '@chakra-ui/react'
+import { Button, Heading, Grid, GridItem, Text } from '@chakra-ui/react'
 import { FC, FormEvent, useState } from 'react'
 import { useRouter } from 'next/router'
 import theme from 'lib/theme'
 
 const LandingPageJoinBetaMobile: FC = () => {
-  const [ email, setEmail ] = useState('')
-  const [ invalid, setInvalid ] = useState(false)
+  const [email, setEmail] = useState('')
+  const [invalid, setInvalid] = useState(false)
 
   const router = useRouter()
 
@@ -67,21 +65,22 @@ const LandingPageJoinBetaMobile: FC = () => {
         </Grid>
       </form>
       {/* todo maybe make invalid look a bit better */}
-      {
-        invalid && (
-          <Text
-            color='red.500'
-            textAlign='center'
-            fontWeight='400'
-            margin={10}
-            style={{
-              color: theme.palette.error.main, textAlign: 'center', fontWeight: 500, margin: 10
-            }}
-          >
-            This isn't a valid email address.
-          </Text>
-        )
-      }
+      {invalid && (
+        <Text
+          color='red.500'
+          textAlign='center'
+          fontWeight='400'
+          margin={10}
+          style={{
+            color: theme.palette.error.main,
+            textAlign: 'center',
+            fontWeight: 500,
+            margin: 10
+          }}
+        >
+          This isn't a valid email address.
+        </Text>
+      )}
     </>
   )
 }

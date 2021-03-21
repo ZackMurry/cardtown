@@ -24,7 +24,6 @@ const LandingPageDesktop: FC = () => {
       >
         <LandingPageSquares />
       </div>
-
     </>
   )
 }

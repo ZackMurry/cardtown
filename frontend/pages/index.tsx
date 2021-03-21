@@ -5,7 +5,6 @@ import useWindowSize from 'lib/hooks/useWindowSize'
 import LandingPageMobile from 'components/landing/mobile/LandingPageMobile'
 import LandingPageDesktop from 'components/landing/desktop/LandingPageDesktop'
 
-// todo: switch to chakra-ui
 const Home: FC = () => {
   const { width } = useWindowSize(1920, 1080)
 
@@ -15,11 +14,7 @@ const Home: FC = () => {
         <title>Debate cards in the cloud</title>
       </Head>
 
-      {
-        width >= theme.breakpoints.values.md
-          ? <LandingPageDesktop />
-          : <LandingPageMobile />
-      }
+      {width >= theme.breakpoints.values.md ? <LandingPageDesktop /> : <LandingPageMobile />}
     </>
   )
 }

@@ -2,9 +2,7 @@ import { Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
-import {
-  DragDropContext, Droppable, DroppableProvided, DropResult
-} from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, DroppableProvided, DropResult } from 'react-beautiful-dnd'
 import AddCardToArgumentButton from 'components/arguments/AddCardToArgumentButton'
 import ArgumentCardDisplay from 'components/arguments/ArgumentCardDisplay'
 import ArgumentName from 'components/arguments/ArgumentName'
@@ -23,12 +21,10 @@ interface Props {
   jwt?: string
 }
 
-const ViewArgument: NextPage<Props> = ({
-  fetchingErrorText, argument: initialArgument, jwt, id
-}) => {
-  const [ argument, setArgument ] = useState(initialArgument)
-  const [ errorText, setErrorText ] = useState('')
-  const [ name, setName ] = useState(argument?.name)
+const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArgument, jwt, id }) => {
+  const [argument, setArgument] = useState(initialArgument)
+  const [errorText, setErrorText] = useState('')
+  const [name, setName] = useState(argument?.name)
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
 
@@ -62,112 +58,96 @@ const ViewArgument: NextPage<Props> = ({
   }
 
   return (
-    <div style={{
-      width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
-    }}
+    <div
+      style={{
+        width: '100%',
+        backgroundColor: theme.palette.lightBlue.main,
+        minHeight: '100%',
+        overflow: 'auto'
+      }}
     >
       <DashboardNavbar windowWidth={width} pageName='Arguments' jwt={jwt} />
-      {
-        argument && (
-          <div
+      {argument && (
+        <div
+          style={{
+            width: '50%',
+            margin: '10vh auto'
+          }}
+        >
+          <Typography
             style={{
-              width: '50%',
-              margin: '10vh auto'
+              color: theme.palette.darkGrey.main,
+              textTransform: 'uppercase',
+              fontSize: 11,
+              marginTop: 19,
+              letterSpacing: 0.5
             }}
           >
-            <Typography
-              style={{
-                color: theme.palette.darkGrey.main,
-                textTransform: 'uppercase',
-                fontSize: 11,
-                marginTop: 19,
-                letterSpacing: 0.5
-              }}
-            >
-              Argument
-            </Typography>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <ArgumentName
-                jwt={jwt}
-                name={name}
-                argumentId={argument.id}
-                onError={setErrorText}
-                onNameChange={setName}
-              />
-              <DeleteArgumentButton
-                jwt={jwt}
-                argumentId={argument.id}
-                argumentName={argument.name}
-                onError={setErrorText}
-                onDelete={() => router.push('/arguments/all')}
-              />
-            </div>
-            <div
-              style={{
-                width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
-              }}
+            Argument
+          </Typography>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <ArgumentName jwt={jwt} name={name} argumentId={argument.id} onError={setErrorText} onNameChange={setName} />
+            <DeleteArgumentButton
+              jwt={jwt}
+              argumentId={argument.id}
+              argumentName={argument.name}
+              onError={setErrorText}
+              onDelete={() => router.push('/arguments/all')}
             />
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId='CARDS_LIST'>
-                {(
-                  dropProvided: DroppableProvided
-                ) => (
-                  <div
-                    style={{
-                      backgroundColor: theme.palette.secondary.main,
-                      border: `1px solid ${theme.palette.lightGrey.main}`,
-                      borderRadius: 5,
-                      padding: '3vh 3vw'
-                    }}
-                    ref={dropProvided.innerRef}
-                  >
-                    {
-                      !argument?.cards?.length && (
-                        <Typography color='textSecondary' style={{ textAlign: 'center' }}>
-                          This argument doesn't have any cards
-                        </Typography>
-                      )
-                    }
-                    {
-                      argument?.cards && argument.cards.map((card, index) => (
-                        <ArgumentCardDisplay
-                          card={card}
-                          jwt={jwt}
-                          onError={setErrorText}
-                          windowWidth={width}
-                          // eslint-disable-next-line react/no-array-index-key
-                          key={`${card.id}@${index}`}
-                          argumentId={id}
-                          indexInArgument={index}
-                          onRemove={() => setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })}
-                        />
-                      ))
-                    }
-                    {
-                      dropProvided.placeholder
-                    }
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-            <div style={{ marginTop: 25 }}>
-              <AddCardToArgumentButton
-                jwt={jwt}
-                onError={setErrorText}
-                argId={argument.id}
-                windowWidth={width}
-              />
-            </div>
           </div>
-
-        )
-      }
-      {
-        fetchingErrorText && <ErrorAlert disableClose text={fetchingErrorText} />
-      }
-      {
-        errorText && <ErrorAlert onClose={() => setErrorText('')} text={errorText} />
-      }
+          <div
+            style={{
+              width: '100%',
+              margin: '2vh 0',
+              height: 1,
+              backgroundColor: theme.palette.lightGrey.main
+            }}
+          />
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId='CARDS_LIST'>
+              {(dropProvided: DroppableProvided) => (
+                <div
+                  style={{
+                    backgroundColor: theme.palette.secondary.main,
+                    border: `1px solid ${theme.palette.lightGrey.main}`,
+                    borderRadius: 5,
+                    padding: '3vh 3vw'
+                  }}
+                  ref={dropProvided.innerRef}
+                >
+                  {!argument?.cards?.length && (
+                    <Typography color='textSecondary' style={{ textAlign: 'center' }}>
+                      This argument doesn't have any cards
+                    </Typography>
+                  )}
+                  {argument?.cards &&
+                    argument.cards.map((card, index) => (
+                      <ArgumentCardDisplay
+                        card={card}
+                        jwt={jwt}
+                        onError={setErrorText}
+                        windowWidth={width}
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={`${card.id}@${index}`}
+                        argumentId={id}
+                        indexInArgument={index}
+                        onRemove={() =>
+                          setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })
+                        }
+                      />
+                    ))}
+                  {dropProvided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <div style={{ marginTop: 25 }}>
+            <AddCardToArgumentButton jwt={jwt} onError={setErrorText} argId={argument.id} windowWidth={width} />
+          </div>
+        </div>
+      )}
+      {fetchingErrorText && <ErrorAlert disableClose text={fetchingErrorText} />}
+      {errorText && <ErrorAlert onClose={() => setErrorText('')} text={errorText} />}
     </div>
   )
 }
@@ -195,9 +175,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
     }
   }
   const dev = process.env.NODE_ENV !== 'production'
-  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/arguments/id/${encodeURIComponent(id)}`, {
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
-  })
+  const response = await fetch(
+    (dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/arguments/id/${encodeURIComponent(id)}`,
+    {
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` }
+    }
+  )
   if (response.ok) {
     argument = await response.json()
   } else if (response.status === 404 || response.status === 400) {

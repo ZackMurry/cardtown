@@ -16,10 +16,8 @@ interface SearchPoint {
   card: CardPreview
 }
 
-const SearchCards: FC<Props> = ({
-  cards, onResults, onClear, windowWidth
-}) => {
-  const [ query, setQuery ] = useState('')
+const SearchCards: FC<Props> = ({ cards, onResults, onClear, windowWidth }) => {
+  const [query, setQuery] = useState('')
 
   const handleSearch = () => {
     if (!query) {
@@ -35,9 +33,7 @@ const SearchCards: FC<Props> = ({
 
     let searchPoints: SearchPoint[] = []
     cards.forEach(card => {
-      const {
-        tag, cite, bodyText
-      } = card
+      const { tag, cite, bodyText } = card
       let points = 0
       queryWords.forEach(queryWord => {
         const regExp = new RegExp(queryWord.toLocaleLowerCase(), 'gi')
@@ -47,15 +43,17 @@ const SearchCards: FC<Props> = ({
       })
       searchPoints.push({ points, card })
     })
-    searchPoints = searchPoints.filter(({ points }) => points > 0).sort((a, b) => {
-      if (a.points < b.points) {
-        return 1
-      }
-      if (a.points > b.points) {
-        return -1
-      }
-      return 0
-    })
+    searchPoints = searchPoints
+      .filter(({ points }) => points > 0)
+      .sort((a, b) => {
+        if (a.points < b.points) {
+          return 1
+        }
+        if (a.points > b.points) {
+          return -1
+        }
+        return 0
+      })
     const results = searchPoints.map(({ card }) => card)
     onResults(results)
   }

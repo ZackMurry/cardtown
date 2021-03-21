@@ -1,6 +1,4 @@
-import {
-  Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
-} from '@material-ui/core'
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core'
 import { FC } from 'react'
 
 interface Props {
@@ -11,22 +9,16 @@ interface Props {
   title: string
 }
 
-const ConfirmationDialog: FC<Props> = ({
-  open, body, title, onCancel, onConfirm
-}) => (
+const ConfirmationDialog: FC<Props> = ({ open, body, title, onCancel, onConfirm }) => (
   <Dialog
     open={open}
     onClose={onCancel}
     aria-labelledby='confirm-dialog-title'
     aria-describedby='confirm-dialog-description'
   >
-    <DialogTitle id='confirm-dialog-title'>
-      {title}
-    </DialogTitle>
+    <DialogTitle id='confirm-dialog-title'>{title}</DialogTitle>
     <DialogContent>
-      <DialogContentText id='confirm-dialog-description'>
-        {body}
-      </DialogContentText>
+      <DialogContentText id='confirm-dialog-description'>{body}</DialogContentText>
     </DialogContent>
     <DialogActions>
       <Button autoFocus onClick={onCancel}>

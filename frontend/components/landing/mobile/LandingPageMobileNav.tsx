@@ -11,12 +11,7 @@ const LandingPageMobileNav: FC = () => (
       alignItems: 'center'
     }}
   >
-    <Heading
-      variant='h5'
-      textAlign='center'
-      fontSize='22px'
-      fontWeight='400'
-    >
+    <Heading variant='h5' textAlign='center' fontSize='22px' fontWeight='400'>
       Cardtown
     </Heading>
   </div>

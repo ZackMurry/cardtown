@@ -11,10 +11,8 @@ interface Props {
   onError: (msg: string) => void
 }
 
-const DeleteArgumentButton: FC<Props> = ({
-  jwt, argumentId, argumentName, onDelete, onError
-}) => {
-  const [ dialogOpen, setDialogOpen ] = useState(false)
+const DeleteArgumentButton: FC<Props> = ({ jwt, argumentId, argumentName, onDelete, onError }) => {
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const handleDelete = async () => {
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argumentId)}`, {

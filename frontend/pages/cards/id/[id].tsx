@@ -21,16 +21,17 @@ interface Props {
 // todo show arguments (with hyperlink and the index that the card appears) that contain the card
 // using GET /api/v1/cards/[id]/arguments
 // todo don't url encode ids on the frontend anymore
-const ViewCard: NextPage<Props> = ({
-  fetchingErrorText, card, jwt, relatedArguments
-}) => {
+const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, jwt, relatedArguments }) => {
   const { width } = useWindowSize(1920, 1080)
-  const [ errorText, setErrorText ] = useState('')
+  const [errorText, setErrorText] = useState('')
 
   return (
     <div
       style={{
-        width: '100%', backgroundColor: theme.palette.lightBlue.main, minHeight: '100%', overflow: 'auto'
+        width: '100%',
+        backgroundColor: theme.palette.lightBlue.main,
+        minHeight: '100%',
+        overflow: 'auto'
       }}
     >
       <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
@@ -44,25 +45,10 @@ const ViewCard: NextPage<Props> = ({
           padding: '3vh 3vw'
         }}
       >
-        {
-          card && (
-            <CardDisplay
-              onError={setErrorText}
-              card={card}
-              jwt={jwt}
-              windowWidth={width}
-            />
-          )
-        }
+        {card && <CardDisplay onError={setErrorText} card={card} jwt={jwt} windowWidth={width} />}
       </div>
-      {
-        (relatedArguments && relatedArguments.length !== 0) && (
-          <CardArgumentsDisplay relatedArguments={relatedArguments} />
-        )
-      }
-      {
-        (fetchingErrorText || errorText) && <ErrorAlert disableClose text={fetchingErrorText || errorText} />
-      }
+      {relatedArguments && relatedArguments.length !== 0 && <CardArgumentsDisplay relatedArguments={relatedArguments} />}
+      {(fetchingErrorText || errorText) && <ErrorAlert disableClose text={fetchingErrorText || errorText} />}
     </div>
   )
 }
@@ -128,7 +114,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
   })
   let relatedArguments: ArgumentWithCardModel[] | null
   if (argumentsResponse.ok) {
-    relatedArguments = await argumentsResponse.json() as ArgumentWithCardModel[]
+    relatedArguments = (await argumentsResponse.json()) as ArgumentWithCardModel[]
   } else {
     errorText = `Error fetching related arguments. Status code: ${argumentsResponse.status}`
   }

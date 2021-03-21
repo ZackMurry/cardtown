@@ -1,6 +1,4 @@
-import {
-  Box, Button, Heading, Text
-} from '@chakra-ui/react'
+import { Box, Button, Heading, Text } from '@chakra-ui/react'
 import { FC } from 'react'
 import Link from 'next/link'
 import TeamHeader from 'types/TeamHeader'

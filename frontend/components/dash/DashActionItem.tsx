@@ -9,7 +9,16 @@ const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }
     {children}
     <Link href={`/cards/id/${action.card.id}`}>
       <a>
-        <Box bg='white' borderWidth='1px' borderStyle='solid' borderColor='grayBorder' borderRadius='5px' p='15px 20px' mt='10px' w='100%'>
+        <Box
+          bg='white'
+          borderWidth='1px'
+          borderStyle='solid'
+          borderColor='grayBorder'
+          borderRadius='5px'
+          p='15px 20px'
+          mt='10px'
+          w='100%'
+        >
           <Text fontWeight='medium' fontSize='14px'>
             {action.card.tag}
           </Text>
@@ -21,12 +30,10 @@ const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }
               {`${action.card.bodyText.split(' ').length} words`}
             </Text>
             <Text color='darkGray' fontSize='14px'>
-              {
-                action.card.numRelatedArguments === 0 ? 'Not in any arguments' : `In ${action.card.numRelatedArguments} argument`
-              }
-              {
-                action.card.numRelatedArguments > 1 ? 's' : ''
-              }
+              {action.card.numRelatedArguments === 0
+                ? 'Not in any arguments'
+                : `In ${action.card.numRelatedArguments} argument`}
+              {action.card.numRelatedArguments > 1 ? 's' : ''}
             </Text>
           </Flex>
         </Box>
@@ -40,7 +47,16 @@ const DashActionArgumentItem: FC<{ action: ResponseAction }> = ({ action, childr
     {children}
     <Link href={`/arguments/id/${action.argument.id}`}>
       <a>
-        <Box bg='white' borderWidth='1px' borderStyle='solid' borderColor='grayBorder' borderRadius='5px' p='15px 20px' mt='10px' w='100%'>
+        <Box
+          bg='white'
+          borderWidth='1px'
+          borderStyle='solid'
+          borderColor='grayBorder'
+          borderRadius='5px'
+          p='15px 20px'
+          mt='10px'
+          w='100%'
+        >
           <Text fontWeight='medium' fontSize='14px'>
             {action.argument.name}
           </Text>

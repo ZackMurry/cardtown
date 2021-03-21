@@ -1,6 +1,4 @@
-import {
-  Editor, EditorState, getDefaultKeyBinding, RichUtils
-} from 'draft-js'
+import { Editor, EditorState, getDefaultKeyBinding, RichUtils } from 'draft-js'
 import { CSSProperties, FC } from 'react'
 import styles from 'styles/NewCard.module.css'
 import theme from 'lib/theme'
@@ -36,9 +34,7 @@ interface Props {
   style?: CSSProperties
 }
 
-const CardBodyEditor: FC<Props> = ({
-  editorState, setEditorState, disableOutline, style: customStyles = {}
-}) => {
+const CardBodyEditor: FC<Props> = ({ editorState, setEditorState, disableOutline, style: customStyles = {} }) => {
   const handleChange = newState => {
     setEditorState(newState)
   }

@@ -19,7 +19,7 @@ interface Props {
 
 // todo sorting
 const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
-  const [ cards, setCards ] = useState(initialCards)
+  const [cards, setCards] = useState(initialCards)
   const { width } = useWindowSize(1920, 1080)
 
   return (
@@ -33,7 +33,6 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
     >
       <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
-
         <Typography
           style={{
             color: theme.palette.darkGrey.main,
@@ -45,12 +44,13 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
         >
           All
         </Typography>
-        <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
-          All cards
-        </BlackText>
+        <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>All cards</BlackText>
         <div
           style={{
-            width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+            width: '100%',
+            margin: '2vh 0',
+            height: 1,
+            backgroundColor: theme.palette.lightGrey.main
           }}
         />
         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
@@ -61,96 +61,70 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
             windowWidth={width}
           />
         </div>
-        {
-          width >= theme.breakpoints.values.lg && (
-            <Grid container>
-              <Grid item lg={3} style={{ paddingLeft: 20 }}>
-                <BlackText style={{ fontWeight: 500 }}>
-                  Cite
-                </BlackText>
-              </Grid>
-              <Grid item lg={6} style={{ paddingLeft: 10 }}>
-                <BlackText style={{ fontWeight: 500 }}>
-                  Tag
-                </BlackText>
-              </Grid>
+        {width >= theme.breakpoints.values.lg && (
+          <Grid container>
+            <Grid item lg={3} style={{ paddingLeft: 20 }}>
+              <BlackText style={{ fontWeight: 500 }}>Cite</BlackText>
             </Grid>
-          )
-        }
+            <Grid item lg={6} style={{ paddingLeft: 10 }}>
+              <BlackText style={{ fontWeight: 500 }}>Tag</BlackText>
+            </Grid>
+          </Grid>
+        )}
 
         {/* todo show information about the owner and make this expandable so that users can see the card body */}
-        {
-          cards.map(c => {
-            let shortenedCite = c.cite
-            let shortenedTag = c.tag
-            if (c.cite.length > 50) {
-              shortenedCite = c.cite.substring(0, 47) + '...'
-            }
-            if (c.tag.length > 100) {
-              shortenedTag = c.tag.substring(0, 97) + '...'
-            }
-            return (
-              <Link href={`/cards/id/${encodeURIComponent(c.id)}`} passHref key={c.id}>
-                <a>
-                  <Grid
-                    container
-                    style={{
-                      backgroundColor: theme.palette.secondary.main,
-                      padding: 20,
-                      border: `1px solid ${theme.palette.lightGrey.main}`,
-                      borderRadius: 5,
-                      margin: '15px 0',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <Grid item xs={12} lg={3}>
-                      {
-                        shortenedCite === c.cite
-                          ? (
-                            <BlackText style={{ fontWeight: 500 }}>
-                              {shortenedCite}
-                            </BlackText>
-                          )
-                          : (
-                            <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
-                              <div>
-                                <BlackText style={{ fontWeight: 500 }}>
-                                  {shortenedCite}
-                                </BlackText>
-                              </div>
-                            </Tooltip>
-                          )
-                      }
-                    </Grid>
-                    <Grid item xs={12} lg={6}>
-                      {
-                        shortenedTag === c.tag
-                          ? (
-                            <BlackText>
-                              {shortenedTag}
-                            </BlackText>
-                          )
-                          : (
-                            <Tooltip title={c.tag}>
-                              <div>
-                                <BlackText>
-                                  {shortenedTag}
-                                </BlackText>
-                              </div>
-                            </Tooltip>
-                          )
-                      }
-                    </Grid>
+        {cards.map(c => {
+          let shortenedCite = c.cite
+          let shortenedTag = c.tag
+          if (c.cite.length > 50) {
+            shortenedCite = c.cite.substring(0, 47) + '...'
+          }
+          if (c.tag.length > 100) {
+            shortenedTag = c.tag.substring(0, 97) + '...'
+          }
+          return (
+            <Link href={`/cards/id/${encodeURIComponent(c.id)}`} passHref key={c.id}>
+              <a>
+                <Grid
+                  container
+                  style={{
+                    backgroundColor: theme.palette.secondary.main,
+                    padding: 20,
+                    border: `1px solid ${theme.palette.lightGrey.main}`,
+                    borderRadius: 5,
+                    margin: '15px 0',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Grid item xs={12} lg={3}>
+                    {shortenedCite === c.cite ? (
+                      <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+                    ) : (
+                      <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
+                        <div>
+                          <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+                        </div>
+                      </Tooltip>
+                    )}
                   </Grid>
-                </a>
-              </Link>
-            )
-          })
-        }
+                  <Grid item xs={12} lg={6}>
+                    {shortenedTag === c.tag ? (
+                      <BlackText>{shortenedTag}</BlackText>
+                    ) : (
+                      <Tooltip title={c.tag}>
+                        <div>
+                          <BlackText>{shortenedTag}</BlackText>
+                        </div>
+                      </Tooltip>
+                    )}
+                  </Grid>
+                </Grid>
+              </a>
+            </Link>
+          )
+        })}
       </div>
-      {
-        errorText && <ErrorAlert text={errorText} disableClose />
-      }
+      {errorText && <ErrorAlert text={errorText} disableClose />}
     </div>
   )
 }
@@ -168,7 +142,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
 
   const dev = process.env.NODE_ENV !== 'production'
   const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + '/api/v1/cards', {
-    headers: { 'Authorization': `Bearer ${jwt}` }
+    headers: { Authorization: `Bearer ${jwt}` }
   })
   let cards: CardPreview[] | null = null
   let errorText: string | null = null

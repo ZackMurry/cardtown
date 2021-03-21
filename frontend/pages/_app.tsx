@@ -1,7 +1,6 @@
 import { FC, useEffect } from 'react'
 import Head from 'next/head'
 import { ThemeProvider } from '@material-ui/core/styles'
-import CssBaseline from '@material-ui/core/CssBaseline'
 import { ChakraProvider } from '@chakra-ui/react'
 import theme from 'lib/theme'
 import chakraTheme from 'lib/chakraTheme'
@@ -32,9 +31,9 @@ const App: FC<Props> = ({ Component, pageProps }) => {
       </Head>
       <ChakraProvider theme={chakraTheme}>
         <ThemeProvider theme={theme}>
-            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-            {/* <CssBaseline /> */}
-            <Component {...pageProps} />
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          {/* <CssBaseline /> */}
+          <Component {...pageProps} />
         </ThemeProvider>
       </ChakraProvider>
     </>

@@ -1,9 +1,7 @@
 import { FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import {
-  Heading, Text, Input, InputGroup, InputRightElement, IconButton, Button
-} from '@chakra-ui/react'
+import { Heading, Text, Input, InputGroup, InputRightElement, IconButton, Button } from '@chakra-ui/react'
 import Cookie from 'js-cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
@@ -16,13 +14,13 @@ interface Props {
 }
 
 const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
-  const [ email, setEmail ] = useState(initialEmail)
-  const [ first, setFirst ] = useState('')
-  const [ last, setLast ] = useState('')
-  const [ password, setPassword ] = useState('')
+  const [email, setEmail] = useState(initialEmail)
+  const [first, setFirst] = useState('')
+  const [last, setLast] = useState('')
+  const [password, setPassword] = useState('')
 
-  const [ showPassword, setShowPassword ] = useState(false)
-  const [ errorText, setErrorText ] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [errorText, setErrorText] = useState('')
 
   const router = useRouter()
 
@@ -105,12 +103,21 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
   return (
     <div
       style={{
-        display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '90vh'
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        height: '90vh'
       }}
     >
-      <div style={{
-        width: '25%', minWidth: 400, display: 'flex', flexDirection: 'column', alignItems: 'center'
-      }}
+      <div
+        style={{
+          width: '25%',
+          minWidth: 400,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
       >
         <Heading as='h3' fontSize={42} textAlign='center'>
           Sign up
@@ -166,28 +173,16 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
             <InputRightElement width='4.5rem' marginTop={15}>
               <IconButton
                 aria-label='Show password'
-                icon={
-                  showPassword
-                    ? <ViewIcon />
-                    : <ViewOffIcon />
-                }
+                icon={showPassword ? <ViewIcon /> : <ViewOffIcon />}
                 onClick={() => setShowPassword(!showPassword)}
                 background='none'
               />
             </InputRightElement>
           </InputGroup>
-          <Button
-            type='submit'
-            colorScheme='blue'
-            height={50}
-            isFullWidth
-            marginTop={15}
-          >
+          <Button type='submit' colorScheme='blue' height={50} isFullWidth marginTop={15}>
             Create account
           </Button>
-          {
-            errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />
-          }
+          {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />}
         </form>
         <Text color='lightBlue' fontSize={14} marginTop={5}>
           Already have an account?

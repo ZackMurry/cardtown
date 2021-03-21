@@ -17,10 +17,8 @@ interface Props {
   onRemove: () => void
 }
 
-const ArgumentCardDisplay: FC<Props> = ({
-  card, jwt, windowWidth, onError, argumentId, indexInArgument, onRemove
-}) => {
-  const [ editing, setEditing ] = useState(false)
+const ArgumentCardDisplay: FC<Props> = ({ card, jwt, windowWidth, onError, argumentId, indexInArgument, onRemove }) => {
+  const [editing, setEditing] = useState(false)
   const router = useRouter()
 
   const handleEdit = () => {
@@ -46,63 +44,46 @@ const ArgumentCardDisplay: FC<Props> = ({
 
   return (
     <Draggable draggableId={`${card.id}@${indexInArgument}-handle`} index={indexInArgument}>
-      {(
-        dragProvided: DraggableProvided,
-        dragSnapshot: DraggableStateSnapshot
-      ) => (
+      {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
         <div ref={dragProvided.innerRef} {...dragProvided.draggableProps}>
-          {
-            editing
-              ? (
-                <EditCard
-                  jwt={jwt}
-                  card={card}
-                  windowWidth={windowWidth}
-                  onDone={handleDoneEditing}
-                  onCancel={handleCancelEditing}
-                />
-              )
-              : (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
-                      {card.tag}
-                    </BlackText>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <div
-                        style={{ padding: 12, cursor: 'grab' }}
-                        {...dragProvided.dragHandleProps}
-                      >
-                        <DragIndicatorIcon style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
-                      </div>
-                      {/* todo separate the ArgumentCardOptionsButton into separate icons
+          {editing ? (
+            <EditCard
+              jwt={jwt}
+              card={card}
+              windowWidth={windowWidth}
+              onDone={handleDoneEditing}
+              onCancel={handleCancelEditing}
+            />
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>{card.tag}</BlackText>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <div style={{ padding: 12, cursor: 'grab' }} {...dragProvided.dragHandleProps}>
+                    <DragIndicatorIcon style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
+                  </div>
+                  {/* todo separate the ArgumentCardOptionsButton into separate icons
                       to avoid having two similar-looking icons */}
-                      <ArgumentCardOptionsButton
-                        argumentId={argumentId}
-                        cardId={card.id}
-                        indexInArgument={indexInArgument}
-                        jwt={jwt}
-                        onEdit={handleEdit}
-                        onRemove={onRemove}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>
-                      {card.cite}
-                    </BlackText>
-                    <BlackText style={{ fontWeight: 'normal', fontSize: 11 }}>
-                      {card.citeInformation}
-                    </BlackText>
-                  </div>
-                  {/* all my homies just disable warnings :) */}
-                  {/* eslint-disable-next-line react/no-danger */}
-                  <div dangerouslySetInnerHTML={{ __html: card.bodyHtml }} />
-                </>
-              )
-          }
+                  <ArgumentCardOptionsButton
+                    argumentId={argumentId}
+                    cardId={card.id}
+                    indexInArgument={indexInArgument}
+                    jwt={jwt}
+                    onEdit={handleEdit}
+                    onRemove={onRemove}
+                  />
+                </div>
+              </div>
+              <div>
+                <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>{card.cite}</BlackText>
+                <BlackText style={{ fontWeight: 'normal', fontSize: 11 }}>{card.citeInformation}</BlackText>
+              </div>
+              {/* all my homies just disable warnings :) */}
+              {/* eslint-disable-next-line react/no-danger */}
+              <div dangerouslySetInnerHTML={{ __html: card.bodyHtml }} />
+            </>
+          )}
         </div>
-
       )}
     </Draggable>
   )

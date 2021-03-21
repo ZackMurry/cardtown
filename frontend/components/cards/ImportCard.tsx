@@ -16,12 +16,7 @@ const ImportCard: FC = () => (
           justifyContent: 'space-between'
         }}
       >
-        <Heading
-          as='h5'
-          fontSize={20}
-          fontWeight='normal'
-          paddingRight={5}
-        >
+        <Heading as='h5' fontSize={20} fontWeight='normal' paddingRight={5}>
           Import cards
         </Heading>
         <ArrowDownwardIcon style={{ fontSize: 50, color: theme.palette.text.secondary }} />

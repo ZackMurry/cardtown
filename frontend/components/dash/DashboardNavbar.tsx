@@ -13,10 +13,10 @@ interface Props {
 
 const DashboardNavbar: FC<Props> = ({ pageName, windowWidth, jwt: jwtStr }) => {
   const jwt = useMemo(() => parseJwt(jwtStr), [])
-  return (
-    windowWidth >= theme.breakpoints.values.lg
-      ? <DashNavbarDesktop pageName={pageName} jwt={jwt} />
-      : <DashNavbarMobile pageName={pageName} jwt={jwt} />
+  return windowWidth >= theme.breakpoints.values.lg ? (
+    <DashNavbarDesktop pageName={pageName} jwt={jwt} />
+  ) : (
+    <DashNavbarMobile pageName={pageName} jwt={jwt} />
   )
 }
 

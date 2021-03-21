@@ -1,7 +1,5 @@
 import EditIcon from '@material-ui/icons/Edit'
-import {
-  Button, IconButton, MenuItem, Paper, Popover
-} from '@material-ui/core'
+import { Button, IconButton, MenuItem, Paper, Popover } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import DeleteIcon from '@material-ui/icons/Delete'
 import React, { FC, useState } from 'react'
@@ -17,11 +15,9 @@ interface Props {
   onRemove: () => void
 }
 
-const ArgumentCardOptionsButton: FC<Props> = ({
-  cardId, argumentId, jwt, onEdit, indexInArgument, onRemove
-}) => {
-  const [ anchorEl, setAnchorEl ] = useState(null)
-  const [ errorText, setErrorText ] = useState('')
+const ArgumentCardOptionsButton: FC<Props> = ({ cardId, argumentId, jwt, onEdit, indexInArgument, onRemove }) => {
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [errorText, setErrorText] = useState('')
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(e.currentTarget)
@@ -48,7 +44,12 @@ const ArgumentCardOptionsButton: FC<Props> = ({
         <MoreVertIcon />
       </IconButton>
       <div>
-        <Popover open={!!anchorEl} anchorEl={anchorEl} anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }} onClose={() => setAnchorEl(null)}>
+        <Popover
+          open={!!anchorEl}
+          anchorEl={anchorEl}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          onClose={() => setAnchorEl(null)}
+        >
           <Paper elevation={1} style={{ borderRadius: 7, padding: '5px 0' }}>
             <MenuItem style={{ padding: 0, minHeight: 36 }}>
               <Button
@@ -81,11 +82,7 @@ const ArgumentCardOptionsButton: FC<Props> = ({
           </Paper>
         </Popover>
       </div>
-      {
-        errorText && (
-          <ErrorAlert text={errorText} onClose={() => setErrorText(errorText)} />
-        )
-      }
+      {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText(errorText)} />}
     </div>
   )
 }

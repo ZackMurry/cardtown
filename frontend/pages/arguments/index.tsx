@@ -32,12 +32,13 @@ const ArgumentsPage: NextPage<Props> = ({ jwt, fetchErrorText, argCount }) => {
         >
           Overview
         </Typography>
-        <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>
-          Arguments
-        </BlackText>
+        <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>Arguments</BlackText>
         <div
           style={{
-            width: '100%', margin: '2vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+            width: '100%',
+            margin: '2vh 0',
+            height: 1,
+            backgroundColor: theme.palette.lightGrey.main
           }}
         />
         <Grid container className='dash-grid' role='grid' style={{ width: '80%' }}>
@@ -68,13 +69,9 @@ const ArgumentsPage: NextPage<Props> = ({ jwt, fetchErrorText, argCount }) => {
                 }}
               >
                 <Typography variant='h5' style={{ fontSize: 22, color: theme.palette.blueBlack.main }}>
-                  <span style={{ fontWeight: 500, paddingRight: 5 }}>
-                    { argCount }
-                  </span>
+                  <span style={{ fontWeight: 500, paddingRight: 5 }}>{argCount}</span>
                   argument
-                  {
-                    argCount !== 1 ? 's' : ''
-                  }
+                  {argCount !== 1 ? 's' : ''}
                 </Typography>
                 <div style={{ marginRight: 10 }}>
                   <div

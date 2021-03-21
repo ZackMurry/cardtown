@@ -16,9 +16,7 @@ const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
   return (
     <div style={{ width: '100%' }}>
       <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
-      {
-        fetchErrorText && <ErrorAlert disableClose text={fetchErrorText} />
-      }
+      {fetchErrorText && <ErrorAlert disableClose text={fetchErrorText} />}
     </div>
   )
 }

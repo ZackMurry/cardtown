@@ -16,11 +16,9 @@ interface Props {
 }
 
 // todo don't reload after finished -- just update argument cards on client
-const AddCardToArgumentButton: FC<Props> = ({
-  jwt, onError, windowWidth, argId
-}) => {
-  const [ isOpen, setOpen ] = useState(false)
-  const [ allCards, setAllCards ] = useState<CardPreview[] | null>(null)
+const AddCardToArgumentButton: FC<Props> = ({ jwt, onError, windowWidth, argId }) => {
+  const [isOpen, setOpen] = useState(false)
+  const [allCards, setAllCards] = useState<CardPreview[] | null>(null)
 
   const router = useRouter()
 
@@ -40,7 +38,7 @@ const AddCardToArgumentButton: FC<Props> = ({
       headers: { Authorization: `Bearer ${jwt}` }
     })
     if (response.ok) {
-      const c = await response.json() as CardPreview[]
+      const c = (await response.json()) as CardPreview[]
       setAllCards(c)
     } else {
       onError(`Error fetching cards. Status code: ${response.status}`)
@@ -76,34 +74,26 @@ const AddCardToArgumentButton: FC<Props> = ({
       }}
       onClick={isOpen ? undefined : handleClick}
     >
-      {
-        isOpen
-          ? (
-            <Grid container>
-              <Grid item xs={1} />
-              <Grid item xs={10}>
-                <BlackText variant='h6' style={{ textAlign: 'center' }}>
-                  Add Card
-                </BlackText>
-                <CardSearchMenu
-                  jwt={jwt}
-                  onCardSelect={handleCardAdd}
-                  cards={allCards}
-                  windowWidth={windowWidth}
-                />
-              </Grid>
-              <Grid item xs={1}>
-                <IconButton onClick={() => setOpen(false)}>
-                  <CloseIcon />
-                </IconButton>
-              </Grid>
-            </Grid>
-          ) : (
-            <IconButton>
-              <AddIcon fontSize='large' />
+      {isOpen ? (
+        <Grid container>
+          <Grid item xs={1} />
+          <Grid item xs={10}>
+            <BlackText variant='h6' style={{ textAlign: 'center' }}>
+              Add Card
+            </BlackText>
+            <CardSearchMenu jwt={jwt} onCardSelect={handleCardAdd} cards={allCards} windowWidth={windowWidth} />
+          </Grid>
+          <Grid item xs={1}>
+            <IconButton onClick={() => setOpen(false)}>
+              <CloseIcon />
             </IconButton>
-          )
-      }
+          </Grid>
+        </Grid>
+      ) : (
+        <IconButton>
+          <AddIcon fontSize='large' />
+        </IconButton>
+      )}
     </div>
   )
 }

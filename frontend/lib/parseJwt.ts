@@ -5,13 +5,15 @@ import JwtBody from 'types/JwtBody'
 interface RawJwt {
   ek: string
   sub: string
+  /* eslint-disable camelcase */
   f_name: string
   l_name: string
+  /* eslint-enable camelcase */
 }
 
 const parseJwt = (jwt: string = Cookie.get('jwt')): JwtBody | null => {
   if (!jwt) {
-    return
+    return null
   }
   const rawJwt = jwtDecode(jwt) as RawJwt
   const fixedJwt: JwtBody = {

@@ -9,7 +9,8 @@
     "plugin:react/recommended",
     "airbnb",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
   ],
   "settings": {
     "react": {
@@ -23,16 +24,13 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "plugins": [
-    "react",
-    "@typescript-eslint"
-  ],
+  "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "react/jsx-filename-extension": [1, {"extensions": [".js", ".jsx", ".tsx"]}],
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".tsx"] }],
     "linebreak-style": 0,
     "react/no-unescaped-entities": 0,
-    "@typescript-eslint/indent": ["error", 2, {"ignoredNodes": ["JSXElement"]}],
+    "@typescript-eslint/indent": ["error", 2, { "ignoredNodes": ["JSXElement"] }],
     "react/jsx-indent": "off",
     "semi": [2, "never"],
     "react/jsx-indent-props": "off",
@@ -46,7 +44,6 @@
     "prefer-template": "off",
     "quote-props": "off",
     "no-plusplus": "off",
-    "max-len": ["error", 150],
     "jsx-a11y/no-static-element-interactions": "off",
     "jsx-a11y/click-events-have-key-events": "off",
     "jsx-a11y/label-has-associated-control": "off",
@@ -56,6 +53,7 @@
     "import/no-unresolved": "off",
     "import/extensions": "off",
     "no-use-before-define": "off",
-    "indent": "off"
+    "indent": "off",
+    "prettier/prettier": "error"
   }
 }

@@ -11,12 +11,10 @@ interface Props {
   windowWidth: number
 }
 
-const CardSearchMenu: FC<Props> = ({
-  onCardSelect, cards, windowWidth
-}) => {
-  const [ cardsInSearch, setCardsInSearch ] = useState(cards)
+const CardSearchMenu: FC<Props> = ({ onCardSelect, cards, windowWidth }) => {
+  const [cardsInSearch, setCardsInSearch] = useState(cards)
 
-  useEffect(() => setCardsInSearch(cards), [ cards ])
+  useEffect(() => setCardsInSearch(cards), [cards])
 
   return (
     <div
@@ -32,11 +30,8 @@ const CardSearchMenu: FC<Props> = ({
         onClear={() => setCardsInSearch(cards)}
         windowWidth={windowWidth}
       />
-      {
-        cardsInSearch && cardsInSearch.slice(0, 5).map(c => (
-          <CardHeaderPreview {...c} onClick={() => onCardSelect(c.id)} key={c.id} />
-        ))
-      }
+      {cardsInSearch &&
+        cardsInSearch.slice(0, 5).map(c => <CardHeaderPreview {...c} onClick={() => onCardSelect(c.id)} key={c.id} />)}
     </div>
   )
 }

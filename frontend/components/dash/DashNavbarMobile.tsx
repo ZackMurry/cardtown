@@ -13,7 +13,7 @@ interface Props {
 }
 
 const DashNavbarMobile: FC<Props> = ({ pageName }) => {
-  const [ isExpanded, setExpanded ] = useState(false)
+  const [isExpanded, setExpanded] = useState(false)
 
   return (
     <div>
@@ -42,9 +42,7 @@ const DashNavbarMobile: FC<Props> = ({ pageName }) => {
             }}
           >
             card
-            <span style={{ color: theme.palette.primary.main }}>
-              town
-            </span>
+            <span style={{ color: theme.palette.primary.main }}>town</span>
           </BlackText>
         </div>
       </div>

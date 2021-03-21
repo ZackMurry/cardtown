@@ -24,13 +24,14 @@ const LandingPageNavbar: FC = () => (
     >
       <Heading as='h3' fontSize={28} fontWeight={500} paddingBottom={5}>
         card
-        <span style={{ color: theme.palette.primary.main }}>
-          town
-        </span>
+        <span style={{ color: theme.palette.primary.main }}>town</span>
       </Heading>
       <div
         style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: 349
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: 349
         }}
       >
         <Link href='/features'>
@@ -49,11 +50,7 @@ const LandingPageNavbar: FC = () => (
           </a>
         </Link>
 
-        <Button
-          color='cardtownBlue'
-          variant='outline'
-          style={{ border: '2px solid' }}
-        >
+        <Button color='cardtownBlue' variant='outline' style={{ border: '2px solid' }}>
           <Link href='/login'>
             <a href='/login'>
               <Heading as='h4' fontSize={20} padding='5px'>

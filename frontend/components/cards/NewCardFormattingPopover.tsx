@@ -5,7 +5,7 @@ import theme from 'lib/theme'
 
 // todo make this look a bit better
 const NewCardFormattingPopover: FC = () => {
-  const [ anchorEl, setAnchorEl ] = useState(null)
+  const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
 
   const handleClose = () => setAnchorEl(null)
@@ -54,7 +54,10 @@ const NewCardFormattingPopover: FC = () => {
             </BlackText>
             <div
               style={{
-                width: '100%', margin: '0.5vh 0', height: 1, backgroundColor: theme.palette.lightGrey.main
+                width: '100%',
+                margin: '0.5vh 0',
+                height: 1,
+                backgroundColor: theme.palette.lightGrey.main
               }}
             />
             <BlackText style={{ fontSize: 14 }}>
@@ -62,45 +65,35 @@ const NewCardFormattingPopover: FC = () => {
             </BlackText>
             <ul style={{ margin: 0, fontSize: 13, color: theme.palette.text.primary }}>
               <li>
-                <b>Control+1</b>
-                — Set font size to 6
+                <b>Control+1</b>— Set font size to 6
               </li>
               <li>
-                <b>Control+2</b>
-                — Set font size to 8
+                <b>Control+2</b>— Set font size to 8
               </li>
               <li>
-                <b>Control+3</b>
-                — Set font size to 9
+                <b>Control+3</b>— Set font size to 9
               </li>
               <li>
-                <b>Control+4</b>
-                — Set font size to 10
+                <b>Control+4</b>— Set font size to 10
               </li>
               <li>
-                <b>Control+5</b>
-                — Set font size to 11
+                <b>Control+5</b>— Set font size to 11
               </li>
               <div style={{ paddingTop: 3 }} />
               <li>
-                <b>Control+H</b>
-                — Highlight
+                <b>Control+H</b>— Highlight
               </li>
               <li>
-                <b>Control+B</b>
-                — Bold
+                <b>Control+B</b>— Bold
               </li>
               <li>
-                <b>Control+U</b>
-                — Underline
+                <b>Control+U</b>— Underline
               </li>
               <li>
-                <b>Control+I</b>
-                — Italicize
+                <b>Control+I</b>— Italicize
               </li>
               <li>
-                <b>Control+O</b>
-                — Outline
+                <b>Control+O</b>— Outline
               </li>
             </ul>
           </div>
