@@ -1,31 +1,31 @@
 import { useRouter } from 'next/router'
-import { FC, useState } from 'react'
+import { FC, useContext, useState } from 'react'
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
-import { Draggable, DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd'
+import { Draggable, DraggableProvided } from 'react-beautiful-dnd'
 import ResponseCard from 'types/ResponseCard'
 import BlackText from 'components/utils/BlackText'
 import EditCard from 'components/cards/EditCard'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import ArgumentCardOptionsButton from './ArgumentCardOptionsButton'
 
 interface Props {
   card: ResponseCard
-  jwt: string
   windowWidth: number
-  onError: (msg: string) => void
   argumentId: string
   indexInArgument: number
   onRemove: () => void
 }
 
-const ArgumentCardDisplay: FC<Props> = ({ card, jwt, windowWidth, onError, argumentId, indexInArgument, onRemove }) => {
+const ArgumentCardDisplay: FC<Props> = ({ card, windowWidth, argumentId, indexInArgument, onRemove }) => {
   const [editing, setEditing] = useState(false)
   const router = useRouter()
+  const { setErrorMessage } = useContext(errorMessageContext)
 
   const handleEdit = () => {
     if (card.bodyDraft !== 'IMPORTED CARD -- NO DRAFT BODY') {
       setEditing(true)
     } else {
-      onError('Only non-imported cards can be edited.')
+      setErrorMessage('Only non-imported cards can be edited.')
       // todo option to remove formatting from body and persist
     }
   }
@@ -35,25 +35,16 @@ const ArgumentCardDisplay: FC<Props> = ({ card, jwt, windowWidth, onError, argum
     router.reload() // todo would be much better to just refresh contents
   }
 
-  const handleCancelEditing = (msg: string) => {
-    if (msg) {
-      onError(msg)
-    }
+  const handleCancelEditing = () => {
     setEditing(false)
   }
 
   return (
     <Draggable draggableId={`${card.id}@${indexInArgument}-handle`} index={indexInArgument}>
-      {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
+      {(dragProvided: DraggableProvided) => (
         <div ref={dragProvided.innerRef} {...dragProvided.draggableProps}>
           {editing ? (
-            <EditCard
-              jwt={jwt}
-              card={card}
-              windowWidth={windowWidth}
-              onDone={handleDoneEditing}
-              onCancel={handleCancelEditing}
-            />
+            <EditCard card={card} windowWidth={windowWidth} onDone={handleDoneEditing} onCancel={handleCancelEditing} />
           ) : (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -68,7 +59,6 @@ const ArgumentCardDisplay: FC<Props> = ({ card, jwt, windowWidth, onError, argum
                     argumentId={argumentId}
                     cardId={card.id}
                     indexInArgument={indexInArgument}
-                    jwt={jwt}
                     onEdit={handleEdit}
                     onRemove={onRemove}
                   />

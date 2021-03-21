@@ -1,18 +1,21 @@
 import { IconButton } from '@material-ui/core'
-import { FC, useState } from 'react'
+import { FC, useContext, useState } from 'react'
 import DeleteIcon from '@material-ui/icons/Delete'
 import ConfirmationDialog from 'components/utils/ConfirmationDialog'
+import userContext from 'lib/hooks/UserContext'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
-  jwt: string
   argumentId: string
   argumentName: string
   onDelete: () => void
-  onError: (msg: string) => void
 }
 
-const DeleteArgumentButton: FC<Props> = ({ jwt, argumentId, argumentName, onDelete, onError }) => {
+const DeleteArgumentButton: FC<Props> = ({ argumentId, argumentName, onDelete }) => {
   const [dialogOpen, setDialogOpen] = useState(false)
+
+  const { jwt } = useContext(userContext)
+  const { setErrorMessage } = useContext(errorMessageContext)
 
   const handleDelete = async () => {
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argumentId)}`, {
@@ -22,7 +25,7 @@ const DeleteArgumentButton: FC<Props> = ({ jwt, argumentId, argumentName, onDele
     if (response.ok) {
       onDelete()
     } else {
-      onError(`Error deleting argument. Status code: ${response.status}`)
+      setErrorMessage(`Error deleting argument. Status code: ${response.status}`)
     }
   }
 

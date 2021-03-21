@@ -1,6 +1,6 @@
 import { Button, TextField, Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
-import { FormEvent, useEffect, useState } from 'react'
+import { FC, FormEvent, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import BlackText from 'components/utils/BlackText'
@@ -9,18 +9,16 @@ import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
 import ArgumentCardSelector from 'components/arguments/ArgumentCardSelector'
 import CardPreview from 'types/CardPreview'
-import ErrorAlert from 'components/utils/ErrorAlert'
+import userContext from 'lib/hooks/UserContext'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
-interface Props {
-  jwt?: string
-}
-
-const NewArgument: NextPage<Props> = ({ jwt }) => {
+const NewArgument: FC = () => {
   const [name, setName] = useState('')
   const [unselectedCards, setUnselectedCards] = useState<CardPreview[] | null>(null)
   const [selectedCards, setSelectedCards] = useState<CardPreview[]>([])
+  const { jwt } = useContext(userContext)
 
-  const [errorText, setErrorText] = useState('')
+  const { setErrorMessage } = useContext(errorMessageContext)
 
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
@@ -29,11 +27,11 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
     e.preventDefault()
 
     if (name.length > 128) {
-      setErrorText("Your argument's name cannot be more than 128 characters")
+      setErrorMessage("Your argument's name cannot be more than 128 characters")
       return
     }
     if (name.length < 1) {
-      setErrorText('The name must be at least one character')
+      setErrorMessage('The name must be at least one character')
       return
     }
 
@@ -50,13 +48,13 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
       const argId = await response.text()
       router.push(`/arguments/id/${argId}`)
     } else if (response.status === 400) {
-      setErrorText('Error creating argument')
+      setErrorMessage('Error creating argument')
     } else if (response.status === 401 || response.status === 403) {
-      setErrorText('An authentication error occurred. Make sure that you are logged in')
+      setErrorMessage('An authentication error occurred. Make sure that you are logged in')
     } else if (response.status === 500) {
-      setErrorText('A server error occurred during your request. Please try again')
+      setErrorMessage('A server error occurred during your request. Please try again')
     } else {
-      setErrorText(`An unknown error occurred. Status code: ${response.status}`)
+      setErrorMessage(`An unknown error occurred. Status code: ${response.status}`)
     }
   }
 
@@ -72,7 +70,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
       const c = await response.json()
       setUnselectedCards(c)
     } else {
-      setErrorText(`Error fetching cards. Status code: ${response.status}`)
+      setErrorMessage(`Error fetching cards. Status code: ${response.status}`)
     }
   }
 
@@ -85,7 +83,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
   const handleCardSelect = (id: string) => {
     const filtered = unselectedCards.filter(c => c.id === id)
     if (filtered.length === 0) {
-      setErrorText('Error selecting a card. Please try again')
+      setErrorMessage('Error selecting a card. Please try again')
     }
     const fullCard = filtered[0]
     setSelectedCards([...selectedCards, fullCard])
@@ -95,7 +93,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
   const handleCardRemove = (id: string) => {
     const filtered = selectedCards.filter(c => c.id === id)
     if (filtered.length === 0) {
-      setErrorText('Error unselecting a card. Please try again')
+      setErrorMessage('Error unselecting a card. Please try again')
     }
     const fullCard = filtered[0]
     setUnselectedCards([...unselectedCards, fullCard])
@@ -104,7 +102,7 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar windowWidth={width} pageName='Arguments' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' />
 
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
@@ -194,24 +192,18 @@ const NewArgument: NextPage<Props> = ({ jwt }) => {
           </form>
         </div>
       </div>
-      {errorText && <ErrorAlert onClose={() => setErrorText('')} text={errorText} />}
     </div>
   )
 }
 
 export default NewArgument
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/cards/all')
-    return {
-      props: {}
-    }
   }
   return {
-    props: {
-      jwt
-    }
+    props: {}
   }
 }

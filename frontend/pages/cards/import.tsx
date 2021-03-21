@@ -1,25 +1,20 @@
 import { Button, TextField, Typography } from '@material-ui/core'
 import { GetServerSideProps } from 'next'
-import { FC, FormEvent, useEffect, useRef, useState } from 'react'
+import { FC, FormEvent, useContext, useEffect, useRef, useState } from 'react'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import BlackText from 'components/utils/BlackText'
-import ErrorAlert from 'components/utils/ErrorAlert'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import SuccessAlert from 'components/utils/SuccessAlert'
 import theme from 'lib/theme'
 import styles from 'styles/ImportCards.module.css'
-
-const IMPORT_SUCCESS_TEXT = 'Card successfully imported'
-
-interface Props {
-  jwt?: string
-}
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import userContext from 'lib/hooks/UserContext'
 
 // this simply doesn't support exporting to draft-js, and it'd be hard to make it
 // if the user wants to edit a card, ig a warning will be shown and it will be imported to
 // draft-js as plain text
-const ImportCards: FC<Props> = ({ jwt }) => {
+const ImportCards: FC = () => {
   const { width } = useWindowSize(1920, 1080)
   const pasteInputRef = useRef(null)
   const [pasteData, setPasteData] = useState('')
@@ -28,7 +23,9 @@ const ImportCards: FC<Props> = ({ jwt }) => {
   const [citeInformation, setCiteInformation] = useState('')
   const [bodyHtml, setBodyHtml] = useState('')
 
-  const [feedbackText, setFeedbackText] = useState('')
+  const [successText, setSuccessText] = useState('')
+  const { setErrorMessage } = useContext(errorMessageContext)
+  const { jwt } = useContext(userContext)
 
   useEffect(() => {
     const processPaste = (elem, pastedData) => {
@@ -101,14 +98,14 @@ const ImportCards: FC<Props> = ({ jwt }) => {
     e.preventDefault()
 
     if (tag === '' || cite === '' || bodyHtml === '') {
-      setFeedbackText('Your card must contain a tag, a cite, and a body.')
+      setSuccessText('Your card must contain a tag, a cite, and a body.')
       return
     }
 
     const bodyText = new DOMParser().parseFromString(bodyHtml, 'text/html').documentElement.textContent
 
     if (bodyText.length > 15000 || bodyHtml.length > 100000) {
-      setFeedbackText('Your card is too long!')
+      setErrorMessage('Your card is too long!')
       return
     }
 
@@ -130,9 +127,9 @@ const ImportCards: FC<Props> = ({ jwt }) => {
       setCiteInformation('')
       setBodyHtml('')
       setPasteData('')
-      setFeedbackText(IMPORT_SUCCESS_TEXT)
+      setSuccessText('Card successfully imported')
     } else {
-      setFeedbackText(`An unknown error occured during your request. Status code: ${response.status}`)
+      setErrorMessage(`An unknown error occured during your request. Status code: ${response.status}`)
     }
   }
 
@@ -145,7 +142,7 @@ const ImportCards: FC<Props> = ({ jwt }) => {
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
           <div>
@@ -280,12 +277,7 @@ const ImportCards: FC<Props> = ({ jwt }) => {
               <div dangerouslySetInnerHTML={{ __html: bodyHtml }} />
             </div>
           </form>
-          {feedbackText &&
-            (feedbackText === IMPORT_SUCCESS_TEXT ? (
-              <SuccessAlert text={feedbackText} onClose={() => setFeedbackText('')} />
-            ) : (
-              <ErrorAlert text={feedbackText} onClose={() => setFeedbackText('')} />
-            ))}
+          {successText && <SuccessAlert text={successText} onClose={() => setSuccessText('')} />}
         </div>
       </div>
     </div>
@@ -294,17 +286,12 @@ const ImportCards: FC<Props> = ({ jwt }) => {
 
 export default ImportCards
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/cards/import')
-    return {
-      props: {}
-    }
   }
   return {
-    props: {
-      jwt
-    }
+    props: {}
   }
 }

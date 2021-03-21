@@ -3,31 +3,33 @@ import DoneIcon from '@material-ui/icons/Done'
 import { stateToHTML } from 'draft-js-export-html'
 import { IconButton, Tooltip } from '@material-ui/core'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
-import React, { FC, useState } from 'react'
+import React, { FC, useContext, useState } from 'react'
 import ResponseCard from 'types/ResponseCard'
-import ErrorAlert from 'components/utils/ErrorAlert'
+import useErrorMessage from 'lib/hooks/useErrorMessage'
+import userContext from 'lib/hooks/UserContext'
 import theme from 'lib/theme'
 import CardBodyEditor from './CardBodyEditor'
 import draftExportHtmlOptions from './draftExportHtmlOptions'
 
 interface Props {
-  jwt: string
-  onCancel: (message: string) => void
+  onCancel: () => void
   onDone: (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => void
   card: ResponseCard
   windowWidth: number
 }
 
-const EditCard: FC<Props> = ({ jwt, onCancel, onDone, card }) => {
+const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
   const [tag, setTag] = useState(card.tag)
   const [cite, setCite] = useState(card.cite)
   const [citeInformation, setCiteInformation] = useState(card.citeInformation)
   const [bodyState, setBodyState] = useState(() => EditorState.createWithContent(convertFromRaw(JSON.parse(card.bodyDraft))))
-  const [errorText, setErrorText] = useState('')
+  const { setErrorMessage } = useErrorMessage()
+  const { jwt } = useContext(userContext)
 
   const handleDone = async (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     if (!jwt) {
-      onCancel('You need to be signed in to do this')
+      setErrorMessage('You need to be signed in to do this')
+      onCancel()
     }
 
     const content = bodyState.getCurrentContent()
@@ -36,27 +38,27 @@ const EditCard: FC<Props> = ({ jwt, onCancel, onDone, card }) => {
     const bodyText = content.getPlainText('\u0001')
 
     if (tag.length < 1) {
-      setErrorText('Your card must have a tag')
+      setErrorMessage('Your card must have a tag')
       return
     }
     if (tag.length > 256) {
-      setErrorText("Your card's tag cannot be longer than 256 characters")
+      setErrorMessage("Your card's tag cannot be longer than 256 characters")
       return
     }
     if (cite.length === 0) {
-      setErrorText('Your card must have a cite')
+      setErrorMessage('Your card must have a cite')
       return
     }
     if (cite.length > 128) {
-      setErrorText("Your card's cite cannot be longer than 128 characters")
+      setErrorMessage("Your card's cite cannot be longer than 128 characters")
       return
     }
     if (citeInformation.length > 2048) {
-      setErrorText("Your card's cite information cannot be longer than 2048 characters")
+      setErrorMessage("Your card's cite information cannot be longer than 2048 characters")
       return
     }
     if (bodyHtml.length > 100000 || bodyText.length > 50000) {
-      setErrorText("Your card's body is too long!")
+      setErrorMessage("Your card's body is too long!")
       return
     }
 
@@ -76,8 +78,7 @@ const EditCard: FC<Props> = ({ jwt, onCancel, onDone, card }) => {
     if (response.ok) {
       onDone(e)
     } else {
-      console.warn(response.status)
-      // todo show error here
+      setErrorMessage(`An unexpected error occured. Status code: ${response.status}`)
     }
   }
 
@@ -106,7 +107,7 @@ const EditCard: FC<Props> = ({ jwt, onCancel, onDone, card }) => {
             </IconButton>
           </Tooltip>
           <Tooltip title='Cancel'>
-            <IconButton onClick={() => onCancel('')}>
+            <IconButton onClick={onCancel}>
               <CloseIcon />
             </IconButton>
           </Tooltip>
@@ -142,7 +143,6 @@ const EditCard: FC<Props> = ({ jwt, onCancel, onDone, card }) => {
         rows={3}
       />
       <CardBodyEditor editorState={bodyState} setEditorState={setBodyState} disableOutline />
-      {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />}
     </div>
   )
 }

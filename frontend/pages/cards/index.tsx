@@ -5,17 +5,16 @@ import redirectToLogin from 'lib/redirectToLogin'
 import ErrorAlert from 'components/utils/ErrorAlert'
 
 interface Props {
-  jwt?: string
   cardCount?: number
   fetchErrorText?: string
 }
 
-const Cards: NextPage<Props> = ({ jwt, cardCount, fetchErrorText }) => {
+const Cards: NextPage<Props> = ({ cardCount, fetchErrorText }) => {
   const { width } = useWindowSize(1920, 1080)
 
   return (
     <div style={{ width: '100%' }}>
-      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
       {fetchErrorText && <ErrorAlert disableClose text={fetchErrorText} />}
     </div>
   )
@@ -48,7 +47,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   } else {
     return {
       props: {
-        jwt,
         fetchErrorText: `Error fetching card count. Response status: ${response.status}`
       }
     }
@@ -56,7 +54,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
 
   return {
     props: {
-      jwt,
       cardCount
     }
   }

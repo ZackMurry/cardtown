@@ -3,7 +3,6 @@ import { Box, IconButton, Text } from '@chakra-ui/react'
 import { FC, useState } from 'react'
 import { AddIcon, BellIcon } from '@chakra-ui/icons'
 import PageName from 'types/PageName'
-import JwtBody from 'types/JwtBody'
 import DashNavbarDesktopAvatar from './DashNavbarDesktopAvatar'
 
 const PageTitleDisplay: FC<{ href: string; title: string }> = ({ href, title }) => {
@@ -28,10 +27,9 @@ const PageTitleDisplay: FC<{ href: string; title: string }> = ({ href, title }) 
 
 interface Props {
   pageName: PageName
-  jwt: JwtBody
 }
 
-const DashNavbarDesktop: FC<Props> = ({ pageName, jwt }) => (
+const DashNavbarDesktop: FC<Props> = ({ pageName }) => (
   <header
     style={{
       display: 'flex',
@@ -52,7 +50,7 @@ const DashNavbarDesktop: FC<Props> = ({ pageName, jwt }) => (
     <Box display='flex' alignItems='center'>
       <IconButton aria-label='Notifications' icon={<BellIcon fontSize='large' color='darkGray' />} bg='transparent' />
       <IconButton aria-label='New' icon={<AddIcon color='darkGray' />} bg='transparent' />
-      <DashNavbarDesktopAvatar jwt={jwt} />
+      <DashNavbarDesktopAvatar />
     </Box>
   </header>
 )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Grid, Tooltip, Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
@@ -6,21 +6,26 @@ import DashboardNavbar from 'components/dash/DashboardNavbar'
 import theme from 'lib/theme'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import BlackText from 'components/utils/BlackText'
-import ErrorAlert from 'components/utils/ErrorAlert'
 import redirectToLogin from 'lib/redirectToLogin'
 import SearchCards from 'components/cards/SearchCards'
 import CardPreview from 'types/CardPreview'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
-  jwt?: string
   cards?: CardPreview[]
   errorText?: string
 }
 
-// todo sorting
-const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
+const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
   const [cards, setCards] = useState(initialCards)
   const { width } = useWindowSize(1920, 1080)
+  const { setErrorMessage } = useContext(errorMessageContext)
+
+  useEffect(() => {
+    if (errorText) {
+      setErrorMessage(errorText)
+    }
+  }, [])
 
   return (
     <div
@@ -31,7 +36,7 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{
@@ -124,7 +129,6 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText, jwt }) => {
           )
         })}
       </div>
-      {errorText && <ErrorAlert text={errorText} disableClose />}
     </div>
   )
 }
@@ -157,7 +161,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   }
   return {
     props: {
-      jwt,
       cards,
       errorText
     }

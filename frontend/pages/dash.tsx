@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useContext, useEffect } from 'react'
 import { Box } from '@chakra-ui/react'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import useWindowSize from 'lib/hooks/useWindowSize'
@@ -10,9 +10,9 @@ import TeamHeader from 'types/TeamHeader'
 import ErrorAlert from 'components/utils/ErrorAlert'
 import DashActionFeed from 'components/dash/DashActionFeed'
 import { ResponseAction } from 'types/action'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
-  jwt?: string
   team?: TeamHeader
   fetchErrorText?: string
   actions?: ResponseAction[]
@@ -20,16 +20,23 @@ interface Props {
 
 // todo wrap dash pages in a DashboardPage component instead of rewriting layout
 // todo improve responsiveness of sidebar etc
-const Dash: FC<Props> = ({ jwt, team, fetchErrorText, actions }) => {
+const Dash: FC<Props> = ({ team, fetchErrorText, actions }) => {
   const { width } = useWindowSize(1920, 1080)
+  const { setErrorMessage } = useContext(errorMessageContext)
+
+  useEffect(() => {
+    if (fetchErrorText) {
+      setErrorMessage(fetchErrorText)
+    }
+  }, [])
+
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar pageName='Dashboard' windowWidth={width} jwt={jwt} />
+      <DashboardNavbar pageName='Dashboard' windowWidth={width} />
       <Box d='flex'>
         <DashboardSidebar team={team} />
-        <DashActionFeed actions={actions} jwt={jwt} />
+        <DashActionFeed actions={actions} />
       </Box>
-      {fetchErrorText && <ErrorAlert text={fetchErrorText} disableClose />}
     </div>
   )
 }
@@ -61,8 +68,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     }
     return {
       props: {
-        fetchErrorText: errorText,
-        jwt
+        fetchErrorText: errorText
       }
     }
   }
@@ -83,14 +89,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     return {
       props: {
         fetchErrorText: errorText,
-        jwt,
         team: teamHeader ?? null
       }
     }
   }
   return {
     props: {
-      jwt,
       team: teamHeader ?? null,
       actions
     }

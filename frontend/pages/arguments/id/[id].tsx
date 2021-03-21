@@ -1,7 +1,7 @@
 import { Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { DragDropContext, Droppable, DroppableProvided, DropResult } from 'react-beautiful-dnd'
 import AddCardToArgumentButton from 'components/arguments/AddCardToArgumentButton'
 import ArgumentCardDisplay from 'components/arguments/ArgumentCardDisplay'
@@ -9,24 +9,31 @@ import ArgumentName from 'components/arguments/ArgumentName'
 import DeleteArgumentButton from 'components/arguments/DeleteArgumentButton'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import ResponseArgument from 'types/ResponseArgument'
-import ErrorAlert from 'components/utils/ErrorAlert'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import userContext from 'lib/hooks/UserContext'
 
 interface Props {
   id?: string
   fetchingErrorText?: string
   argument?: ResponseArgument
-  jwt?: string
 }
 
-const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArgument, jwt, id }) => {
+const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArgument, id }) => {
   const [argument, setArgument] = useState(initialArgument)
-  const [errorText, setErrorText] = useState('')
   const [name, setName] = useState(argument?.name)
   const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
+  const { setErrorMessage } = useContext(errorMessageContext)
+  const { jwt } = useContext(userContext)
+
+  useEffect(() => {
+    if (fetchingErrorText) {
+      setErrorMessage(fetchingErrorText)
+    }
+  }, [])
 
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) {
@@ -53,7 +60,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
     })
     // todo show success alert if worked
     if (!response.ok) {
-      setErrorText(`Unknown error occurred while reordering cards. Status code: ${response.status}`)
+      setErrorMessage(`Unknown error occurred while reordering cards. Status code: ${response.status}`)
     }
   }
 
@@ -66,7 +73,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Arguments' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' />
       {argument && (
         <div
           style={{
@@ -86,12 +93,10 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
             Argument
           </Typography>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <ArgumentName jwt={jwt} name={name} argumentId={argument.id} onError={setErrorText} onNameChange={setName} />
+            <ArgumentName name={name} argumentId={argument.id} onNameChange={setName} />
             <DeleteArgumentButton
-              jwt={jwt}
               argumentId={argument.id}
               argumentName={argument.name}
-              onError={setErrorText}
               onDelete={() => router.push('/arguments/all')}
             />
           </div>
@@ -124,8 +129,6 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                     argument.cards.map((card, index) => (
                       <ArgumentCardDisplay
                         card={card}
-                        jwt={jwt}
-                        onError={setErrorText}
                         windowWidth={width}
                         // eslint-disable-next-line react/no-array-index-key
                         key={`${card.id}@${index}`}
@@ -142,12 +145,10 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
             </Droppable>
           </DragDropContext>
           <div style={{ marginTop: 25 }}>
-            <AddCardToArgumentButton jwt={jwt} onError={setErrorText} argId={argument.id} windowWidth={width} />
+            <AddCardToArgumentButton argId={argument.id} windowWidth={width} />
           </div>
         </div>
       )}
-      {fetchingErrorText && <ErrorAlert disableClose text={fetchingErrorText} />}
-      {errorText && <ErrorAlert onClose={() => setErrorText('')} text={errorText} />}
     </div>
   )
 }

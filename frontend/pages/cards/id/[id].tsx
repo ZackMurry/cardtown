@@ -1,29 +1,33 @@
-import { useState } from 'react'
+import { useContext, useEffect } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import theme from 'lib/theme'
 import useWindowSize from 'lib/hooks/useWindowSize'
-import ErrorAlert from 'components/utils/ErrorAlert'
 import redirectToLogin from 'lib/redirectToLogin'
 import ResponseCard from 'types/ResponseCard'
 import CardDisplay from 'components/cards/CardDisplay'
 import ArgumentWithCardModel from 'types/ArgumentWithCardModel'
 import CardArgumentsDisplay from 'components/cards/CardArgumentsDisplay'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
   id?: string
   fetchingErrorText?: string
   card?: ResponseCard
-  jwt?: string
   relatedArguments?: ArgumentWithCardModel[]
 }
 
 // todo show arguments (with hyperlink and the index that the card appears) that contain the card
 // using GET /api/v1/cards/[id]/arguments
-// todo don't url encode ids on the frontend anymore
-const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, jwt, relatedArguments }) => {
+const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, relatedArguments }) => {
   const { width } = useWindowSize(1920, 1080)
-  const [errorText, setErrorText] = useState('')
+  const { setErrorMessage } = useContext(errorMessageContext)
+
+  useEffect(() => {
+    if (fetchingErrorText) {
+      setErrorMessage(fetchingErrorText)
+    }
+  }, [])
 
   return (
     <div
@@ -34,7 +38,7 @@ const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, jwt, relatedArgume
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
       <div
         style={{
           width: '50%',
@@ -45,10 +49,9 @@ const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, jwt, relatedArgume
           padding: '3vh 3vw'
         }}
       >
-        {card && <CardDisplay onError={setErrorText} card={card} jwt={jwt} windowWidth={width} />}
+        {card && <CardDisplay card={card} windowWidth={width} />}
       </div>
       {relatedArguments && relatedArguments.length !== 0 && <CardArgumentsDisplay relatedArguments={relatedArguments} />}
-      {(fetchingErrorText || errorText) && <ErrorAlert disableClose text={fetchingErrorText || errorText} />}
     </div>
   )
 }
@@ -77,7 +80,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
   }
   const domain = process.env.NODE_ENV !== 'production' ? 'http://localhost' : 'https://cardtown.co'
   // todo do promise.all()
-  const cardResponse = await fetch(`${domain}/api/v1/cards/id/${encodeURIComponent(id)}`, {
+  const cardResponse = await fetch(`${domain}/api/v1/cards/id/${id}`, {
     headers: { Authorization: `Bearer ${jwt}` }
   })
   if (cardResponse.ok) {
@@ -88,7 +91,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
     } else if (cardResponse.status === 403) {
       errorText = "You don't have access to this card!"
     } else if (cardResponse.status === 401) {
-      redirectToLogin(res, `/cards/id/${encodeURIComponent(id)}`)
+      redirectToLogin(res, `/cards/id/${id}`)
       return {
         props: {}
       }
@@ -103,8 +106,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
       props: {
         id,
         fetchingErrorText: errorText,
-        card,
-        jwt
+        card
       }
     }
   }
@@ -123,7 +125,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ query, req
       id,
       fetchingErrorText: errorText,
       card,
-      jwt,
       relatedArguments: relatedArguments || null
     }
   }

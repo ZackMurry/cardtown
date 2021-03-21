@@ -3,20 +3,21 @@ import { Button, IconButton, MenuItem, Paper, Popover } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { useRouter } from 'next/router'
 import DeleteIcon from '@material-ui/icons/Delete'
-import { FC, useState } from 'react'
-import ErrorAlert from 'components/utils/ErrorAlert'
+import { FC, useContext, useState } from 'react'
 import styles from 'styles/ViewCard.module.css'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import userContext from 'lib/hooks/UserContext'
 
 interface Props {
   id: string
-  jwt: string
   onEdit: () => void
 }
 
 // todo: clone card
-const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
+const CardOptionsButton: FC<Props> = ({ id, onEdit }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
-  const [errorText, setErrorText] = useState('')
+  const { setErrorMessage } = useContext(errorMessageContext)
+  const { jwt } = useContext(userContext)
 
   const router = useRouter()
 
@@ -32,7 +33,7 @@ const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
     if (response.ok) {
       router.push('/cards')
     } else {
-      setErrorText(`Error deleting card: ${response.status}`)
+      setErrorMessage(`Error deleting card: ${response.status}`)
     }
   }
 
@@ -80,7 +81,6 @@ const CardOptionsButton: FC<Props> = ({ id, jwt, onEdit }) => {
           </Paper>
         </Popover>
       </div>
-      {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText(errorText)} />}
     </div>
   )
 }

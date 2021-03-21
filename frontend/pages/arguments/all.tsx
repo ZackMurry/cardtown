@@ -1,30 +1,37 @@
 import Link from 'next/link'
 import { Grid, IconButton, Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 import DashboardNavbar from 'components/dash/DashboardNavbar'
 import ArgumentPreview from 'types/ArgumentPreview'
 import BlackText from 'components/utils/BlackText'
-import ErrorAlert from 'components/utils/ErrorAlert'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
 import SearchArguments from 'components/arguments/SearchArguments'
 import styles from 'styles/AllArguments.module.css'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
-  jwt?: string
   args?: ArgumentPreview[]
   fetchErrorText?: string
 }
 
 type Sort = { by: 'none' | 'name' | 'cards'; ascending: boolean }
 
-const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText, jwt }) => {
+const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) => {
   const [args, setArgs] = useState(initialArgs)
   const [sort, setSort] = useState<Sort>({ by: 'none', ascending: false })
   const { width } = useWindowSize(1920, 1080)
+
+  const { setErrorMessage } = useContext(errorMessageContext)
+
+  useEffect(() => {
+    if (fetchErrorText) {
+      setErrorMessage(fetchErrorText)
+    }
+  }, [])
 
   const updateSort = (options: Sort) => {
     setSort(options)
@@ -62,7 +69,7 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText, jwt 
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Arguments' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{
@@ -158,7 +165,7 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText, jwt 
 
         {/* todo show information about the owner and make this expandable so that users can see the card tags and click on indivual cards */}
         {args.map(({ id, name, cards }) => (
-          <Link href={`/arguments/id/${encodeURIComponent(id)}`} passHref key={id}>
+          <Link href={`/arguments/id/${id}`} passHref key={id}>
             <a>
               <Grid
                 container
@@ -183,7 +190,6 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText, jwt 
           </Link>
         ))}
       </div>
-      {fetchErrorText && <ErrorAlert text={fetchErrorText} disableClose />}
     </div>
   )
 }
@@ -207,7 +213,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     const args = (await response.json()) as ArgumentPreview[]
     return {
       props: {
-        jwt,
         args
       }
     }
@@ -218,9 +223,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   } else if (response.status === 401 || response.status === 403) {
     redirectToLogin(res, '/arguments/all')
     return {
-      props: {
-        jwt
-      }
+      props: {}
     }
   } else if (response.status === 500) {
     fetchErrorText = 'A server error occured during your request. Please try again'
@@ -229,7 +232,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   }
   return {
     props: {
-      jwt,
       fetchErrorText
     }
   }

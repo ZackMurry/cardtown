@@ -3,7 +3,7 @@ import { Button, Heading, Text, Input, Textarea } from '@chakra-ui/react'
 import { convertToRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 import { useRouter } from 'next/router'
-import { FC, FormEvent, useState } from 'react'
+import { FC, FormEvent, useContext, useState } from 'react'
 import { GetServerSideProps } from 'next'
 import mapStyleToReadable from 'components/cards/mapStyleToReadable'
 import CardBodyEditor from 'components/cards/CardBodyEditor'
@@ -14,21 +14,20 @@ import useWindowSize from 'lib/hooks/useWindowSize'
 import theme from 'lib/theme'
 import initializeDraftContentState from 'components/cards/initializeDraftEditorState'
 import draftExportHtmlOptions from 'components/cards/draftExportHtmlOptions'
-import ErrorAlert from 'components/utils/ErrorAlert'
 import redirectToLogin from 'lib/redirectToLogin'
+import userContext from 'lib/hooks/UserContext'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
-interface Props {
-  jwt?: string
-}
-
-const NewCard: FC<Props> = ({ jwt }) => {
+const NewCard: FC = () => {
   const { width } = useWindowSize(1920, 1080)
 
   const [tag, setTag] = useState('')
   const [cite, setCite] = useState('')
   const [citeInformation, setCiteInformation] = useState('')
   const [bodyState, setBodyState] = useState(initializeDraftContentState)
-  const [errorText, setErrorText] = useState('')
+
+  const { setErrorMessage } = useContext(errorMessageContext)
+  const { jwt } = useContext(userContext)
 
   const router = useRouter()
 
@@ -41,27 +40,27 @@ const NewCard: FC<Props> = ({ jwt }) => {
     const bodyText = content.getPlainText('\u0001')
 
     if (tag.length < 1) {
-      setErrorText('Your card must have a tag')
+      setErrorMessage('Your card must have a tag')
       return
     }
     if (tag.length > 256) {
-      setErrorText("Your card's tag cannot be longer than 256 characters")
+      setErrorMessage("Your card's tag cannot be longer than 256 characters")
       return
     }
     if (cite.length === 0) {
-      setErrorText('Your card must have a cite')
+      setErrorMessage('Your card must have a cite')
       return
     }
     if (cite.length > 128) {
-      setErrorText("Your card's cite cannot be longer than 128 characters")
+      setErrorMessage("Your card's cite cannot be longer than 128 characters")
       return
     }
     if (citeInformation.length > 2048) {
-      setErrorText("Your card's cite information cannot be longer than 2048 characters")
+      setErrorMessage("Your card's cite information cannot be longer than 2048 characters")
       return
     }
     if (bodyHtml.length > 100000 || bodyText.length > 50000) {
-      setErrorText("Your card's body is too long!")
+      setErrorMessage("Your card's body is too long!")
       return
     }
 
@@ -81,9 +80,9 @@ const NewCard: FC<Props> = ({ jwt }) => {
       const newCardId = await response.text()
       router.push(`/cards/id/${encodeURIComponent(newCardId)}`)
     } else if (response.status === 500) {
-      setErrorText('A server error occurred during your request. Please try again')
+      setErrorMessage('A server error occurred during your request. Please try again')
     } else {
-      setErrorText('An unknown error occurred during your request. Please try again')
+      setErrorMessage('An unknown error occurred during your request. Please try again')
     }
   }
 
@@ -98,7 +97,7 @@ const NewCard: FC<Props> = ({ jwt }) => {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar windowWidth={width} pageName='Cards' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Cards' />
 
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '0 auto', padding: '6vh 0' }}>
@@ -210,14 +209,13 @@ const NewCard: FC<Props> = ({ jwt }) => {
           </form>
         </div>
       </div>
-      {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />}
     </div>
   )
 }
 
 export default NewCard
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/cards/new')
@@ -226,8 +224,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
     }
   }
   return {
-    props: {
-      jwt
-    }
+    props: {}
   }
 }

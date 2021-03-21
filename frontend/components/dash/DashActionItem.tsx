@@ -1,8 +1,8 @@
 import { Box, Flex, Text } from '@chakra-ui/react'
+import userContext from 'lib/hooks/UserContext'
 import Link from 'next/link'
-import { FC } from 'react'
+import { FC, useContext } from 'react'
 import { ResponseAction } from 'types/action'
-import JwtBody from 'types/JwtBody'
 
 const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }) => (
   <Box w='100%' mb='10px'>
@@ -85,12 +85,12 @@ const DashActionUserItem: FC<{ action: ResponseAction }> = ({ action, children }
 
 interface Props {
   action: ResponseAction
-  jwt: JwtBody
 }
 
-const DashActionItem: FC<Props> = ({ action, jwt }) => {
+const DashActionItem: FC<Props> = ({ action }) => {
+  const { firstName, lastName } = useContext(userContext)
   let subjectName: string
-  if (action.subject.name.first === jwt.firstName && action.subject.name.last === jwt.lastName) {
+  if (action.subject.name.first === firstName && action.subject.name.last === lastName) {
     subjectName = 'You'
   } else {
     subjectName = `${action.subject.name.first} ${action.subject.name.last}`

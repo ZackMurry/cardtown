@@ -5,7 +5,6 @@ import CardHeaderPreview from './CardHeaderPreview'
 import SearchCards from './SearchCards'
 
 interface Props {
-  jwt: string
   onCardSelect: (id: string) => void
   cards: CardPreview[] // null if still loading
   windowWidth: number

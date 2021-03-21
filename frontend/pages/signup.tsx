@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent, useContext, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Heading, Text, Input, InputGroup, InputRightElement, IconButton, Button } from '@chakra-ui/react'
@@ -7,6 +7,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import ErrorAlert from 'components/utils/ErrorAlert'
 import theme from 'lib/theme'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
   redirect?: string
@@ -20,7 +21,7 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
   const [password, setPassword] = useState('')
 
   const [showPassword, setShowPassword] = useState(false)
-  const [errorText, setErrorText] = useState('')
+  const { setErrorMessage } = useContext(errorMessageContext)
 
   const router = useRouter()
 
@@ -28,27 +29,27 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
     e.preventDefault()
 
     if (!first) {
-      setErrorText('Your first name cannot be empty.')
+      setErrorMessage('Your first name cannot be empty.')
       return
     }
 
     if (first.length > 32) {
-      setErrorText('Your first name cannot be more than 32 characters.')
+      setErrorMessage('Your first name cannot be more than 32 characters.')
       return
     }
 
     if (!last) {
-      setErrorText('Your last name cannot be empty.')
+      setErrorMessage('Your last name cannot be empty.')
       return
     }
 
     if (last.length > 32) {
-      setErrorText('Your last name cannot be more than 32 characters.')
+      setErrorMessage('Your last name cannot be more than 32 characters.')
       return
     }
 
     if (password.length < 8) {
-      setErrorText('Your password must be at least 8 characters long.')
+      setErrorMessage('Your password must be at least 8 characters long.')
       return
     }
 
@@ -61,7 +62,7 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
       // __TEST__ __USER__ is what the unit test users are called in the backend.
       // if one of the test fails, it's likely that test users will be left. if this is the case,
       // i can easily delete them using a SQL statement.
-      setErrorText('This username is not allowed.')
+      setErrorMessage('This username is not allowed.')
       return
     }
 
@@ -81,23 +82,23 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
       Cookie.set('jwt', json.jwt)
       router.push(redirect || '/dash')
     } else if (response.status === 412) {
-      setErrorText('An account with this email already exists.')
+      setErrorMessage('An account with this email already exists.')
     } else if (response.status === 500) {
-      setErrorText('There was an error in the server. Please try again later.')
+      setErrorMessage('There was an error in the server. Please try again later.')
     } else if (response.status === 411) {
       // shouldn't happen because of fron
-      setErrorText('One or more of the fields have an invalid length.')
+      setErrorMessage('One or more of the fields have an invalid length.')
     } else if (response.status === 404) {
-      setErrorText('There was an error communicating with the server. Please try again later.')
+      setErrorMessage('There was an error communicating with the server. Please try again later.')
     } else {
-      setErrorText('There was an unknown error. Status code: ' + response.status)
+      setErrorMessage('There was an unknown error. Status code: ' + response.status)
     }
   }
 
   // since the only field w built-in validation is email, we know that email is invalid
   const handleInvalid = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setErrorText('Please enter a valid email address.')
+    setErrorMessage('Please enter a valid email address.')
   }
 
   return (
@@ -182,7 +183,6 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
           <Button type='submit' colorScheme='blue' height={50} isFullWidth marginTop={15}>
             Create account
           </Button>
-          {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />}
         </form>
         <Text color='lightBlue' fontSize={14} marginTop={5}>
           Already have an account?

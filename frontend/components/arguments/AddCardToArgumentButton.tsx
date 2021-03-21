@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useContext, useState } from 'react'
 import AddIcon from '@material-ui/icons/Add'
 import CloseIcon from '@material-ui/icons/Close'
 import { Grid, IconButton } from '@material-ui/core'
@@ -7,18 +7,20 @@ import theme from 'lib/theme'
 import BlackText from 'components/utils/BlackText'
 import CardSearchMenu from 'components/cards/CardSearchMenu'
 import CardPreview from 'types/CardPreview'
+import userContext from 'lib/hooks/UserContext'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
-  jwt: string
-  onError: (msg: string) => void
   windowWidth: number
   argId: string
 }
 
 // todo don't reload after finished -- just update argument cards on client
-const AddCardToArgumentButton: FC<Props> = ({ jwt, onError, windowWidth, argId }) => {
+const AddCardToArgumentButton: FC<Props> = ({ windowWidth, argId }) => {
   const [isOpen, setOpen] = useState(false)
   const [allCards, setAllCards] = useState<CardPreview[] | null>(null)
+  const { jwt } = useContext(userContext)
+  const { setErrorMessage } = useContext(errorMessageContext)
 
   const router = useRouter()
 
@@ -41,7 +43,7 @@ const AddCardToArgumentButton: FC<Props> = ({ jwt, onError, windowWidth, argId }
       const c = (await response.json()) as CardPreview[]
       setAllCards(c)
     } else {
-      onError(`Error fetching cards. Status code: ${response.status}`)
+      setErrorMessage(`Error fetching cards. Status code: ${response.status}`)
     }
   }
 
@@ -56,7 +58,7 @@ const AddCardToArgumentButton: FC<Props> = ({ jwt, onError, windowWidth, argId }
     if (response.ok) {
       router.reload()
     } else {
-      onError(`Error adding card to argument. Status code: ${response.status}`)
+      setErrorMessage(`Error adding card to argument. Status code: ${response.status}`)
     }
   }
 
@@ -81,7 +83,7 @@ const AddCardToArgumentButton: FC<Props> = ({ jwt, onError, windowWidth, argId }
             <BlackText variant='h6' style={{ textAlign: 'center' }}>
               Add Card
             </BlackText>
-            <CardSearchMenu jwt={jwt} onCardSelect={handleCardAdd} cards={allCards} windowWidth={windowWidth} />
+            <CardSearchMenu onCardSelect={handleCardAdd} cards={allCards} windowWidth={windowWidth} />
           </Grid>
           <Grid item xs={1}>
             <IconButton onClick={() => setOpen(false)}>

@@ -7,19 +7,27 @@ import DashboardNavbar from 'components/dash/DashboardNavbar'
 import theme from 'lib/theme'
 import BlackText from 'components/utils/BlackText'
 import NewArgument from 'components/arguments/NewArgument'
+import { useContext, useEffect } from 'react'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
-  jwt?: string
   fetchErrorText?: string
   argCount?: number
 }
 
-const ArgumentsPage: NextPage<Props> = ({ jwt, fetchErrorText, argCount }) => {
+const ArgumentsPage: NextPage<Props> = ({ fetchErrorText, argCount }) => {
   const { width } = useWindowSize(1920, 1080)
+  const { setErrorMessage } = useContext(errorMessageContext)
+
+  useEffect(() => {
+    if (fetchErrorText) {
+      setErrorMessage(fetchErrorText)
+    }
+  }, [])
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar windowWidth={width} pageName='Arguments' jwt={jwt} />
+      <DashboardNavbar windowWidth={width} pageName='Arguments' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{
@@ -143,14 +151,12 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   } else {
     return {
       props: {
-        jwt,
         fetchErrorText: `Error fetching arguments. Status code: ${response.status}`
       }
     }
   }
   return {
     props: {
-      jwt,
       argCount
     }
   }

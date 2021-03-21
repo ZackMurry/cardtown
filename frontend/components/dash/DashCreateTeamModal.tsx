@@ -30,16 +30,16 @@ interface Props {
 const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
   const [stage, setStage] = useState<'creating' | 'loading' | 'created'>('creating')
   const [teamName, setTeamName] = useState('')
-  const [errorMsg, setErrorMsg] = useState('')
+  const [formErrorMsg, setFormErrorMsg] = useState('')
   const [inviteUrl, setInviteUrl] = useState('')
   const linkRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
   const handleTeamCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setErrorMsg('')
+    setFormErrorMsg('')
     if (teamName.length > 128) {
-      setErrorMsg("Your team's name cannot have more than 128 characters")
+      setFormErrorMsg("Your team's name cannot have more than 128 characters")
       return
     }
     setStage('loading')
@@ -58,17 +58,19 @@ const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
     }
     setStage('creating')
     if (response.status === 409) {
-      setErrorMsg("It looks like you're already in a team. To join another team, leave the one that you are currently in")
+      setFormErrorMsg(
+        "It looks like you're already in a team. To join another team, leave the one that you are currently in"
+      )
     } else if (response.status >= 500) {
-      setErrorMsg('A server error occurred during your request. Please try again')
+      setFormErrorMsg('A server error occurred during your request. Please try again')
     } else {
-      setErrorMsg(`An unknown error occured. Status code ${response.status}`)
+      setFormErrorMsg(`An unknown error occured. Status code ${response.status}`)
     }
   }
 
   const handleInvalid = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setErrorMsg('Your team must have a name')
+    setFormErrorMsg('Your team must have a name')
   }
 
   const copyLinkToClipboard = () => {
@@ -85,11 +87,11 @@ const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={handleTeamCreate} onInvalid={handleInvalid}>
-              <FormControl id='team-name' isRequired isInvalid={Boolean(errorMsg)}>
+              <FormControl id='team-name' isRequired isInvalid={Boolean(formErrorMsg)}>
                 <FormLabel>Team name</FormLabel>
                 <Input type='text' value={teamName} onChange={e => setTeamName(e.target.value)} placeholder='Team name' />
                 <FormHelperText ml='5px'>You can change this at any time</FormHelperText>
-                <FormErrorMessage>{errorMsg}</FormErrorMessage>
+                <FormErrorMessage>{formErrorMsg}</FormErrorMessage>
               </FormControl>
               <Flex justifyContent='flex-end' mt='25px'>
                 <Button type='submit' colorScheme='blue' bg='cardtownBlue' isLoading={stage === 'loading'}>

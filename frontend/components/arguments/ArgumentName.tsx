@@ -1,21 +1,23 @@
 import { IconButton, TextField } from '@material-ui/core'
-import { FC, FormEvent, useState } from 'react'
+import { FC, FormEvent, useContext, useState } from 'react'
 import EditIcon from '@material-ui/icons/Edit'
 import DoneIcon from '@material-ui/icons/Done'
 import CloseIcon from '@material-ui/icons/Close'
 import BlackText from 'components/utils/BlackText'
+import userContext from 'lib/hooks/UserContext'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
-  jwt: string
   name: string
   argumentId: string
   onNameChange: (newName: string) => void
-  onError: (msg: string) => void
 }
 
-const ArgumentName: FC<Props> = ({ name: initialName, jwt, argumentId, onNameChange, onError }) => {
+const ArgumentName: FC<Props> = ({ name: initialName, argumentId, onNameChange }) => {
   const [editMode, setEditMode] = useState(false)
   const [name, setName] = useState(initialName)
+  const { jwt } = useContext(userContext)
+  const { setErrorMessage } = useContext(errorMessageContext)
 
   const handleCancel = () => {
     setName(initialName)
@@ -29,11 +31,11 @@ const ArgumentName: FC<Props> = ({ name: initialName, jwt, argumentId, onNameCha
       return
     }
     if (name.length > 128) {
-      onError('The name cannot be longer than 128 characters')
+      setErrorMessage('The name cannot be longer than 128 characters')
       return
     }
     if (name.length < 1) {
-      onError('The name must be at least one character')
+      setErrorMessage('The name must be at least one character')
       return
     }
 
@@ -48,7 +50,7 @@ const ArgumentName: FC<Props> = ({ name: initialName, jwt, argumentId, onNameCha
       onNameChange(name)
       setEditMode(false)
     } else {
-      onError(`Error renaming argument. Status code: ${response.status}`)
+      setErrorMessage(`Error renaming argument. Status code: ${response.status}`)
     }
   }
 

@@ -1,12 +1,12 @@
 import { Heading, Input, InputGroup, InputRightElement, Text, IconButton, Button } from '@chakra-ui/react'
 import { GetServerSideProps, NextPage } from 'next'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useContext, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import Cookie from 'js-cookie'
-import ErrorAlert from 'components/utils/ErrorAlert'
 import theme from 'lib/theme'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
   redirect?: string
@@ -17,7 +17,8 @@ const Login: NextPage<Props> = ({ redirect }) => {
   const [password, setPassword] = useState('')
 
   const [showPassword, setShowPassword] = useState(false)
-  const [errorText, setErrorText] = useState('')
+
+  const { setErrorMessage } = useContext(errorMessageContext)
 
   const router = useRouter()
 
@@ -41,11 +42,11 @@ const Login: NextPage<Props> = ({ redirect }) => {
       router.push(redirect || '/dash')
     } else if (response.status === 400) {
       // todo resetting passwords
-      setErrorText('Invalid email and/or password.')
+      setErrorMessage('Invalid email and/or password.')
     } else if (response.status === 404) {
-      setErrorText('There was an error communicating with the server. Please try again later.')
+      setErrorMessage('There was an error communicating with the server. Please try again later.')
     } else {
-      setErrorText('There was an unknown error. Status code: ' + response.status)
+      setErrorMessage('There was an unknown error. Status code: ' + response.status)
     }
   }
 
@@ -110,7 +111,6 @@ const Login: NextPage<Props> = ({ redirect }) => {
           <Button type='submit' height={50} marginTop={15} colorScheme='blue' isFullWidth bg='cardtownBlue'>
             Log in
           </Button>
-          {errorText && <ErrorAlert text={errorText} onClose={() => setErrorText('')} />}
         </form>
         <Text color='lightBlue' fontSize={14} marginTop={5}>
           Don't have an account?
