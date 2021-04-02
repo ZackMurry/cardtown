@@ -63,7 +63,7 @@ const App: NextPage<Props> = ({ Component, pageProps, jwt }) => {
 // because the type for this fn says that ctx isn't an available child
 App.getInitialProps = async ({ ctx }) => {
   const { req } = ctx
-  const jwt = req ? parse(req.headers.cookie)?.jwt : Cookies.get('jwt')
+  const jwt = req ? parse(req.headers?.cookie ?? '')?.jwt : Cookies.get('jwt')
   return {
     jwt
   }
