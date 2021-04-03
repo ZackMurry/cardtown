@@ -17,6 +17,7 @@ import draftExportHtmlOptions from 'components/cards/draftExportHtmlOptions'
 import redirectToLogin from 'lib/redirectToLogin'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import DashboardPage from 'components/dash/DashboardPage'
 
 const NewCard: FC = () => {
   const { width } = useWindowSize(1920, 1080)
@@ -96,15 +97,10 @@ const NewCard: FC = () => {
   }
 
   return (
-    <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
-
+    <DashboardPage>
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '0 auto', padding: '6vh 0' }}>
           <div>
-            <Text color='darkGray' textTransform='uppercase' fontSize='11' marginTop={19} letterSpacing={0.5}>
-              New card
-            </Text>
             <Heading as='h2' fontSize={24} fontWeight='bold' paddingTop={1}>
               Create a new card
             </Heading>
@@ -121,10 +117,10 @@ const NewCard: FC = () => {
             {/* tag */}
             <div>
               <label htmlFor='tag' id='tagLabel'>
-                <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
+                <Heading as='h3' fontSize={18} fontWeight={500}>
                   Tag
                   <span style={{ fontWeight: 300 }}>*</span>
-                </BlackText>
+                </Heading>
               </label>
               <Typography color='textSecondary' id='tagDescription' style={{ fontSize: 14, margin: '6px 0' }}>
                 Put a quick summary of what this card says.
@@ -202,14 +198,14 @@ const NewCard: FC = () => {
               </div>
             </div>
             <div style={{ marginTop: 10, marginBottom: -5 }}>
-              <Button colorScheme='blue' variant='solid' type='submit'>
+              <Button colorScheme='blue' variant='solid' type='submit' bg='cardtownBlue' color='white'>
                 Finish
               </Button>
             </div>
           </form>
         </div>
       </div>
-    </div>
+    </DashboardPage>
   )
 }
 

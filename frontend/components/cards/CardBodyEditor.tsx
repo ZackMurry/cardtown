@@ -2,6 +2,7 @@ import { Editor, EditorState, getDefaultKeyBinding, RichUtils } from 'draft-js'
 import { CSSProperties, FC } from 'react'
 import styles from 'styles/NewCard.module.css'
 import theme from 'lib/theme'
+import { Box, useColorModeValue } from '@chakra-ui/react'
 
 const styleMap = {
   HIGHLIGHT: {
@@ -35,6 +36,9 @@ interface Props {
 }
 
 const CardBodyEditor: FC<Props> = ({ editorState, setEditorState, disableOutline, style: customStyles = {} }) => {
+  const bgColor = useColorModeValue('offWhite', 'grayBorder')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+
   const handleChange = newState => {
     setEditorState(newState)
   }
@@ -110,11 +114,16 @@ const CardBodyEditor: FC<Props> = ({ editorState, setEditorState, disableOutline
     // todo get user's preferred formatting
     // todo guide for shortcuts somewhere
     <>
-      <div
+      <Box
+        bg={bgColor}
+        {...(!disableOutline && {
+          borderWidth: '1px',
+          borderStyle: 'solid',
+          borderColor
+        })}
+        borderRadius='3px'
+        color='black'
         style={{
-          backgroundColor: theme.palette.secondary.main,
-          border: disableOutline ? undefined : '1px solid rgba(0, 0, 0, 0.23)',
-          borderRadius: 3,
           ...customStyles
         }}
         className={styles['editor-container']}
@@ -127,7 +136,7 @@ const CardBodyEditor: FC<Props> = ({ editorState, setEditorState, disableOutline
           editorKey='newCardEditor'
           customStyleMap={styleMap}
         />
-      </div>
+      </Box>
     </>
   )
 }

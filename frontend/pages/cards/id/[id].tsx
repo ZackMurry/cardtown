@@ -1,7 +1,5 @@
 import { useContext, useEffect } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
-import DashboardNavbar from 'components/dash/DashboardNavbar'
-import theme from 'lib/theme'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import ResponseCard from 'types/ResponseCard'
@@ -10,8 +8,7 @@ import ArgumentWithCardModel from 'types/ArgumentWithCardModel'
 import CardArgumentsDisplay from 'components/cards/CardArgumentsDisplay'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import DashboardPage from 'components/dash/DashboardPage'
-import { Box } from '@chakra-ui/layout'
-import { useColorMode, useColorModeValue } from '@chakra-ui/color-mode'
+import { Box, useColorModeValue } from '@chakra-ui/react'
 
 interface Props {
   id?: string
@@ -26,7 +23,7 @@ const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, relatedArguments }
   const { width } = useWindowSize(1920, 1080)
   const { setErrorMessage } = useContext(errorMessageContext)
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
-  const borderColor = useColorMode('grayBorder', 'darkGrayBorder')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
 
   useEffect(() => {
     if (fetchingErrorText) {

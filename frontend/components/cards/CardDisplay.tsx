@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { FC, useContext, useState } from 'react'
 import ResponseCard from 'types/ResponseCard'
-import BlackText from 'components/utils/BlackText'
+import { Box, Text, useColorModeValue } from '@chakra-ui/react'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import CardOptionsButton from './CardOptionsButton'
 import EditCard from './EditCard'
@@ -15,6 +15,7 @@ const CardDisplay: FC<Props> = ({ card, windowWidth }) => {
   const [editing, setEditing] = useState(false)
   const router = useRouter()
   const { setErrorMessage } = useContext(errorMessageContext)
+  const bodyBgColor = useColorModeValue('offWhite', 'grayBorder')
 
   const handleEdit = () => {
     if (card.bodyDraft !== 'IMPORTED CARD -- NO DRAFT BODY') {
@@ -41,16 +42,27 @@ const CardDisplay: FC<Props> = ({ card, windowWidth }) => {
       ) : (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>{card.tag}</BlackText>
+            <Text fontWeight='bold' fontSize='18px'>
+              {card.tag}
+            </Text>
             <CardOptionsButton id={card.id} onEdit={handleEdit} />
           </div>
           <div>
-            <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>{card.cite}</BlackText>
-            <BlackText style={{ fontWeight: 'normal', fontSize: 11 }}>{card.citeInformation}</BlackText>
+            <Text fontWeight='bold' fontSize='18px'>
+              {card.cite}
+            </Text>
+            <Text fontSize='11px'>{card.citeInformation}</Text>
           </div>
           {/* all my homies just disable warnings :) */}
           {/* eslint-disable-next-line react/no-danger */}
-          <div dangerouslySetInnerHTML={{ __html: card.bodyHtml }} />
+          <Box
+            color='black'
+            bg={bodyBgColor}
+            borderRadius='3px'
+            p='5px'
+            mt='5px'
+            dangerouslySetInnerHTML={{ __html: card.bodyHtml }}
+          />
         </>
       )}
     </div>

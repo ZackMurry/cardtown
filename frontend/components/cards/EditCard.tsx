@@ -1,13 +1,13 @@
 import CloseIcon from '@material-ui/icons/Close'
 import DoneIcon from '@material-ui/icons/Done'
 import { stateToHTML } from 'draft-js-export-html'
-import { IconButton, Tooltip } from '@material-ui/core'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 import React, { FC, useContext, useState } from 'react'
+import { useColorModeValue, IconButton, Tooltip } from '@chakra-ui/react'
+import chakraTheme from 'lib/chakraTheme'
 import ResponseCard from 'types/ResponseCard'
 import useErrorMessage from 'lib/hooks/useErrorMessage'
 import userContext from 'lib/hooks/UserContext'
-import theme from 'lib/theme'
 import CardBodyEditor from './CardBodyEditor'
 import draftExportHtmlOptions from './draftExportHtmlOptions'
 
@@ -25,6 +25,8 @@ const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
   const [bodyState, setBodyState] = useState(() => EditorState.createWithContent(convertFromRaw(JSON.parse(card.bodyDraft))))
   const { setErrorMessage } = useErrorMessage()
   const { jwt } = useContext(userContext)
+  const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
+  const textColor = useColorModeValue('black', 'white')
 
   const handleDone = async (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     if (!jwt) {
@@ -89,7 +91,8 @@ const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
           value={tag}
           onChange={e => setTag(e.target.value)}
           style={{
-            color: theme.palette.black.main,
+            color: textColor,
+            backgroundColor: chakraTheme.colors[bgColor],
             fontWeight: 'bold',
             fontSize: 18,
             outline: 'none',
@@ -101,13 +104,13 @@ const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
           rows={3}
         />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <Tooltip title='Done'>
-            <IconButton onClick={handleDone}>
+          <Tooltip label='Done'>
+            <IconButton aria-label='Done' onClick={handleDone} bg='none'>
               <DoneIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title='Cancel'>
-            <IconButton onClick={onCancel}>
+          <Tooltip label='Cancel'>
+            <IconButton aria-label='Cancel' onClick={onCancel} bg='none'>
               <CloseIcon />
             </IconButton>
           </Tooltip>
@@ -118,7 +121,8 @@ const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
         value={cite}
         onChange={e => setCite(e.target.value)}
         style={{
-          color: theme.palette.black.main,
+          color: textColor,
+          backgroundColor: chakraTheme.colors[bgColor],
           fontWeight: 'bold',
           fontSize: 18,
           outline: 'none',
@@ -131,7 +135,8 @@ const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
         value={citeInformation}
         onChange={e => setCiteInformation(e.target.value)}
         style={{
-          color: theme.palette.black.main,
+          color: textColor,
+          backgroundColor: chakraTheme.colors[bgColor],
           fontWeight: 'normal',
           fontSize: 12,
           outline: 'none',
