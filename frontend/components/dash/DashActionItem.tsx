@@ -1,7 +1,9 @@
 import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import chakraTheme from 'lib/chakraTheme'
 import userContext from 'lib/hooks/UserContext'
 import Link from 'next/link'
 import { FC, useContext } from 'react'
+import { format as formatTime } from 'timeago.js'
 import { ResponseAction } from 'types/action'
 
 const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }) => {
@@ -103,6 +105,11 @@ const DashActionItem: FC<Props> = ({ action }) => {
   } else {
     subjectName = `${action.subject.name.first} ${action.subject.name.last}`
   }
+  const timeAgo = (
+    <span style={{ fontSize: 12, color: chakraTheme.colors.darkGray, marginLeft: 5, marginBottom: 5 }}>
+      {formatTime(action.time)}
+    </span>
+  )
   if (action.actionType === 'CREATE_CARD') {
     return (
       <DashActionCardItem action={action}>
@@ -114,6 +121,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
               <b>{` ${action.card.cite}`}</b>
             </a>
           </Link>
+          {timeAgo}
         </Text>
       </DashActionCardItem>
     )
@@ -130,6 +138,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
               <b>{` ${action.card.cite}`}</b>
             </a>
           </Link>
+          {timeAgo}
         </Text>
       </DashActionCardItem>
     )
@@ -145,6 +154,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
               <b>{` ${action.card.cite}`}</b>
             </a>
           </Link>
+          {timeAgo}
         </Text>
       </DashActionCardItem>
     )
@@ -166,6 +176,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
               <b>{` ${action.argument.name}`}</b>
             </a>
           </Link>
+          {timeAgo}
         </Text>
       </DashActionCardItem>
     )
@@ -187,6 +198,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
               <b>{` ${action.argument.name}`}</b>
             </a>
           </Link>
+          {timeAgo}
         </Text>
       </DashActionCardItem>
     )
@@ -202,6 +214,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
               <b>{` ${action.argument.name}`}</b>
             </a>
           </Link>
+          {timeAgo}
         </Text>
       </DashActionArgumentItem>
     )
@@ -217,6 +230,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
               <b>{` ${action.argument.name}`}</b>
             </a>
           </Link>
+          {timeAgo}
         </Text>
       </DashActionArgumentItem>
     )
@@ -232,6 +246,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
               <b>{` ${action.argument.name}`}</b>
             </a>
           </Link>
+          {timeAgo}
         </Text>
       </DashActionArgumentItem>
     )
@@ -242,6 +257,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
       <Text fontSize={14}>
         <b>{`${subjectName} `}</b>
         joined your team
+        {timeAgo}
       </Text>
     </DashActionUserItem>
   )
