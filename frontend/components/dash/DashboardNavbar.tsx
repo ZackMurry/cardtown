@@ -5,7 +5,7 @@ import DashNavbarMobile from './DashNavbarMobile'
 import DashNavbarDesktop from './DashNavbarDesktop'
 
 interface Props {
-  pageName: PageName
+  pageName?: PageName
   windowWidth: number
 }
 

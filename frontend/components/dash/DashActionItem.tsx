@@ -1,79 +1,87 @@
-import { Box, Flex, Text } from '@chakra-ui/react'
+import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import userContext from 'lib/hooks/UserContext'
 import Link from 'next/link'
 import { FC, useContext } from 'react'
 import { ResponseAction } from 'types/action'
 
-const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }) => (
-  <Box w='100%' mb='10px'>
-    {children}
-    <Link href={`/cards/id/${action.card.id}`}>
-      <a>
-        <Box
-          bg='white'
-          borderWidth='1px'
-          borderStyle='solid'
-          borderColor='grayBorder'
-          borderRadius='5px'
-          p='15px 20px'
-          mt='10px'
-          w='100%'
-        >
-          <Text fontWeight='medium' fontSize='14px'>
-            {action.card.tag}
-          </Text>
-          <Text fontWeight='medium' fontSize='14px'>
-            {action.card.cite}
-          </Text>
-          <Flex justifyContent='space-between' pt='3px'>
-            <Text color='darkGray' fontSize='14px'>
-              {`${action.card.bodyText.split(' ').length} words`}
+const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }) => {
+  const bgColor = useColorModeValue('white', 'darkElevated')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+  return (
+    <Box w='100%' mb='10px'>
+      {children}
+      <Link href={`/cards/id/${action.card.id}`}>
+        <a>
+          <Box
+            bg={bgColor}
+            borderWidth='1px'
+            borderStyle='solid'
+            borderColor={borderColor}
+            borderRadius='5px'
+            p='15px 20px'
+            mt='10px'
+            w='100%'
+          >
+            <Text fontWeight='medium' fontSize='14px'>
+              {action.card.tag}
             </Text>
-            <Text color='darkGray' fontSize='14px'>
-              {action.card.numRelatedArguments === 0
-                ? 'Not in any arguments'
-                : `In ${action.card.numRelatedArguments} argument`}
-              {action.card.numRelatedArguments > 1 ? 's' : ''}
+            <Text fontWeight='medium' fontSize='14px'>
+              {action.card.cite}
             </Text>
-          </Flex>
-        </Box>
-      </a>
-    </Link>
-  </Box>
-)
+            <Flex justifyContent='space-between' pt='3px'>
+              <Text color='darkGray' fontSize='14px'>
+                {`${action.card.bodyText.split(' ').length} words`}
+              </Text>
+              <Text color='darkGray' fontSize='14px'>
+                {action.card.numRelatedArguments === 0
+                  ? 'Not in any arguments'
+                  : `In ${action.card.numRelatedArguments} argument`}
+                {action.card.numRelatedArguments > 1 ? 's' : ''}
+              </Text>
+            </Flex>
+          </Box>
+        </a>
+      </Link>
+    </Box>
+  )
+}
 
-const DashActionArgumentItem: FC<{ action: ResponseAction }> = ({ action, children }) => (
-  <Box w='100%' mb='10px'>
-    {children}
-    <Link href={`/arguments/id/${action.argument.id}`}>
-      <a>
-        <Box
-          bg='white'
-          borderWidth='1px'
-          borderStyle='solid'
-          borderColor='grayBorder'
-          borderRadius='5px'
-          p='15px 20px'
-          mt='10px'
-          w='100%'
-        >
-          <Text fontWeight='medium' fontSize='14px'>
-            {action.argument.name}
-          </Text>
-          <Flex justifyContent='space-between' pt='3px'>
-            <Text color='darkGray' fontSize='14px'>
-              {`${action.argument.numCards} card${action.argument.numCards !== 1 ? 's' : ''}`}
+const DashActionArgumentItem: FC<{ action: ResponseAction }> = ({ action, children }) => {
+  const bgColor = useColorModeValue('white', 'darkElevated')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+  return (
+    <Box w='100%' mb='10px'>
+      {children}
+      <Link href={`/arguments/id/${action.argument.id}`}>
+        <a>
+          <Box
+            bg={bgColor}
+            borderWidth='1px'
+            borderStyle='solid'
+            borderColor={borderColor}
+            borderRadius='5px'
+            p='15px 20px'
+            mt='10px'
+            w='100%'
+          >
+            <Text fontWeight='medium' fontSize='14px'>
+              {action.argument.name}
             </Text>
-            <Text color='darkGray' fontSize='14px'>
-              Not in any speeches
-              {/* hard-coded for now */}
-            </Text>
-          </Flex>
-        </Box>
-      </a>
-    </Link>
-  </Box>
-)
+            <Flex justifyContent='space-between' pt='3px'>
+              <Text color='darkGray' fontSize='14px'>
+                {`${action.argument.numCards} card${action.argument.numCards !== 1 ? 's' : ''}`}
+              </Text>
+              <Text color='darkGray' fontSize='14px'>
+                Not in any speeches
+                {/* hard-coded for now */}
+              </Text>
+            </Flex>
+          </Box>
+        </a>
+      </Link>
+    </Box>
+  )
+}
 
 // todo once teams are better implemented on the frontend
 const DashActionUserItem: FC<{ action: ResponseAction }> = ({ action, children }) => (

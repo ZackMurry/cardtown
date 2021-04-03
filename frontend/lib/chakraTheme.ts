@@ -11,7 +11,11 @@ const chakraTheme = extendTheme({
     darkGrayHover: '#8ba3c4',
     offWhite: '#f6f8fa',
     offWhiteAccent: 'f9f9f9',
-    grayBorder: '#eaecef'
+    grayBorder: '#eaecef',
+    offBlack: '#12161c',
+    offBlackAccent: '#161b22',
+    darkElevated: '#1b2129',
+    darkGrayBorder: '#21252B'
   },
   fonts: {
     heading: 'Ubuntu, Roboto',
@@ -23,6 +27,10 @@ const chakraTheme = extendTheme({
         backgroundColor: '#f6f8fa'
       }
     }
+  },
+  config: {
+    initialColorMode: 'light',
+    useSystemColorMode: false
   }
 })
 

@@ -1,4 +1,4 @@
-import { Menu, MenuButton, MenuItem, MenuList, Box, Divider, Text, Avatar } from '@chakra-ui/react'
+import { Menu, MenuButton, MenuItem, MenuList, Box, Divider, Text, Avatar, useColorModeValue } from '@chakra-ui/react'
 import { FC, useContext } from 'react'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
@@ -7,6 +7,8 @@ import userContext from 'lib/hooks/UserContext'
 const DashNavbarDesktopAvatar: FC = () => {
   const { firstName, lastName } = useContext(userContext)
   const router = useRouter()
+  const bgColor = useColorModeValue('white', 'darkElevated')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
 
   const handleSignOut = () => {
     Cookie.remove('jwt')
@@ -18,7 +20,7 @@ const DashNavbarDesktopAvatar: FC = () => {
       <MenuButton>
         <Avatar name={`${firstName} ${lastName}`} width='30px' height='30px' fontSize='small' />
       </MenuButton>
-      <MenuList>
+      <MenuList bg={bgColor} borderColor={borderColor}>
         <Box padding='0.4rem 0.8rem'>
           <Text fontSize={14} paddingBottom='0.4rem' fontWeight='light'>
             Signed in as

@@ -1,8 +1,6 @@
 import { FC, useContext, useEffect } from 'react'
 import { Box } from '@chakra-ui/react'
-import DashboardNavbar from 'components/dash/DashboardNavbar'
 import useWindowSize from 'lib/hooks/useWindowSize'
-import theme from 'lib/theme'
 import { GetServerSideProps } from 'next'
 import redirectToLogin from 'lib/redirectToLogin'
 import DashboardSidebar from 'components/dash/DashboardSidebar'
@@ -10,6 +8,7 @@ import TeamHeader from 'types/TeamHeader'
 import DashActionFeed from 'components/dash/DashActionFeed'
 import { ResponseAction } from 'types/action'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import DashboardPage from 'components/dash/DashboardPage'
 
 interface Props {
   team?: TeamHeader
@@ -19,6 +18,7 @@ interface Props {
 
 // todo wrap dash pages in a DashboardPage component instead of rewriting layout
 // todo improve responsiveness of sidebar etc
+// todo add dark mode to other pages
 const Dash: FC<Props> = ({ team, fetchErrorText, actions }) => {
   const { width } = useWindowSize(1920, 1080)
   const { setErrorMessage } = useContext(errorMessageContext)
@@ -30,13 +30,12 @@ const Dash: FC<Props> = ({ team, fetchErrorText, actions }) => {
   }, [])
 
   return (
-    <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar pageName='Dashboard' windowWidth={width} />
+    <DashboardPage>
       <Box d='flex'>
         <DashboardSidebar team={team} />
         <DashActionFeed actions={actions} />
       </Box>
-    </div>
+    </DashboardPage>
   )
 }
 

@@ -2,7 +2,9 @@ import React from 'react'
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheets } from '@material-ui/core/styles'
 import { resetServerContext } from 'react-beautiful-dnd'
+import { ColorModeScript } from '@chakra-ui/react'
 import theme from 'lib/theme'
+import chakraTheme from 'lib/chakraTheme'
 
 export default class MyDocument extends Document {
   render(): React.ReactElement {
@@ -15,6 +17,7 @@ export default class MyDocument extends Document {
           <link href='https://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' as='Fjalla One' />
         </Head>
         <body>
+          <ColorModeScript initialColorMode={chakraTheme.config.initialColorMode} />
           <Main />
           <NextScript />
         </body>
