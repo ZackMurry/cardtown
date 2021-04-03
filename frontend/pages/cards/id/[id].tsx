@@ -9,6 +9,9 @@ import CardDisplay from 'components/cards/CardDisplay'
 import ArgumentWithCardModel from 'types/ArgumentWithCardModel'
 import CardArgumentsDisplay from 'components/cards/CardArgumentsDisplay'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import DashboardPage from 'components/dash/DashboardPage'
+import { Box } from '@chakra-ui/layout'
+import { useColorMode, useColorModeValue } from '@chakra-ui/color-mode'
 
 interface Props {
   id?: string
@@ -22,6 +25,8 @@ interface Props {
 const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, relatedArguments }) => {
   const { width } = useWindowSize(1920, 1080)
   const { setErrorMessage } = useContext(errorMessageContext)
+  const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
+  const borderColor = useColorMode('grayBorder', 'darkGrayBorder')
 
   useEffect(() => {
     if (fetchingErrorText) {
@@ -30,29 +35,22 @@ const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, relatedArguments }
   }, [])
 
   return (
-    <div
-      style={{
-        width: '100%',
-        backgroundColor: theme.palette.lightBlue.main,
-        minHeight: '100%',
-        overflow: 'auto'
-      }}
-    >
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
-      <div
-        style={{
-          width: '50%',
-          margin: '10vh auto 5vh auto',
-          backgroundColor: theme.palette.secondary.main,
-          border: `1px solid ${theme.palette.lightGrey.main}`,
-          borderRadius: 5,
-          padding: '3vh 3vw'
-        }}
+    <DashboardPage>
+      <Box
+        w='50%'
+        m='10vh auto 5vh auto'
+        bg='white'
+        borderRadius='5px'
+        p='3vh 3vw'
+        bgColor={bgColor}
+        borderWidth='1px'
+        borderStyle='solid'
+        borderColor={borderColor}
       >
         {card && <CardDisplay card={card} windowWidth={width} />}
-      </div>
+      </Box>
       {relatedArguments && relatedArguments.length !== 0 && <CardArgumentsDisplay relatedArguments={relatedArguments} />}
-    </div>
+    </DashboardPage>
   )
 }
 

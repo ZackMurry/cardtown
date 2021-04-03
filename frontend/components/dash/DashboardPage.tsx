@@ -7,7 +7,7 @@ const DashboardPage: FC = ({ children }) => {
   const bgColor = useColorModeValue('offWhite', 'offBlack')
   const { width } = useWindowSize(1920, 1080)
   return (
-    <Box bg={bgColor} minW='100%' minH='100%'>
+    <Box bg={bgColor} minW='100%' minH='100vh'>
       <DashboardNavbar windowWidth={width} />
       {children}
     </Box>

@@ -1,11 +1,14 @@
-import { Button, Grid, Text, GridItem } from '@chakra-ui/react'
+import { Button, Grid, Text, GridItem, useColorModeValue } from '@chakra-ui/react'
 import { FC, useState, FormEvent } from 'react'
 import { useRouter } from 'next/router'
 import theme from 'lib/theme'
+import chakraTheme from 'lib/chakraTheme'
 
 const LandingPageJoinBeta: FC = () => {
   const [email, setEmail] = useState('')
   const [invalid, setInvalid] = useState(false)
+  const bgColor = useColorModeValue(chakraTheme.colors.offWhiteAccent, chakraTheme.colors.offBlackAccent)
+  const inputBorderColor = useColorModeValue(chakraTheme.colors.grayBorder, chakraTheme.colors.darkGrayBorder)
 
   const router = useRouter()
 
@@ -37,11 +40,11 @@ const LandingPageJoinBeta: FC = () => {
                 outline: 'none',
                 padding: 10,
                 fontSize: 14,
-                border: '2px solid #CBCEDA',
+                border: `2px solid ${inputBorderColor}`,
                 borderRadius: '10px 0 0 10px',
-                color: theme.palette.black.main,
                 width: '100%',
-                height: '100%'
+                height: '100%',
+                backgroundColor: bgColor
               }}
               value={email}
               onChange={e => setEmail(e.target.value)}

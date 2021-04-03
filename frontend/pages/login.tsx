@@ -1,4 +1,14 @@
-import { Heading, Input, InputGroup, InputRightElement, Text, IconButton, Button } from '@chakra-ui/react'
+import {
+  Heading,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Text,
+  IconButton,
+  Button,
+  useColorModeValue,
+  Flex
+} from '@chakra-ui/react'
 import { GetServerSideProps, NextPage } from 'next'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { FormEvent, useContext, useState } from 'react'
@@ -21,6 +31,7 @@ const Login: NextPage<Props> = ({ redirect }) => {
   const { setErrorMessage } = useContext(errorMessageContext)
 
   const router = useRouter()
+  const bgColor = useColorModeValue('offWhite', 'offBlack')
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -51,15 +62,7 @@ const Login: NextPage<Props> = ({ redirect }) => {
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        height: '90vh'
-      }}
-    >
+    <Flex justifyContent='center' alignItems='center' w='100%' h='100vh' bgColor={bgColor}>
       <div
         style={{
           width: '25%',
@@ -108,7 +111,7 @@ const Login: NextPage<Props> = ({ redirect }) => {
               />
             </InputRightElement>
           </InputGroup>
-          <Button type='submit' height={50} marginTop={15} colorScheme='blue' isFullWidth bg='cardtownBlue'>
+          <Button type='submit' height={50} marginTop={15} colorScheme='blue' color='white' isFullWidth bg='cardtownBlue'>
             Log in
           </Button>
         </form>
@@ -122,7 +125,7 @@ const Login: NextPage<Props> = ({ redirect }) => {
           .
         </Text>
       </div>
-    </div>
+    </Flex>
   )
 }
 

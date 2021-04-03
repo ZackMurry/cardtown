@@ -67,7 +67,6 @@ const App: NextPage<Props> = ({ Component, pageProps, jwt, cookies }) => {
 App.getInitialProps = async ({ ctx }) => {
   const { req } = ctx
   const jwt = req ? parse(req.headers?.cookie ?? '')?.jwt : Cookies.get('jwt')
-  console.log(req.headers.cookie)
   return {
     jwt,
     cookies: req?.headers?.cookie ?? ''

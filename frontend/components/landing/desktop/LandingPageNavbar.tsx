@@ -1,25 +1,21 @@
 import Link from 'next/link'
 import { FC } from 'react'
-import { Heading, Button } from '@chakra-ui/react'
+import { Heading, Button, useColorModeValue, Flex } from '@chakra-ui/react'
 import theme from 'lib/theme'
 
 const LandingPageNavbar: FC = () => (
   <>
     {/* for padding purposes */}
     <div style={{ height: '15vh' }} />
-    <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        backgroundColor: theme.palette.secondary.main,
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '31px 15vw',
-        width: '100%',
-        alignItems: 'center',
-        height: '10vh'
-      }}
+    <Flex
+      position='absolute'
+      top='0px'
+      left='0px'
+      justifyContent='space-between'
+      p='31px 15vw'
+      w='100%'
+      h='10vh'
+      alignItems='center'
       role='navigation'
     >
       <Heading as='h3' fontSize={28} fontWeight={500} paddingBottom={5}>
@@ -60,7 +56,7 @@ const LandingPageNavbar: FC = () => (
           </Link>
         </Button>
       </div>
-    </div>
+    </Flex>
   </>
 )
 

@@ -1,11 +1,20 @@
 import { FormEvent, useContext, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { Heading, Text, Input, InputGroup, InputRightElement, IconButton, Button } from '@chakra-ui/react'
+import {
+  Heading,
+  Text,
+  Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
+  Button,
+  Flex,
+  useColorModeValue
+} from '@chakra-ui/react'
 import Cookie from 'js-cookie'
 import { GetServerSideProps, NextPage } from 'next'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
-import ErrorAlert from 'components/utils/ErrorAlert'
 import theme from 'lib/theme'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
@@ -23,6 +32,7 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
   const [showPassword, setShowPassword] = useState(false)
   const { setErrorMessage } = useContext(errorMessageContext)
 
+  const bgColor = useColorModeValue('offWhite', 'offBlack')
   const router = useRouter()
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -102,15 +112,7 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        height: '90vh'
-      }}
-    >
+    <Flex justifyContent='center' alignItems='center' w='100%' h='100vh' bg={bgColor}>
       <div
         style={{
           width: '25%',
@@ -180,7 +182,15 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
               />
             </InputRightElement>
           </InputGroup>
-          <Button type='submit' colorScheme='blue' height={50} isFullWidth marginTop={15}>
+          <Button
+            type='submit'
+            colorScheme='blue'
+            bgColor='cardtownBlue'
+            color='white'
+            height={50}
+            isFullWidth
+            marginTop={15}
+          >
             Create account
           </Button>
         </form>
@@ -194,7 +204,7 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
           .
         </Text>
       </div>
-    </div>
+    </Flex>
   )
 }
 
