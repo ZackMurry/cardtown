@@ -1,5 +1,6 @@
 import { Box, Divider, useColorModeValue } from '@chakra-ui/react'
-import { FC } from 'react'
+import useWindowSize from 'lib/hooks/useWindowSize'
+import { FC, MouseEvent, useEffect, useState } from 'react'
 import TeamHeader from 'types/TeamHeader'
 import DashSidebarNoTeamSection from './DashSidebarNoTeamSection'
 import DashSidebarTeamInformation from './DashSidebarTeamInformation'
@@ -13,14 +14,22 @@ interface Props {
 const DashboardSidebar: FC<Props> = ({ team }) => {
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+  const [scroll, setScroll] = useState(0)
+  const { height } = useWindowSize(1920, 1080)
+
+  useEffect(() => {
+    const handleScroll = () => setScroll(window.pageYOffset)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
-    <Box width='18%' height='93vh'>
+    <Box width='18%' height='100vh'>
       <Box
-        position='fixed'
-        left='0px'
-        top='7vh'
-        height='93vh'
-        width='18%'
+        position={scroll > height * 0.07 ? 'fixed' : 'absolute'}
+        top={scroll > height * 0.07 ? '0vh' : '7vh'}
+        height='100vh'
+        width='18vw'
         bg={bgColor}
         borderRightStyle='solid'
         borderRightWidth='1px'
