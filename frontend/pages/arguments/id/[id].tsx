@@ -7,13 +7,14 @@ import AddCardToArgumentButton from 'components/arguments/AddCardToArgumentButto
 import ArgumentCardDisplay from 'components/arguments/ArgumentCardDisplay'
 import ArgumentName from 'components/arguments/ArgumentName'
 import DeleteArgumentButton from 'components/arguments/DeleteArgumentButton'
-import DashboardNavbar from 'components/dash/DashboardNavbar'
 import ResponseArgument from 'types/ResponseArgument'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import userContext from 'lib/hooks/UserContext'
+import DashboardPage from 'components/dash/DashboardPage'
+import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 
 interface Props {
   id?: string
@@ -28,6 +29,8 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
   const router = useRouter()
   const { setErrorMessage } = useContext(errorMessageContext)
   const { jwt } = useContext(userContext)
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+  const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
 
   useEffect(() => {
     if (fetchingErrorText) {
@@ -65,15 +68,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
   }
 
   return (
-    <div
-      style={{
-        width: '100%',
-        backgroundColor: theme.palette.lightBlue.main,
-        minHeight: '100%',
-        overflow: 'auto'
-      }}
-    >
-      <DashboardNavbar windowWidth={width} pageName='Arguments' />
+    <DashboardPage>
       {argument && (
         <div
           style={{
@@ -81,25 +76,14 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
             margin: '10vh auto'
           }}
         >
-          <Typography
-            style={{
-              color: theme.palette.darkGrey.main,
-              textTransform: 'uppercase',
-              fontSize: 11,
-              marginTop: 19,
-              letterSpacing: 0.5
-            }}
-          >
-            Argument
-          </Typography>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Flex justifyContent='space-between' alignItems='center'>
             <ArgumentName name={name} argumentId={argument.id} onNameChange={setName} />
             <DeleteArgumentButton
               argumentId={argument.id}
               argumentName={argument.name}
               onDelete={() => router.push('/arguments/all')}
             />
-          </div>
+          </Flex>
           <div
             style={{
               width: '100%',
@@ -111,19 +95,19 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId='CARDS_LIST'>
               {(dropProvided: DroppableProvided) => (
-                <div
-                  style={{
-                    backgroundColor: theme.palette.secondary.main,
-                    border: `1px solid ${theme.palette.lightGrey.main}`,
-                    borderRadius: 5,
-                    padding: '3vh 3vw'
-                  }}
+                <Box
+                  bg={bgColor}
+                  borderWidth='1px'
+                  borderStyle='solid'
+                  borderColor={borderColor}
+                  borderRadius='5px'
+                  p='3vh 3vw'
                   ref={dropProvided.innerRef}
                 >
                   {!argument?.cards?.length && (
-                    <Typography color='textSecondary' style={{ textAlign: 'center' }}>
+                    <Text color='darkGray' textAlign='center'>
                       This argument doesn't have any cards
-                    </Typography>
+                    </Text>
                   )}
                   {argument?.cards &&
                     argument.cards.map((card, index) => (
@@ -140,7 +124,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                       />
                     ))}
                   {dropProvided.placeholder}
-                </div>
+                </Box>
               )}
             </Droppable>
           </DragDropContext>
@@ -149,7 +133,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
           </div>
         </div>
       )}
-    </div>
+    </DashboardPage>
   )
 }
 

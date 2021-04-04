@@ -3,9 +3,9 @@ import { Box, IconButton, Text, useColorModeValue } from '@chakra-ui/react'
 import { FC, useState } from 'react'
 import { AddIcon } from '@chakra-ui/icons'
 import PageName from 'types/PageName'
+import chakraTheme from 'lib/chakraTheme'
 import DashNavbarDesktopAvatar from './DashNavbarDesktopAvatar'
 import DashNavbarColorSwitch from './DashNavbarColorSwitch'
-import chakraTheme from 'lib/chakraTheme'
 
 const PageTitleDisplay: FC<{ href: string; title: string }> = ({ href, title }) => {
   const [mouseOver, setMouseOver] = useState(false)

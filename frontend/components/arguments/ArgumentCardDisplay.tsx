@@ -2,8 +2,8 @@ import { useRouter } from 'next/router'
 import { FC, useContext, useState } from 'react'
 import DragIndicatorIcon from '@material-ui/icons/DragIndicator'
 import { Draggable, DraggableProvided } from 'react-beautiful-dnd'
+import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import ResponseCard from 'types/ResponseCard'
-import BlackText from 'components/utils/BlackText'
 import EditCard from 'components/cards/EditCard'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import ArgumentCardOptionsButton from './ArgumentCardOptionsButton'
@@ -20,6 +20,8 @@ const ArgumentCardDisplay: FC<Props> = ({ card, windowWidth, argumentId, indexIn
   const [editing, setEditing] = useState(false)
   const router = useRouter()
   const { setErrorMessage } = useContext(errorMessageContext)
+  const bodyBgColor = useColorModeValue('offWhite', 'grayBorder')
+  const handleColor = useColorModeValue('rgba(0, 0, 0, 0.54)', 'white')
 
   const handleEdit = () => {
     if (card.bodyDraft !== 'IMPORTED CARD -- NO DRAFT BODY') {
@@ -48,11 +50,13 @@ const ArgumentCardDisplay: FC<Props> = ({ card, windowWidth, argumentId, indexIn
           ) : (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>{card.tag}</BlackText>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <div style={{ padding: 12, cursor: 'grab' }} {...dragProvided.dragHandleProps}>
-                    <DragIndicatorIcon style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
-                  </div>
+                <Text fontWeight='bold' fontSize='18px'>
+                  {card.tag}
+                </Text>
+                <Flex justifyContent='flex-end'>
+                  <Box p='12px' cursor='grab' {...dragProvided.dragHandleProps}>
+                    <DragIndicatorIcon style={{ color: handleColor }} />
+                  </Box>
                   {/* todo separate the ArgumentCardOptionsButton into separate icons
                       to avoid having two similar-looking icons */}
                   <ArgumentCardOptionsButton
@@ -62,15 +66,24 @@ const ArgumentCardDisplay: FC<Props> = ({ card, windowWidth, argumentId, indexIn
                     onEdit={handleEdit}
                     onRemove={onRemove}
                   />
-                </div>
+                </Flex>
               </div>
               <div>
-                <BlackText style={{ fontWeight: 'bold', fontSize: 18 }}>{card.cite}</BlackText>
-                <BlackText style={{ fontWeight: 'normal', fontSize: 11 }}>{card.citeInformation}</BlackText>
+                <Text fontWeight='bold' fontSize='18px' style={{ fontWeight: 'bold', fontSize: 18 }}>
+                  {card.cite}
+                </Text>
+                <Text style={{ fontWeight: 'normal', fontSize: 11 }}>{card.citeInformation}</Text>
               </div>
               {/* all my homies just disable warnings :) */}
               {/* eslint-disable-next-line react/no-danger */}
-              <div dangerouslySetInnerHTML={{ __html: card.bodyHtml }} />
+              <Box
+                color='black'
+                bg={bodyBgColor}
+                borderRadius='3px'
+                p='5px'
+                mt='5px'
+                dangerouslySetInnerHTML={{ __html: card.bodyHtml }}
+              />
             </>
           )}
         </div>

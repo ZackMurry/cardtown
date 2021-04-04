@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react'
+import { Box, useColorModeValue } from '@chakra-ui/react'
 import CardPreview from 'types/CardPreview'
-import theme from 'lib/theme'
 import CardHeaderPreview from './CardHeaderPreview'
 import SearchCards from './SearchCards'
 
@@ -12,17 +12,12 @@ interface Props {
 
 const CardSearchMenu: FC<Props> = ({ onCardSelect, cards, windowWidth }) => {
   const [cardsInSearch, setCardsInSearch] = useState(cards)
+  const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
 
   useEffect(() => setCardsInSearch(cards), [cards])
 
   return (
-    <div
-      style={{
-        backgroundColor: theme.palette.secondary.main,
-        width: '100%',
-        padding: 25
-      }}
-    >
+    <Box bg={bgColor} w='100%' p='25px'>
       <SearchCards
         cards={cards}
         onResults={setCardsInSearch}
@@ -31,7 +26,7 @@ const CardSearchMenu: FC<Props> = ({ onCardSelect, cards, windowWidth }) => {
       />
       {cardsInSearch &&
         cardsInSearch.slice(0, 5).map(c => <CardHeaderPreview {...c} onClick={() => onCardSelect(c.id)} key={c.id} />)}
-    </div>
+    </Box>
   )
 }
 

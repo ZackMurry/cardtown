@@ -1,9 +1,9 @@
-import { Grid, Tooltip, Typography } from '@material-ui/core'
+import { Tooltip } from '@material-ui/core'
 import { FC, useEffect, useState } from 'react'
 import SearchCards from 'components/cards/SearchCards'
 import CardPreview from 'types/CardPreview'
-import BlackText from 'components/utils/BlackText'
 import theme from 'lib/theme'
+import { Box, Flex, Grid, GridItem, Text, useColorModeValue } from '@chakra-ui/react'
 
 interface Props {
   cardsInArgument: CardPreview[]
@@ -21,28 +21,24 @@ const ArgumentCardSelector: FC<Props> = ({
   onCardRemove
 }) => {
   const [cardsInSearch, setCardsInSearch] = useState(cardsNotInArgument)
+  const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+  const itemBgColor = useColorModeValue('offWhiteAccent', 'darkElevated')
 
   useEffect(() => {
     setCardsInSearch(cardsNotInArgument)
   }, [cardsNotInArgument])
 
   return (
-    <div
-      style={{
-        backgroundColor: theme.palette.secondary.main,
-        width: '100%',
-        border: '1px solid rgba(0, 0, 0, 0.23)',
-        borderRadius: 5,
-        padding: 25
-      }}
-    >
+    <Box bg={bgColor} w='100%' borderWidth='1px' borderStyle='solid' borderColor={borderColor} borderRadius='5px' p='25px'>
       <div>
-        <Typography variant='h5'>Cards in argument</Typography>
+        <Text>Cards in argument</Text>
         {!cardsInArgument?.length && (
-          <Typography color='textSecondary' style={{ margin: 25, fontSize: 16 }}>
+          <Text color='darkGray' m='25px' fontSize='14px'>
             When you add cards, they'll appear here
-          </Typography>
+          </Text>
         )}
+        {/* todo reordering cards in creation menu */}
         {Boolean(cardsInArgument?.length) &&
           cardsInArgument.map(c => {
             let shortenedCite = c.cite
@@ -55,40 +51,40 @@ const ArgumentCardSelector: FC<Props> = ({
             }
             return (
               <Grid
-                container
-                style={{
-                  backgroundColor: theme.palette.secondary.main,
-                  padding: 10,
-                  border: `1px solid ${theme.palette.lightGrey.main}`,
-                  borderRadius: 5,
-                  margin: '15px 0',
-                  cursor: 'pointer'
-                }}
+                bg={itemBgColor}
+                borderWidth='1px'
+                borderStyle='solid'
+                borderColor={borderColor}
+                p='10px'
+                borderRadius='5px'
+                m='10px'
+                cursor='pointer'
                 key={c.id}
                 onClick={() => onCardRemove(c.id)}
+                templateColumns='repeat(4, 1fr)'
               >
-                <Grid item xs={12} lg={3}>
+                <GridItem colSpan={{ sm: 2, md: 1 }}>
                   {shortenedCite === c.cite ? (
-                    <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+                    <Text fontWeight='medium'>{shortenedCite}</Text>
                   ) : (
                     <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
                       <div>
-                        <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+                        <Text fontWeight='medium'>{shortenedCite}</Text>
                       </div>
                     </Tooltip>
                   )}
-                </Grid>
-                <Grid item xs={12} lg={6}>
+                </GridItem>
+                <GridItem colSpan={2}>
                   {shortenedTag === c.tag ? (
-                    <BlackText>{shortenedTag}</BlackText>
+                    <Text>{shortenedTag}</Text>
                   ) : (
                     <Tooltip title={c.tag}>
                       <div>
-                        <BlackText>{shortenedTag}</BlackText>
+                        <Text>{shortenedTag}</Text>
                       </div>
                     </Tooltip>
                   )}
-                </Grid>
+                </GridItem>
               </Grid>
             )
           })}
@@ -103,39 +99,20 @@ const ArgumentCardSelector: FC<Props> = ({
       />
       {/* todo: lazy load */}
       <div>
-        <Grid container spacing={3} style={{ width: '100%' }}>
-          <Grid item xs={12} md={6}>
-            <Typography variant='h5'>Find more cards</Typography>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            md={6}
-            style={{
-              display: 'flex',
-              justifyContent: windowWidth >= theme.breakpoints.values.md ? 'flex-end' : 'flex-start'
-            }}
-          >
-            <SearchCards
-              cards={cardsNotInArgument}
-              onResults={setCardsInSearch}
-              onClear={() => setCardsInSearch(cardsNotInArgument)}
-              windowWidth={windowWidth}
-            />
-          </Grid>
-        </Grid>
-        <div
-          style={{
-            backgroundColor: theme.palette.secondary.main,
-            width: '100%',
-            padding: 10,
-            marginTop: 10
-          }}
-        >
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text>Find more cards</Text>
+          <SearchCards
+            cards={cardsNotInArgument}
+            onResults={setCardsInSearch}
+            onClear={() => setCardsInSearch(cardsNotInArgument)}
+            windowWidth={windowWidth}
+          />
+        </Flex>
+        <Box w='100%' p='10px' mt='10px'>
           {!cardsInSearch?.length && (
-            <Typography color='textSecondary' style={{ margin: 15, fontSize: 16 }}>
+            <Text color='darkGray' m='15px' fontSize='16px'>
               No cards found!
-            </Typography>
+            </Text>
           )}
           {cardsInSearch.map(c => {
             let shortenedCite = c.cite
@@ -147,47 +124,48 @@ const ArgumentCardSelector: FC<Props> = ({
               shortenedTag = c.tag.substring(0, 97) + '...'
             }
             return (
+              // todo way to view card body (even a new tab would work)
               <Grid
-                container
-                style={{
-                  backgroundColor: theme.palette.secondary.main,
-                  padding: 10,
-                  border: `1px solid ${theme.palette.lightGrey.main}`,
-                  borderRadius: 5,
-                  margin: '15px 0',
-                  cursor: 'pointer'
-                }}
+                bg={itemBgColor}
+                p='10px'
+                borderWidth='1px'
+                borderStyle='solid'
+                borderColor={borderColor}
+                borderRadius='5px'
+                m='15px 0'
+                cursor='pointer'
                 key={c.id}
                 onClick={() => onCardSelect(c.id)}
+                templateColumns='repeat(4, 1fr)'
               >
-                <Grid item xs={12} lg={3}>
+                <GridItem colSpan={{ sm: 2, md: 1 }}>
                   {shortenedCite === c.cite ? (
-                    <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+                    <Text fontWeight='medium'>{shortenedCite}</Text>
                   ) : (
                     <Tooltip title={c.cite} style={{ maxHeight: 50 }}>
                       <div>
-                        <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+                        <Text fontWeight='medium'>{shortenedCite}</Text>
                       </div>
                     </Tooltip>
                   )}
-                </Grid>
-                <Grid item xs={12} lg={6}>
+                </GridItem>
+                <GridItem colSpan={2}>
                   {shortenedTag === c.tag ? (
-                    <BlackText>{shortenedTag}</BlackText>
+                    <Text>{shortenedTag}</Text>
                   ) : (
                     <Tooltip title={c.tag}>
                       <div>
-                        <BlackText>{shortenedTag}</BlackText>
+                        <Text>{shortenedTag}</Text>
                       </div>
                     </Tooltip>
                   )}
-                </Grid>
+                </GridItem>
               </Grid>
             )
           })}
-        </div>
+        </Box>
       </div>
-    </div>
+    </Box>
   )
 }
 

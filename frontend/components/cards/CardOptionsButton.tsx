@@ -1,7 +1,7 @@
 import { IconButton, Menu, MenuButton, MenuList, MenuItem, useColorModeValue } from '@chakra-ui/react'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { useRouter } from 'next/router'
-import { FC, useContext, useState } from 'react'
+import { FC, useContext } from 'react'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import userContext from 'lib/hooks/UserContext'
 

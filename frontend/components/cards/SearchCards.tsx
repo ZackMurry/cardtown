@@ -1,8 +1,8 @@
-import { IconButton, TextField } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import ClearIcon from '@material-ui/icons/Clear'
 import { FC, useState } from 'react'
 import CardPreview from 'types/CardPreview'
+import { Input, InputGroup, InputRightElement, IconButton, useColorModeValue } from '@chakra-ui/react'
 
 interface Props {
   cards: CardPreview[]
@@ -18,6 +18,7 @@ interface SearchPoint {
 
 const SearchCards: FC<Props> = ({ cards, onResults, onClear, windowWidth }) => {
   const [query, setQuery] = useState('')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
 
   const handleSearch = () => {
     if (!query) {
@@ -71,28 +72,26 @@ const SearchCards: FC<Props> = ({ cards, onResults, onClear, windowWidth }) => {
   }
 
   return (
-    <div style={windowWidth < 500 ? { width: '100%' } : undefined}>
-      <TextField
-        variant='outlined'
+    <InputGroup w={windowWidth < 500 ? '100%' : '50%'} size='md'>
+      <Input
         value={query}
         placeholder='Search cards...'
         onChange={e => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
-        style={windowWidth < 500 ? { width: '100%' } : undefined}
-        InputProps={{
-          endAdornment: (
-            <>
-              <IconButton onClick={handleClear}>
-                <ClearIcon fontSize='small' />
-              </IconButton>
-              <IconButton onClick={handleSearch}>
-                <SearchIcon fontSize='small' />
-              </IconButton>
-            </>
-          )
+        borderColor={borderColor}
+        _focus={{
+          borderColor: 'cardtownBlue'
         }}
       />
-    </div>
+      <InputRightElement pr='35px'>
+        <IconButton aria-label='Clear search' bg='none' onClick={handleClear} size='sm'>
+          <ClearIcon fontSize='small' />
+        </IconButton>
+        <IconButton aria-label='Search' bg='none' onClick={handleSearch} size='sm'>
+          <SearchIcon fontSize='small' />
+        </IconButton>
+      </InputRightElement>
+    </InputGroup>
   )
 }
 

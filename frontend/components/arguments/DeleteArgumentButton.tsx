@@ -1,5 +1,5 @@
-import { IconButton } from '@material-ui/core'
 import { FC, useContext, useState } from 'react'
+import { IconButton } from '@chakra-ui/react'
 import DeleteIcon from '@material-ui/icons/Delete'
 import ConfirmationDialog from 'components/utils/ConfirmationDialog'
 import userContext from 'lib/hooks/UserContext'
@@ -13,15 +13,18 @@ interface Props {
 
 const DeleteArgumentButton: FC<Props> = ({ argumentId, argumentName, onDelete }) => {
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isLoading, setLoading] = useState(false)
 
   const { jwt } = useContext(userContext)
   const { setErrorMessage } = useContext(errorMessageContext)
 
   const handleDelete = async () => {
+    setLoading(true)
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argumentId)}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${jwt}` }
     })
+    setLoading(false)
     if (response.ok) {
       onDelete()
     } else {
@@ -31,7 +34,7 @@ const DeleteArgumentButton: FC<Props> = ({ argumentId, argumentName, onDelete })
 
   return (
     <>
-      <IconButton onClick={() => setDialogOpen(true)} style={{ width: 48, height: 48 }}>
+      <IconButton aria-label='Delete' onClick={() => setDialogOpen(true)} bg='none' isLoading={isLoading}>
         <DeleteIcon fontSize='small' />
       </IconButton>
       <ConfirmationDialog

@@ -1,14 +1,14 @@
 import { FC, useContext, useState } from 'react'
 import AddIcon from '@material-ui/icons/Add'
 import CloseIcon from '@material-ui/icons/Close'
-import { Grid, IconButton } from '@material-ui/core'
+import { Grid } from '@material-ui/core'
 import { useRouter } from 'next/router'
-import theme from 'lib/theme'
 import BlackText from 'components/utils/BlackText'
 import CardSearchMenu from 'components/cards/CardSearchMenu'
 import CardPreview from 'types/CardPreview'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import { Flex, useColorModeValue, IconButton, Heading } from '@chakra-ui/react'
 
 interface Props {
   windowWidth: number
@@ -21,6 +21,8 @@ const AddCardToArgumentButton: FC<Props> = ({ windowWidth, argId }) => {
   const [allCards, setAllCards] = useState<CardPreview[] | null>(null)
   const { jwt } = useContext(userContext)
   const { setErrorMessage } = useContext(errorMessageContext)
+  const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
 
   const router = useRouter()
 
@@ -63,40 +65,39 @@ const AddCardToArgumentButton: FC<Props> = ({ windowWidth, argId }) => {
   }
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: theme.palette.secondary.main,
-        border: `1px solid ${theme.palette.lightGrey.main}`,
-        borderRadius: 5,
-        padding: '3vh 3vw',
-        cursor: 'pointer'
-      }}
+    <Flex
+      justifyContent='center'
+      alignItems='center'
+      bg={bgColor}
+      borderWidth='1px'
+      borderStyle='solid'
+      borderColor={borderColor}
+      borderRadius='5px'
+      p='3vh 3vw'
+      cursor='pointer'
       onClick={isOpen ? undefined : handleClick}
     >
       {isOpen ? (
         <Grid container>
           <Grid item xs={1} />
           <Grid item xs={10}>
-            <BlackText variant='h6' style={{ textAlign: 'center' }}>
+            <Heading as='h6' textAlign='center'>
               Add Card
-            </BlackText>
+            </Heading>
             <CardSearchMenu onCardSelect={handleCardAdd} cards={allCards} windowWidth={windowWidth} />
           </Grid>
           <Grid item xs={1}>
-            <IconButton onClick={() => setOpen(false)}>
+            <IconButton aria-label='Close' onClick={() => setOpen(false)} bg='none'>
               <CloseIcon />
             </IconButton>
           </Grid>
         </Grid>
       ) : (
-        <IconButton>
+        <IconButton aria-label='Add card' bg='none'>
           <AddIcon fontSize='large' />
         </IconButton>
       )}
-    </div>
+    </Flex>
   )
 }
 

@@ -1,5 +1,6 @@
-import { Grid, Tooltip } from '@material-ui/core'
+import { Tooltip } from '@material-ui/core'
 import { FC } from 'react'
+import { Grid, GridItem, Text, useColorModeValue } from '@chakra-ui/react'
 import BlackText from 'components/utils/BlackText'
 import theme from 'lib/theme'
 
@@ -10,6 +11,8 @@ interface Props {
 }
 
 const CardHeaderPreview: FC<Props> = ({ tag, cite, onClick }) => {
+  const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   let shortenedCite = cite
   let shortenedTag = tag
   if (cite.length > 50) {
@@ -20,39 +23,39 @@ const CardHeaderPreview: FC<Props> = ({ tag, cite, onClick }) => {
   }
   return (
     <Grid
-      container
-      style={{
-        backgroundColor: theme.palette.secondary.main,
-        padding: 20,
-        border: `1px solid ${theme.palette.lightGrey.main}`,
-        borderRadius: 5,
-        margin: '15px 0',
-        cursor: 'pointer'
-      }}
+      bg={bgColor}
+      p='20px'
+      borderWidth='1px'
+      borderStyle='solid'
+      borderColor={borderColor}
+      borderRadius='5px'
+      m='15px 0'
+      cursor='pointer'
       onClick={onClick}
+      templateColumns='repeat(4, 1fr)'
     >
-      <Grid item xs={12} lg={3}>
+      <GridItem colSpan={{ sm: 2, md: 1 }}>
         {shortenedCite === cite ? (
-          <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+          <Text fontWeight='medium'>{shortenedCite}</Text>
         ) : (
           <Tooltip title={cite} style={{ maxHeight: 50 }}>
             <div>
-              <BlackText style={{ fontWeight: 500 }}>{shortenedCite}</BlackText>
+              <Text fontWeight='medium'>{shortenedCite}</Text>
             </div>
           </Tooltip>
         )}
-      </Grid>
-      <Grid item xs={12} lg={6}>
+      </GridItem>
+      <GridItem colSpan={2}>
         {shortenedTag === tag ? (
-          <BlackText>{shortenedTag}</BlackText>
+          <Text>{shortenedTag}</Text>
         ) : (
           <Tooltip title={tag}>
             <div>
-              <BlackText>{shortenedTag}</BlackText>
+              <Text>{shortenedTag}</Text>
             </div>
           </Tooltip>
         )}
-      </Grid>
+      </GridItem>
     </Grid>
   )
 }

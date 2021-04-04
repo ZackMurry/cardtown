@@ -30,7 +30,7 @@ const DashNavbarDesktopAvatar: FC = () => {
         </Box>
         <MenuItem fontSize='14px'>Your profile</MenuItem>
         <MenuItem fontSize='14px'>Your team</MenuItem>
-        <Divider margin='5px 0' />
+        <Divider m='5px 0' />
         <MenuItem fontSize='14px'>Settings</MenuItem>
         <MenuItem fontSize='14px'>Help</MenuItem>
         <MenuItem onClick={handleSignOut} fontSize='14px'>

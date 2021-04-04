@@ -10,7 +10,7 @@ const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }
   const bgColor = useColorModeValue('white', 'darkElevated')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   return (
-    <Box w='100%' mb='10px'>
+    <Box w='100%' mb='25px'>
       {children}
       <Link href={`/cards/id/${action.card.id}`}>
         <a>
@@ -52,7 +52,7 @@ const DashActionArgumentItem: FC<{ action: ResponseAction }> = ({ action, childr
   const bgColor = useColorModeValue('white', 'darkElevated')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   return (
-    <Box w='100%' mb='10px'>
+    <Box w='100%' mb='25px'>
       {children}
       <Link href={`/arguments/id/${action.argument.id}`}>
         <a>
@@ -239,7 +239,7 @@ const DashActionItem: FC<Props> = ({ action }) => {
     return (
       <DashActionArgumentItem action={action}>
         <Text fontSize={14}>
-          <b>{`${subjectName}`}</b>
+          <b>{`${subjectName} `}</b>
           edited
           <Link href={`/arguments/id/${action.argument.id}`} passHref>
             <a>

@@ -1,9 +1,7 @@
-import { Button, TextField, Typography } from '@material-ui/core'
-import { GetServerSideProps, NextPage } from 'next'
+import { GetServerSideProps } from 'next'
 import { FC, FormEvent, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import DashboardNavbar from 'components/dash/DashboardNavbar'
-import BlackText from 'components/utils/BlackText'
+import { Heading, Input, Text, Button, useColorModeValue } from '@chakra-ui/react'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
@@ -11,6 +9,7 @@ import ArgumentCardSelector from 'components/arguments/ArgumentCardSelector'
 import CardPreview from 'types/CardPreview'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import DashboardPage from 'components/dash/DashboardPage'
 
 const NewArgument: FC = () => {
   const [name, setName] = useState('')
@@ -21,6 +20,7 @@ const NewArgument: FC = () => {
   const { setErrorMessage } = useContext(errorMessageContext)
 
   const { width } = useWindowSize(1920, 1080)
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   const router = useRouter()
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -101,24 +101,13 @@ const NewArgument: FC = () => {
   }
 
   return (
-    <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar windowWidth={width} pageName='Arguments' />
-
+    <DashboardPage>
       <div style={{ paddingLeft: 38, paddingRight: 38 }}>
         <div style={{ width: width >= theme.breakpoints.values.lg ? '65%' : '80%', margin: '7.5vh auto' }}>
           <div>
-            <Typography
-              style={{
-                color: theme.palette.darkGrey.main,
-                textTransform: 'uppercase',
-                fontSize: 11,
-                marginTop: 19,
-                letterSpacing: 0.5
-              }}
-            >
-              New argument
-            </Typography>
-            <BlackText style={{ fontSize: 24, fontWeight: 'bold' }}>Create a new argument</BlackText>
+            <Text fontSize='24px' fontWeight='bold'>
+              Create a new argument
+            </Text>
             <div
               style={{
                 width: '100%',
@@ -131,48 +120,51 @@ const NewArgument: FC = () => {
 
           {/* description of arguments */}
           <div>
-            <Typography color='textSecondary' style={{ fontSize: 16, margin: '10px 0' }}>
+            <Text color='darkGray' fontSize='16px' m='10px 0'>
               Arguments are lists of cards (or analytics) that go together. You can include all of the cards in an argument
               in a speech, making them very convenient for grouping cards that are commonly read together.
-            </Typography>
+            </Text>
           </div>
 
           <form onSubmit={handleSubmit}>
             {/* tag */}
             <div>
               <label htmlFor='name' id='nameLabel'>
-                <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
+                <Heading as='h3' fontSize='18px' fontWeight='medium'>
                   Name
                   <span style={{ fontWeight: 300 }}>*</span>
-                </BlackText>
+                </Heading>
               </label>
-              <Typography color='textSecondary' id='nameDescription' style={{ fontSize: 14, margin: '6px 0' }}>
+              <Text color='darkGray' id='nameDescription' fontSize='14px' m='6px 0'>
                 Give your argument a descriptive name -- it should be unique so you can find it easier
-              </Typography>
-              <TextField
+              </Text>
+              <Input
+                type='text'
                 id='name'
-                variant='outlined'
                 value={name}
                 onChange={e => setName(e.target.value)}
-                style={{ width: '100%', backgroundColor: theme.palette.secondary.main }}
-                InputProps={{
-                  inputProps: {
-                    name: 'tag',
-                    'aria-labelledby': 'nameLabel',
-                    'aria-describedby': 'nameDescription'
-                  }
+                w='100%'
+                borderColor={borderColor}
+                _hover={{
+                  borderColor: 'cardtownBlue'
                 }}
+                _focus={{
+                  borderColor: 'cardtownBlue'
+                }}
+                name='Name'
+                aria-labelledby='nameLabel'
+                aria-describedby='nameDescription'
               />
             </div>
 
             {/* card selector */}
             <div style={{ marginTop: 25 }}>
-              <BlackText variant='h3' style={{ fontSize: 18, fontWeight: 500 }}>
+              <Heading as='h3' fontSize='18px' fontWeight='medium'>
                 Cards
-              </BlackText>
-              <Typography color='textSecondary' style={{ fontSize: 14, margin: '6px 0' }}>
+              </Heading>
+              <Text color='darkGray' fontSize='14px' m='6px 0'>
                 Add some cards to your argument. If you're still working on them, you can always modify arguments later.
-              </Typography>
+              </Text>
               {unselectedCards && (
                 <ArgumentCardSelector
                   cardsInArgument={selectedCards}
@@ -185,14 +177,14 @@ const NewArgument: FC = () => {
             </div>
 
             <div style={{ marginTop: 10, marginBottom: -5 }}>
-              <Button type='submit' variant='contained' color='primary' style={{ textTransform: 'none' }}>
-                <Typography>Finish</Typography>
+              <Button type='submit' colorScheme='blue' bg='cardtownBlue' color='white'>
+                Finish
               </Button>
             </div>
           </form>
         </div>
       </div>
-    </div>
+    </DashboardPage>
   )
 }
 
