@@ -3,6 +3,7 @@ import { FC, useContext } from 'react'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
 import userContext from 'lib/hooks/UserContext'
+import Link from 'next/link'
 
 const DashNavbarDesktopAvatar: FC = () => {
   const { firstName, lastName } = useContext(userContext)
@@ -28,10 +29,13 @@ const DashNavbarDesktopAvatar: FC = () => {
           </Text>
           <Divider />
         </Box>
-        <MenuItem fontSize='14px'>Your profile</MenuItem>
         <MenuItem fontSize='14px'>Your team</MenuItem>
         <Divider m='5px 0' />
-        <MenuItem fontSize='14px'>Settings</MenuItem>
+        <MenuItem fontSize='14px'>
+          <Link href='/settings' passHref>
+            <a style={{ width: '100%' }}>Settings</a>
+          </Link>
+        </MenuItem>
         <MenuItem fontSize='14px'>Help</MenuItem>
         <MenuItem onClick={handleSignOut} fontSize='14px'>
           Sign out

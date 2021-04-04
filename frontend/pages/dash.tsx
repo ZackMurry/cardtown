@@ -1,6 +1,5 @@
 import { FC, useContext, useEffect } from 'react'
 import { Box } from '@chakra-ui/react'
-import useWindowSize from 'lib/hooks/useWindowSize'
 import { GetServerSideProps } from 'next'
 import redirectToLogin from 'lib/redirectToLogin'
 import DashboardSidebar from 'components/dash/DashboardSidebar'
@@ -20,7 +19,6 @@ interface Props {
 // todo improve responsiveness of sidebar etc
 // todo add dark mode to other pages
 const Dash: FC<Props> = ({ team, fetchErrorText, actions }) => {
-  const { width } = useWindowSize(1920, 1080)
   const { setErrorMessage } = useContext(errorMessageContext)
 
   useEffect(() => {

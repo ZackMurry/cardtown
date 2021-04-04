@@ -11,7 +11,7 @@ interface Props {
 const DashActionFeed: FC<Props> = ({ actions: initialActions }) => {
   const [actions, setActions] = useState<ResponseAction[]>(initialActions)
   const [numPagesLoaded, setNumPagesLoaded] = useState(1)
-  const [moreActionsAvailable, setMoreActionsAvailable] = useState(() => initialActions.length >= 10)
+  const [moreActionsAvailable, setMoreActionsAvailable] = useState(() => initialActions?.length >= 10)
   const [isLoading, setLoading] = useState(false)
   const { jwt } = useContext(userContext)
   const buttonBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')

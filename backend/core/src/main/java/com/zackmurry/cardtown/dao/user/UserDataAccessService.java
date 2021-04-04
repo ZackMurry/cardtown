@@ -3,6 +3,7 @@ package com.zackmurry.cardtown.dao.user;
 
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
+import com.zackmurry.cardtown.model.auth.FirstLastName;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.auth.UserRole;
@@ -169,6 +170,21 @@ public class UserDataAccessService implements UserDao {
                 );
             }
             return Optional.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void updateUserName(@NonNull UUID id, @NonNull FirstLastName name) {
+        final String sql = "UPDATE users SET first_name = ?, last_name = ? WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setString(1, name.getFirst());
+            preparedStatement.setString(2, name.getLast());
+            preparedStatement.setObject(3, id);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();

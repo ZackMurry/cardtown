@@ -5,10 +5,7 @@ import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.LengthRequiredException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
-import com.zackmurry.cardtown.model.auth.AuthenticationResponse;
-import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
-import com.zackmurry.cardtown.model.auth.User;
-import com.zackmurry.cardtown.model.auth.UserModel;
+import com.zackmurry.cardtown.model.auth.*;
 import com.zackmurry.cardtown.model.team.TeamEntity;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
@@ -17,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -125,10 +123,9 @@ public class UserService implements UserDetailsService {
             throw new InternalServerException();
         }
 
-        final UserModel userModel = new UserModel(user, encryptedSecretKey, null, Optional.empty());
+        final UserModel userModel = new UserModel(user, encryptedSecretKey, null, Optional.empty(), encryptionKey);
         userDao.createAccount(userModel);
-
-        return new AuthenticationResponse(buildJwtForUser(userModel, encryptionKey));
+        return new AuthenticationResponse(buildJwtForUser(userModel));
     }
 
     /**
@@ -248,14 +245,16 @@ public class UserService implements UserDetailsService {
 
         // Generate SHA-256 hash of password as their encryption key (hash is 32 bytes)
         final byte[] encryptionKey = encryptionUtils.getSHA256Hash(password.getBytes(StandardCharsets.UTF_8));
+        System.out.println(encryptionKey.length);
 
         final UserModel userModel = getUserModelByEmail(email, encryptionKey).orElseThrow(InternalServerException::new);
-        return new AuthenticationResponse(buildJwtForUser(userModel, encryptionKey));
+        System.out.println(userModel.getEncryptionKey().length);
+        return new AuthenticationResponse(buildJwtForUser(userModel));
     }
 
-    public String buildJwtForUser(@NonNull UserModel userModel, @NonNull byte[] encryptionKey) {
+    public String buildJwtForUser(@NonNull UserModel userModel) {
         final Map<String, Object> claims = new HashMap<>();
-        claims.put("ek", Base64.encodeBase64String(encryptionKey));
+        claims.put("ek", Base64.encodeBase64String(userModel.getEncryptionKey()));
         claims.put("f_name", userModel.getFirstName());
         claims.put("l_name", userModel.getLastName());
         // todo include pfp url in jwt
@@ -292,7 +291,25 @@ public class UserService implements UserDetailsService {
         final byte[] secretKey = getUserSecretKey(email, encryptionKey);
         final byte[] teamSecretKey = teamService.getTeamSecretKeyByUser(user.getId(), secretKey).orElse(null);
         final Optional<UUID> teamId = teamService.getTeamIdByUserId(user.getId());
-        return Optional.of(new UserModel(user, secretKey, teamSecretKey, teamId));
+        return Optional.of(new UserModel(user, secretKey, teamSecretKey, teamId, encryptionKey));
+    }
+
+    /**
+     * Generates a <code>UserModel</code> from a user's id and encryption key
+     *
+     * @param id         Id of user to generate a <code>UserModel</code> for
+     * @param encryptionKey Encryption key of user
+     * @return If user is found: an <code>Optional</code> containing the <code>UserModel</code>; else: <code>Optional.empty()</code>
+     */
+    public Optional<UserModel> getUserModelById(@NonNull UUID id, @NonNull byte[] encryptionKey) {
+        final User user = userDao.findById(id).orElse(null);
+        if (user == null) {
+            return Optional.empty();
+        }
+        final byte[] secretKey = getUserSecretKey(user.getEmail(), encryptionKey);
+        final byte[] teamSecretKey = teamService.getTeamSecretKeyByUser(user.getId(), secretKey).orElse(null);
+        final Optional<UUID> teamId = teamService.getTeamIdByUserId(user.getId());
+        return Optional.of(new UserModel(user, secretKey, teamSecretKey, teamId, encryptionKey));
     }
 
     /**
@@ -314,4 +331,21 @@ public class UserService implements UserDetailsService {
         return new UsernamePasswordAuthenticationToken(model, null, model.getAuthorities());
     }
 
+    /**
+     * Updates the name of the current user
+     *
+     * @param name New name of user
+     * @return An <code>AuthenticationResponse</code> containing the new jwt of the user
+     */
+    public AuthenticationResponse updateUserName(@NonNull FirstLastName name) {
+        if (name.getFirst() == null || name.getFirst().length() > 32 || name.getLast() == null || name.getLast().length() > 32) {
+            throw new BadRequestException();
+        }
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userDao.updateUserName(principal.getId(), name);
+        principal.setFirstName(name.getFirst());
+        principal.setLastName(name.getLast());
+        // Return a new jwt for the user because the details in it have changed
+        return new AuthenticationResponse(buildJwtForUser(principal));
+    }
 }

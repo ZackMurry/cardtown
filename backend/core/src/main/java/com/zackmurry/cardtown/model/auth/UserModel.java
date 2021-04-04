@@ -15,8 +15,9 @@ public class UserModel extends User {
     // Used for easy access by the service layer
     private byte[] teamSecretKey;
     private Optional<UUID> teamId;
+    private byte[] encryptionKey;
 
-    public UserModel(User u, byte[] secretKey, byte[] teamSecretKey, Optional<UUID> teamId) {
+    public UserModel(User u, byte[] secretKey, byte[] teamSecretKey, Optional<UUID> teamId, byte[] encryptionKey) {
         this.setId(u.getId());
         this.setEmail(u.getEmail());
         this.setFirstName(u.getFirstName());
@@ -26,6 +27,7 @@ public class UserModel extends User {
         this.setRoles(u.getRoles());
         this.setTeamSecretKey(teamSecretKey);
         this.teamId = teamId;
+        this.encryptionKey = encryptionKey;
     }
 
 }

@@ -2,6 +2,7 @@ package com.zackmurry.cardtown.dao.user;
 
 import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
+import com.zackmurry.cardtown.model.auth.FirstLastName;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import org.springframework.stereotype.Repository;
@@ -74,5 +75,7 @@ public interface UserDao {
      * @throws InternalServerException If there is a <code>SQLException</code>
      */
     Optional<User> findById(UUID id);
+
+    void updateUserName(UUID id, FirstLastName name);
 
 }
