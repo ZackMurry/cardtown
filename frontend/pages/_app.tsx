@@ -14,7 +14,6 @@ import { NextPage } from 'next'
 import { parse } from 'cookie'
 import Cookies from 'js-cookie'
 import secureCookieStorageManager from 'lib/secureCookieStorageManager'
-import { ContactSupportOutlined } from '@material-ui/icons'
 
 interface Props {
   Component?: React.ComponentType
@@ -24,8 +23,8 @@ interface Props {
 }
 
 // from https://github.com/mui-org/material-ui/blob/master/examples/nextjs/pages/_app.js
-// adds mui theme
 // todo add error page (404)
+// todo store userContext info in local storage (or a cookie) instead of in the jwt
 const App: NextPage<Props> = ({ Component, pageProps, jwt, cookies }) => {
   const userModel = useMemo(() => ({ ...parseJwt(jwt), jwt }), [])
   const errorMessage = useErrorMessage()

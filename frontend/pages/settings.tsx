@@ -107,6 +107,7 @@ const ChangeNameSection: FC = () => {
   )
 }
 
+// todo more settings
 const SettingsPage: FC = () => {
   const { firstName, lastName, email } = useContext(userContext)
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
