@@ -39,6 +39,7 @@ public class CardController {
         return cardService.getCardPreviewsByUser();
     }
 
+    // todo use path variables for this now that ids are url compatible
     @GetMapping("/id/**")
     public ResponseCard getCardById(HttpServletRequest request) {
         final String cardId = request.getRequestURI().split("/api/v1/cards/id/")[1];

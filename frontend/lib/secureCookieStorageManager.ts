@@ -8,16 +8,12 @@ const secureCookieStorageManager = (cookies = ''): StorageManager => ({
     const match = cookies.match(new RegExp(`(^| )${storageKey}=([^;]+)`))
 
     if (match) {
-      console.log('match: ', match)
-      console.log(match[2])
       return match[2] as ColorMode
     }
-    console.log('using fallback value ', init)
     return init
   },
   set(value) {
     document.cookie = `${storageKey}=${value}; max-age=31536000; SameSite=Secure; path=/`
-    console.warn('setting color mode to: ', value)
   },
   type: 'cookie'
 })

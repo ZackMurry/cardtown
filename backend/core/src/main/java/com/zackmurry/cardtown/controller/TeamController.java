@@ -1,13 +1,10 @@
 package com.zackmurry.cardtown.controller;
 
-import com.zackmurry.cardtown.exception.BadRequestException;
-import com.zackmurry.cardtown.model.team.TeamCreateRequest;
-import com.zackmurry.cardtown.model.team.TeamCreationResponse;
-import com.zackmurry.cardtown.model.team.TeamHeader;
-import com.zackmurry.cardtown.model.team.TeamJoinRequest;
+import com.zackmurry.cardtown.model.team.*;
 import com.zackmurry.cardtown.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,7 +24,7 @@ public class TeamController {
     }
 
     @PostMapping("/join")
-    public void joinTeam(@RequestBody @NotNull TeamJoinRequest teamJoinRequest) {
+    public void joinTeam(@RequestBody TeamJoinRequest teamJoinRequest) {
         teamService.joinTeam(teamJoinRequest);
     }
 
@@ -44,6 +41,11 @@ public class TeamController {
     @PostMapping("/leave")
     public void leaveTeam() {
         teamService.leaveTeam();
+    }
+
+    @GetMapping("/id/{id}")
+    public TeamPublicData getTeamHeaderById(@NonNull @PathVariable String id) {
+        return teamService.getTeamHeaderById(id);
     }
 
 }

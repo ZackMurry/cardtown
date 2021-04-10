@@ -248,7 +248,6 @@ public class UserService implements UserDetailsService {
         System.out.println(encryptionKey.length);
 
         final UserModel userModel = getUserModelByEmail(email, encryptionKey).orElseThrow(InternalServerException::new);
-        System.out.println(userModel.getEncryptionKey().length);
         return new AuthenticationResponse(buildJwtForUser(userModel));
     }
 

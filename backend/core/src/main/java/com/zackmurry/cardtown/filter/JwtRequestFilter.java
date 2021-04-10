@@ -78,7 +78,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (authorizationHeader.startsWith("Bearer ")) {
             // Authentication using normal user workflow
             final String jwt = authorizationHeader.substring(7); // remove "Bearer " from the front
-            System.out.println(jwt);
             String email;
             try {
                 email = jwtUtil.extractSubject(jwt);

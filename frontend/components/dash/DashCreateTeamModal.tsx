@@ -14,7 +14,8 @@ import {
   ModalHeader,
   ModalOverlay,
   FormHelperText,
-  Text
+  Text,
+  useColorModeValue
 } from '@chakra-ui/react'
 import Cookies from 'js-cookie'
 import createTeamInviteLink from 'lib/createTeamInviteLink'
@@ -34,6 +35,7 @@ const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
   const [inviteUrl, setInviteUrl] = useState('')
   const linkRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const bgColor = useColorModeValue('white', 'darkElevated')
 
   const handleTeamCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -52,6 +54,7 @@ const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
     })
     if (response.ok) {
       const data = (await response.json()) as TeamLinkData
+      data.name = teamName
       setInviteUrl(createTeamInviteLink(data))
       setStage('created')
       return
@@ -82,7 +85,7 @@ const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       {stage === 'creating' || stage === 'loading' ? (
-        <ModalContent>
+        <ModalContent bg={bgColor}>
           <ModalHeader>Create a team</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -94,7 +97,7 @@ const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
                 <FormErrorMessage>{formErrorMsg}</FormErrorMessage>
               </FormControl>
               <Flex justifyContent='flex-end' mt='25px'>
-                <Button type='submit' colorScheme='blue' bg='cardtownBlue' isLoading={stage === 'loading'}>
+                <Button type='submit' colorScheme='blue' bg='cardtownBlue' color='white' isLoading={stage === 'loading'}>
                   Create
                 </Button>
               </Flex>
@@ -102,7 +105,7 @@ const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
           </ModalBody>
         </ModalContent>
       ) : (
-        <ModalContent>
+        <ModalContent bg={bgColor}>
           <ModalHeader>Team created!</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -122,7 +125,7 @@ const DashCreateTeamModal: FC<Props> = ({ isOpen, onClose }) => {
               You can view this link at any time by going to your team's settings page.
             </Text>
             <Flex justifyContent='flex-end'>
-              <Button onClick={router.reload} colorScheme='blue' bg='cardtownBlue' m='10px 5px'>
+              <Button onClick={router.reload} colorScheme='blue' bg='cardtownBlue' m='10px 5px' color='white'>
                 Awesome!
               </Button>
             </Flex>

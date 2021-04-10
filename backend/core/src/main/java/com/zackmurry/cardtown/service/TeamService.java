@@ -99,6 +99,9 @@ public class TeamService {
     public void joinTeam(@NonNull TeamJoinRequest teamJoinRequest) {
         // todo: Transition old cards that were made before joining a team to the user's new encryption method
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (teamJoinRequest.getTeamId() == null || teamJoinRequest.getTeamSecretKey() == null) {
+            throw new BadRequestException();
+        }
         final UUID teamId = UUIDCompressor.decompress(teamJoinRequest.getTeamId());
         final TeamEntity teamEntity = teamDao.getTeamById(teamId).orElseThrow(TeamNotFoundException::new);
         final byte[] decodedTeamSecretKey = Base64.decodeBase64URLSafe(teamJoinRequest.getTeamSecretKey());
@@ -243,4 +246,11 @@ public class TeamService {
             teamDao.removeUserFromTeam(principal.getId());
         }
     }
+
+    public TeamPublicData getTeamHeaderById(@NonNull String id) {
+        final UUID decompressedId = UUIDCompressor.decompress(id);
+        final int memberCount = teamDao.getMemberCountByTeam(decompressedId);
+        return new TeamPublicData(id, memberCount);
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.zackmurry.cardtown;
 
-import com.zackmurry.cardtown.dao.arg.ArgumentDao;
 import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.LengthRequiredException;
