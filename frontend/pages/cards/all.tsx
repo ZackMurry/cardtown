@@ -36,7 +36,7 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
+      <DashboardNavbar pageName='Cards' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{

@@ -1,4 +1,3 @@
-import { Typography } from '@material-ui/core'
 import { Button, Heading, Text, Input, Textarea } from '@chakra-ui/react'
 import { convertToRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
@@ -8,8 +7,6 @@ import { GetServerSideProps } from 'next'
 import mapStyleToReadable from 'components/cards/mapStyleToReadable'
 import CardBodyEditor from 'components/cards/CardBodyEditor'
 import NewCardFormattingPopover from 'components/cards/NewCardFormattingPopover'
-import DashboardNavbar from 'components/dash/DashboardNavbar'
-import BlackText from 'components/utils/BlackText'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import theme from 'lib/theme'
 import initializeDraftContentState from 'components/cards/initializeDraftEditorState'
@@ -122,16 +119,16 @@ const NewCard: FC = () => {
                   <span style={{ fontWeight: 300 }}>*</span>
                 </Heading>
               </label>
-              <Typography color='textSecondary' id='tagDescription' style={{ fontSize: 14, margin: '6px 0' }}>
+              <Text color='lightBlue' id='tagDescription' fontSize='14px' m='6px 0'>
                 Put a quick summary of what this card says.
-              </Typography>
+              </Text>
               <Textarea
                 id='tag'
                 value={tag}
                 onChange={e => setTag(e.target.value)}
                 rows={2}
                 resize='none'
-                focusBorderColor='blue.400'
+                focusBorderColor='cardtownBlue'
                 aria-labelledby='tagLabel'
                 aria-describedby='tagDescription'
               />
@@ -152,7 +149,7 @@ const NewCard: FC = () => {
               <Input
                 value={cite}
                 onChange={e => setCite(e.target.value)}
-                focusBorderColor='blue.400'
+                focusBorderColor='cardtownBlue'
                 aria-labelledby='citeLabel'
                 aria-describedby='citeDescription'
               />
@@ -172,7 +169,7 @@ const NewCard: FC = () => {
               <Textarea
                 value={citeInformation}
                 onChange={e => setCiteInformation(e.target.value)}
-                focusBorderColor='blue.400'
+                focusBorderColor='cardtownBlue'
                 aria-labelledby='citeInfoLabel'
                 aria-describedby='citeInfoDescription'
                 resize='none'

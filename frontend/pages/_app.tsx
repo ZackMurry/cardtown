@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import Head from 'next/head'
 import { ThemeProvider } from '@material-ui/core/styles'
-import { ChakraProvider, cookieStorageManager, localStorageManager } from '@chakra-ui/react'
+import { ChakraProvider, localStorageManager } from '@chakra-ui/react'
 import theme from 'lib/theme'
 import chakraTheme from 'lib/chakraTheme'
 import 'styles/globals.css' //todo move some styles into .module.css files
@@ -27,7 +27,7 @@ interface Props {
 // todo add error page (404)
 // todo store userContext info in a cookie instead of in the jwt
 const App: NextPage<Props> = ({ Component, pageProps, jwt, cookies, id }) => {
-  const userModel = useMemo(() => ({ ...parseJwt(jwt), jwt, id }), [])
+  const userModel = useMemo(() => ({ ...parseJwt(jwt), jwt, id }), [jwt])
   const errorMessage = useErrorMessage()
   const colorModeManager = typeof cookies === 'string' ? secureCookieStorageManager(cookies) : localStorageManager
 

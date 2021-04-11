@@ -6,6 +6,7 @@ import PageName from 'types/PageName'
 import chakraTheme from 'lib/chakraTheme'
 import DashNavbarDesktopAvatar from './DashNavbarDesktopAvatar'
 import DashNavbarColorSwitch from './DashNavbarColorSwitch'
+import DashNavbarNewButton from './DashNavbarNewButton'
 
 const PageTitleDisplay: FC<{ href: string; title: string }> = ({ href, title }) => {
   const [mouseOver, setMouseOver] = useState(false)
@@ -53,7 +54,7 @@ const DashNavbarDesktop: FC<Props> = ({ pageName }) => {
       </Box>
       <Box display='flex' alignItems='center'>
         <DashNavbarColorSwitch />
-        <IconButton aria-label='New' icon={<AddIcon color='darkGray' />} bg='transparent' />
+        <DashNavbarNewButton />
         <DashNavbarDesktopAvatar />
       </Box>
     </header>

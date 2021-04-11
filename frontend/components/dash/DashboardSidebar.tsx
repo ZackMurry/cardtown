@@ -1,6 +1,7 @@
-import { Box, Divider, useColorModeValue } from '@chakra-ui/react'
+import { Box, Divider, useBreakpointValue, useColorModeValue } from '@chakra-ui/react'
+import chakraTheme from 'lib/chakraTheme'
 import useWindowSize from 'lib/hooks/useWindowSize'
-import { FC, MouseEvent, useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import TeamHeader from 'types/TeamHeader'
 import DashSidebarNoTeamSection from './DashSidebarNoTeamSection'
 import DashSidebarTeamInformation from './DashSidebarTeamInformation'
@@ -23,8 +24,13 @@ const DashboardSidebar: FC<Props> = ({ team }) => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const isVisible = useBreakpointValue({ md: false, lg: true })
+  if (!isVisible) {
+    return <></>
+  }
+
   return (
-    <Box width='18%' height='100vh'>
+    <Box w='18%' h='100vh'>
       <Box
         position={scroll > height * 0.07 ? 'fixed' : 'absolute'}
         top={scroll > height * 0.07 ? '0vh' : '7vh'}

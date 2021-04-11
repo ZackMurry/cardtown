@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Text, useBreakpointValue, useColorModeValue } from '@chakra-ui/react'
 import userContext from 'lib/hooks/UserContext'
 import { FC, useContext, useState } from 'react'
 import { ResponseAction } from 'types/action'
@@ -15,6 +15,7 @@ const DashActionFeed: FC<Props> = ({ actions: initialActions }) => {
   const [isLoading, setLoading] = useState(false)
   const { jwt } = useContext(userContext)
   const buttonBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
+  const width = useBreakpointValue({ sm: '100%', md: '50%' })
 
   const handleLoadMore = async () => {
     setLoading(true)
@@ -33,7 +34,7 @@ const DashActionFeed: FC<Props> = ({ actions: initialActions }) => {
   }
 
   return (
-    <Box p='3%' w='50%'>
+    <Box p='3%' w={width}>
       {actions && actions.map(action => <DashActionItem action={action} key={action.time} />)}
       {moreActionsAvailable ? (
         <Flex justifyContent='center' mt='50px'>

@@ -69,7 +69,7 @@ const AllArguments: NextPage<Props> = ({ args: initialArgs, fetchErrorText }) =>
         overflow: 'auto'
       }}
     >
-      <DashboardNavbar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar pageName='Arguments' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{

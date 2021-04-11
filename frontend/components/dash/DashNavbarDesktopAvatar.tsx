@@ -19,7 +19,7 @@ const DashNavbarDesktopAvatar: FC = () => {
 
   return (
     <Menu placement='top-end'>
-      <MenuButton>
+      <MenuButton ml='5px'>
         <ProfilePicture id={id} firstName={firstName} lastName={lastName} />
       </MenuButton>
       <MenuList bg={bgColor} borderColor={borderColor}>

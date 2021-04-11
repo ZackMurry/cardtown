@@ -27,7 +27,7 @@ const ArgumentsPage: NextPage<Props> = ({ fetchErrorText, argCount }) => {
 
   return (
     <div style={{ width: '100%', backgroundColor: theme.palette.lightBlue.main }}>
-      <DashboardNavbar windowWidth={width} pageName='Arguments' />
+      <DashboardNavbar pageName='Arguments' />
       <div style={{ marginLeft: width >= theme.breakpoints.values.lg ? '12.9vw' : 0, paddingLeft: 38, paddingRight: 38 }}>
         <Typography
           style={{

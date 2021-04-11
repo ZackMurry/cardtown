@@ -9,16 +9,12 @@ interface Props {
   fetchErrorText?: string
 }
 
-const Cards: NextPage<Props> = ({ cardCount, fetchErrorText }) => {
-  const { width } = useWindowSize(1920, 1080)
-
-  return (
-    <div style={{ width: '100%' }}>
-      <DashboardNavbar windowWidth={width} pageName='Cards' />
-      {fetchErrorText && <ErrorAlert disableClose text={fetchErrorText} />}
-    </div>
-  )
-}
+const Cards: NextPage<Props> = ({ cardCount, fetchErrorText }) => (
+  <div style={{ width: '100%' }}>
+    <DashboardNavbar pageName='Cards' />
+    {fetchErrorText && <ErrorAlert disableClose text={fetchErrorText} />}
+  </div>
+)
 
 export default Cards
 
