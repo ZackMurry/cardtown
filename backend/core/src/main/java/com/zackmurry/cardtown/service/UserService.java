@@ -6,10 +6,12 @@ import com.zackmurry.cardtown.exception.InternalServerException;
 import com.zackmurry.cardtown.exception.LengthRequiredException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.*;
-import com.zackmurry.cardtown.model.team.TeamEntity;
 import com.zackmurry.cardtown.util.EncryptionUtils;
 import com.zackmurry.cardtown.util.JwtUtil;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,17 +21,26 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 @Service
 public class UserService implements UserDetailsService {
+
+    private static final String PROFILE_PICTURE_DIRECTORY_PATH = System.getProperty("user.home") + File.separator + ".cardtown" + File.separator + "static" + File.separator + "images" + File.separator + "pfp";
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserDao userDao;
@@ -48,6 +59,17 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private TeamService teamService;
+
+    @PostConstruct
+    private void init() {
+        File f = new File(PROFILE_PICTURE_DIRECTORY_PATH);
+        if (!f.exists()) {
+            logger.info("Profile picture directory {} not found. Creating...", f.getAbsolutePath());
+            if (!f.mkdirs()) {
+                logger.warn("Failed to create upload directory. Expect problems.");
+            }
+        }
+    }
 
     /**
      * Gets a user's data by their email.
@@ -124,8 +146,8 @@ public class UserService implements UserDetailsService {
         }
 
         final UserModel userModel = new UserModel(user, encryptedSecretKey, null, Optional.empty(), encryptionKey);
-        userDao.createAccount(userModel);
-        return new AuthenticationResponse(buildJwtForUser(userModel));
+        final UUID userId = userDao.createAccount(userModel);
+        return new AuthenticationResponse(buildJwtForUser(userModel), UUIDCompressor.compress(userId));
     }
 
     /**
@@ -248,7 +270,7 @@ public class UserService implements UserDetailsService {
         System.out.println(encryptionKey.length);
 
         final UserModel userModel = getUserModelByEmail(email, encryptionKey).orElseThrow(InternalServerException::new);
-        return new AuthenticationResponse(buildJwtForUser(userModel));
+        return new AuthenticationResponse(buildJwtForUser(userModel), UUIDCompressor.compress(userModel.getId()));
     }
 
     public String buildJwtForUser(@NonNull UserModel userModel) {
@@ -345,6 +367,31 @@ public class UserService implements UserDetailsService {
         principal.setFirstName(name.getFirst());
         principal.setLastName(name.getLast());
         // Return a new jwt for the user because the details in it have changed
-        return new AuthenticationResponse(buildJwtForUser(principal));
+        return new AuthenticationResponse(buildJwtForUser(principal), UUIDCompressor.compress(principal.getId()));
     }
+
+    public void updateUserProfilePicture(@NonNull MultipartFile file) {
+        // todo: support jpg
+        if (file.getOriginalFilename() == null || !file.getOriginalFilename().endsWith(".png")) {
+            throw new BadRequestException();
+        }
+        final UUID userId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final String compressedUserId = UUIDCompressor.compress(userId);
+        // Delete old profile picture (if exists)
+        final File oldPicture = new File(PROFILE_PICTURE_DIRECTORY_PATH + File.separator + userId + ".png");
+        if (oldPicture.exists()) {
+            if (!oldPicture.delete()) {
+                throw new InternalServerException();
+            }
+        }
+        // Create file in filesystem
+        try {
+            final Path copyLocation = Paths.get(PROFILE_PICTURE_DIRECTORY_PATH + File.separator + StringUtils.cleanPath(compressedUserId + ".png"));
+            Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
 }

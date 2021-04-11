@@ -38,7 +38,7 @@ public interface UserDao {
      * @throws org.springframework.web.server.ResponseStatusException (Precondition failed) If a user with the specified email already exists
      * @throws InternalServerException                                If there is a <code>SQLException</code>
      */
-    void createAccount(UserModel user);
+    UUID createAccount(UserModel user);
 
     /**
      * Finds if an account with an email exists

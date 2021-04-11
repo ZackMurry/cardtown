@@ -92,6 +92,9 @@ const Signup: NextPage<Props> = ({ redirect, initialEmail }) => {
       Cookie.set('jwt', json.jwt, {
         sameSite: 'Strict'
       })
+      Cookie.set('id', json.id, {
+        sameSite: 'Strict'
+      })
       router.push(redirect || '/dash')
     } else if (response.status === 412) {
       setErrorMessage('An account with this email already exists.')

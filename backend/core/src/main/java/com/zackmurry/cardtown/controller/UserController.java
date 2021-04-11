@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -42,6 +43,11 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE);
         }
         return userService.updateUserName(name);
+    }
+
+    @PutMapping("/picture")
+    public void updateUserProfilePicture(@RequestParam("file") MultipartFile file) {
+        userService.updateUserProfilePicture(file);
     }
 
 }

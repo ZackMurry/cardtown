@@ -49,7 +49,12 @@ const Login: NextPage<Props> = ({ redirect }) => {
     // 400: bad password
     if (response.status < 400) {
       const json = await response.json()
-      Cookie.set('jwt', json.jwt)
+      Cookie.set('jwt', json.jwt, {
+        sameSite: 'Strict'
+      })
+      Cookie.set('id', json.id, {
+        sameSite: 'Strict'
+      })
       router.push(redirect || '/dash')
     } else if (response.status === 400) {
       // todo resetting passwords

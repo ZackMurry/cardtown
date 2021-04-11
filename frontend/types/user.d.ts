@@ -4,4 +4,5 @@ export interface UserModel {
   encryptionKey: string
   email: string
   jwt: string
+  id: string
 }

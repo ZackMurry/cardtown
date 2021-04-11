@@ -4,9 +4,10 @@ import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'
 import userContext from 'lib/hooks/UserContext'
 import Link from 'next/link'
+import ProfilePicture from 'components/users/ProfilePicture'
 
 const DashNavbarDesktopAvatar: FC = () => {
-  const { firstName, lastName } = useContext(userContext)
+  const { firstName, lastName, id } = useContext(userContext)
   const router = useRouter()
   const bgColor = useColorModeValue('white', 'darkElevated')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
@@ -19,7 +20,7 @@ const DashNavbarDesktopAvatar: FC = () => {
   return (
     <Menu placement='top-end'>
       <MenuButton>
-        <Avatar name={`${firstName} ${lastName}`} width='30px' height='30px' fontSize='small' />
+        <ProfilePicture id={id} firstName={firstName} lastName={lastName} />
       </MenuButton>
       <MenuList bg={bgColor} borderColor={borderColor}>
         <Box padding='0.4rem 0.8rem'>

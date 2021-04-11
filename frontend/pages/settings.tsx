@@ -13,11 +13,13 @@ import {
   Text,
   useColorModeValue
 } from '@chakra-ui/react'
-import { FC, FormEvent, useContext, useState } from 'react'
+import { ChangeEvent, FC, FormEvent, useContext, useRef, useState } from 'react'
 import DashboardPage from 'components/dash/DashboardPage'
 import userContext from 'lib/hooks/UserContext'
 import { useRouter } from 'next/router'
 import Cookies from 'js-cookie'
+import ProfilePicture from 'components/users/ProfilePicture'
+import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 const ChangeNameSection: FC = () => {
   const { firstName, lastName, jwt } = useContext(userContext)
@@ -107,9 +109,41 @@ const ChangeNameSection: FC = () => {
   )
 }
 
+const ChangeProfilePictureSection: FC = () => {
+  const { firstName, lastName, jwt, id } = useContext(userContext)
+  const { setErrorMessage } = useContext(errorMessageContext)
+  const ref = useRef<HTMLInputElement | null>(null)
+  const handleClick = () => {
+    ref.current.click()
+  }
+
+  const handleSelectImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    const formData = new FormData()
+    formData.append('file', e.target.files[0])
+    const response = await fetch('/api/v1/users/picture', {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${jwt}` },
+      body: formData
+    })
+    if (!response.ok) {
+      setErrorMessage(`An error occurred while changing your profile picture. Status code: ${response.status}`)
+    }
+  }
+  return (
+    <Box>
+      <FormLabel>Profile Picture</FormLabel>
+      <Avatar name={`${firstName} ${lastName}`} src={`/api/v1/static/images/pfp/${id}.png`} size='xl' w='128px' h='128px' />
+      <Button colorScheme='blue' bg='cardtownBlue' color='white' onClick={handleClick}>
+        Change
+      </Button>
+      <input ref={ref} type='file' style={{ visibility: 'hidden' }} accept='.png' onChange={handleSelectImage} />
+    </Box>
+  )
+}
+
 // todo more settings
 const SettingsPage: FC = () => {
-  const { firstName, lastName, email } = useContext(userContext)
+  const { firstName, lastName, id } = useContext(userContext)
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   return (
@@ -125,7 +159,7 @@ const SettingsPage: FC = () => {
           borderColor={borderColor}
         >
           <Flex>
-            <Avatar name={`${firstName} ${lastName}`} size='lg' />
+            <ProfilePicture firstName={firstName} lastName={lastName} id={id} l='60px' />
             <Box pl='20px'>
               <Heading as='h6' fontSize='28px'>{`${firstName} ${lastName}`}</Heading>
               <Text>Your account settings</Text>
@@ -137,6 +171,7 @@ const SettingsPage: FC = () => {
             </Heading>
             <Divider borderColor={borderColor} />
             <ChangeNameSection />
+            <ChangeProfilePictureSection />
           </Box>
         </Box>
       </Flex>

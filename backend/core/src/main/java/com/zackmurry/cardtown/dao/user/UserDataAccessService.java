@@ -81,7 +81,7 @@ public class UserDataAccessService implements UserDao {
     }
 
     @Override
-    public void createAccount(@NonNull UserModel user) {
+    public UUID createAccount(@NonNull UserModel user) {
         if (findByEmail(user.getEmail()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "User with the email already exists");
         }
@@ -96,20 +96,23 @@ public class UserDataAccessService implements UserDao {
         final String sql = "INSERT INTO users (email, first_name, last_name, password, encrypted_secret_key, role) VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
-            jdbcTemplate.execute(
-                    sql,
-                    user.getEmail(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getPassword(), // hashed
-                    Base64.encodeBase64String(user.getSecretKey()), // encrypted with AES by SHA-256 hash of password
-                    user.getRoles().get(0).getName()
-            );
+            final String[] returnFields = { "id" };
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql, returnFields);
+            preparedStatement.setString(1, user.getEmail());
+            preparedStatement.setString(2, user.getFirstName());
+            preparedStatement.setString(3, user.getLastName());
+            preparedStatement.setString(4, user.getPassword());
+            preparedStatement.setString(5, Base64.encodeBase64String(user.getSecretKey()));
+            preparedStatement.setString(6, user.getRoles().get(0).getName());
+            preparedStatement.executeUpdate();
+            final ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            if (resultSet.next()) {
+                return UUID.fromString(resultSet.getString("id"));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new InternalServerException();
         }
-
+        throw new InternalServerException();
     }
 
     @Override

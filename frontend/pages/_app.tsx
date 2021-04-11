@@ -19,14 +19,15 @@ interface Props {
   Component?: React.ComponentType
   pageProps?: any
   jwt?: string
+  id?: string
   cookies: any
 }
 
 // from https://github.com/mui-org/material-ui/blob/master/examples/nextjs/pages/_app.js
 // todo add error page (404)
-// todo store userContext info in local storage (or a cookie) instead of in the jwt
-const App: NextPage<Props> = ({ Component, pageProps, jwt, cookies }) => {
-  const userModel = useMemo(() => ({ ...parseJwt(jwt), jwt }), [])
+// todo store userContext info in a cookie instead of in the jwt
+const App: NextPage<Props> = ({ Component, pageProps, jwt, cookies, id }) => {
+  const userModel = useMemo(() => ({ ...parseJwt(jwt), jwt, id }), [])
   const errorMessage = useErrorMessage()
   const colorModeManager = typeof cookies === 'string' ? secureCookieStorageManager(cookies) : localStorageManager
 
@@ -65,10 +66,18 @@ const App: NextPage<Props> = ({ Component, pageProps, jwt, cookies }) => {
 // because the type for this fn says that ctx isn't an available child
 App.getInitialProps = async ({ ctx }) => {
   const { req } = ctx
-  const jwt = req ? parse(req.headers?.cookie ?? '')?.jwt : Cookies.get('jwt')
+  if (req) {
+    const parsed = parse(req.headers?.cookie ?? '')
+    return {
+      jwt: parsed?.jwt,
+      id: parsed?.id,
+      cookies: req.headers?.cookie ?? ''
+    }
+  }
   return {
-    jwt,
-    cookies: req?.headers?.cookie ?? ''
+    jwt: Cookies.get('jwt') ?? undefined,
+    id: Cookies.get('id') ?? undefined,
+    cookies: ''
   }
 }
 

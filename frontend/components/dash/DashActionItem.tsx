@@ -87,10 +87,9 @@ const DashActionArgumentItem: FC<{ action: ResponseAction }> = ({ action, childr
 
 // todo once teams are better implemented on the frontend
 const DashActionUserItem: FC<{ action: ResponseAction }> = ({ action, children }) => (
-  <div>
+  <Box w='100%' mb='25px'>
     {children}
-    User preview
-  </div>
+  </Box>
 )
 
 interface Props {
