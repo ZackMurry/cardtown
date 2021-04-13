@@ -1,7 +1,7 @@
 import { Tooltip } from '@material-ui/core'
 import { FC, useEffect, useState } from 'react'
 import SearchCards from 'components/cards/SearchCards'
-import CardPreview from 'types/CardPreview'
+import { CardPreview } from 'types/card'
 import theme from 'lib/theme'
 import { Box, Flex, Grid, GridItem, Text, useColorModeValue } from '@chakra-ui/react'
 

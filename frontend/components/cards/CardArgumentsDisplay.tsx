@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import { FC } from 'react'
 import { Box, Heading, useColorModeValue, Grid, GridItem, Text } from '@chakra-ui/react'
-import ArgumentWithCardModel from 'types/ArgumentWithCardModel'
-import BlackText from 'components/utils/BlackText'
+import { ArgumentWithCardModel } from 'types/argument'
 import theme from 'lib/theme'
 
 interface Props {

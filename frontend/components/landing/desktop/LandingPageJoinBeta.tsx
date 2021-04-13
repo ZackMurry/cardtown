@@ -1,7 +1,6 @@
 import { Button, Grid, Text, GridItem, useColorModeValue } from '@chakra-ui/react'
 import { FC, useState, FormEvent } from 'react'
 import { useRouter } from 'next/router'
-import theme from 'lib/theme'
 import chakraTheme from 'lib/chakraTheme'
 
 const LandingPageJoinBeta: FC = () => {

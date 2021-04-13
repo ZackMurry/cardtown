@@ -1,7 +1,7 @@
 import { Box, Button, Heading, Text } from '@chakra-ui/react'
 import { FC } from 'react'
 import Link from 'next/link'
-import TeamHeader from 'types/TeamHeader'
+import { TeamHeader } from 'types/team'
 
 interface Props {
   team: TeamHeader

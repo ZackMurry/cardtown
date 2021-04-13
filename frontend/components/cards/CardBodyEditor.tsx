@@ -1,7 +1,6 @@
 import { Editor, EditorState, getDefaultKeyBinding, RichUtils } from 'draft-js'
 import { CSSProperties, FC } from 'react'
 import styles from 'styles/NewCard.module.css'
-import theme from 'lib/theme'
 import { Box, useColorModeValue } from '@chakra-ui/react'
 
 const styleMap = {

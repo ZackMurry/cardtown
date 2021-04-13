@@ -8,7 +8,7 @@ import useWindowSize from 'lib/hooks/useWindowSize'
 import BlackText from 'components/utils/BlackText'
 import redirectToLogin from 'lib/redirectToLogin'
 import SearchCards from 'components/cards/SearchCards'
-import CardPreview from 'types/CardPreview'
+import { CardPreview } from 'types/card'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {

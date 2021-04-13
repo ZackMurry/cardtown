@@ -6,6 +6,8 @@ import { FC, useContext } from 'react'
 import { format as formatTime } from 'timeago.js'
 import { ResponseAction } from 'types/action'
 
+// todo show subject pfp
+
 const DashActionCardItem: FC<{ action: ResponseAction }> = ({ action, children }) => {
   const bgColor = useColorModeValue('white', 'darkElevated')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')

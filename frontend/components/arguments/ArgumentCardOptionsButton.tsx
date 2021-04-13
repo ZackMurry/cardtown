@@ -2,7 +2,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert'
 import { FC, useContext } from 'react'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
-import { Menu, MenuButton, MenuList, MenuItem, useColorModeValue, Text, IconButton } from '@chakra-ui/react'
+import { Menu, MenuButton, MenuList, MenuItem, useColorModeValue, IconButton } from '@chakra-ui/react'
 
 interface Props {
   cardId: string

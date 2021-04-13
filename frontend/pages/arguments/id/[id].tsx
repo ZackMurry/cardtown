@@ -1,4 +1,3 @@
-import { Typography } from '@material-ui/core'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
@@ -7,7 +6,7 @@ import AddCardToArgumentButton from 'components/arguments/AddCardToArgumentButto
 import ArgumentCardDisplay from 'components/arguments/ArgumentCardDisplay'
 import ArgumentName from 'components/arguments/ArgumentName'
 import DeleteArgumentButton from 'components/arguments/DeleteArgumentButton'
-import ResponseArgument from 'types/ResponseArgument'
+import { ResponseArgument } from 'types/argument'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'

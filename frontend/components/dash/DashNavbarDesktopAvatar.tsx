@@ -1,4 +1,4 @@
-import { Menu, MenuButton, MenuItem, MenuList, Box, Divider, Text, Avatar, useColorModeValue } from '@chakra-ui/react'
+import { Menu, MenuButton, MenuItem, MenuList, Box, Divider, Text, useColorModeValue } from '@chakra-ui/react'
 import { FC, useContext } from 'react'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/router'

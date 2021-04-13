@@ -1,8 +1,6 @@
 import { Tooltip } from '@material-ui/core'
 import { FC } from 'react'
 import { Grid, GridItem, Text, useColorModeValue } from '@chakra-ui/react'
-import BlackText from 'components/utils/BlackText'
-import theme from 'lib/theme'
 
 interface Props {
   tag: string

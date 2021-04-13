@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { Box, IconButton, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Text, useColorModeValue } from '@chakra-ui/react'
 import { FC, useState } from 'react'
-import { AddIcon } from '@chakra-ui/icons'
 import PageName from 'types/PageName'
 import chakraTheme from 'lib/chakraTheme'
 import DashNavbarDesktopAvatar from './DashNavbarDesktopAvatar'

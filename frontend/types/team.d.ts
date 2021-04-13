@@ -1,5 +1,3 @@
-// todo merge a lot of the type files
-
 export interface TeamLinkData {
   id: string
   name: string
@@ -8,5 +6,10 @@ export interface TeamLinkData {
 
 export interface TeamPublicData {
   id: string
+  memberCount: number
+}
+
+export interface TeamHeader {
+  name: string
   memberCount: number
 }

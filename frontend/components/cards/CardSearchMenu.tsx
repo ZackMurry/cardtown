@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from 'react'
 import { Box, useColorModeValue } from '@chakra-ui/react'
-import CardPreview from 'types/CardPreview'
+import { CardPreview } from 'types/card'
 import CardHeaderPreview from './CardHeaderPreview'
 import SearchCards from './SearchCards'
 

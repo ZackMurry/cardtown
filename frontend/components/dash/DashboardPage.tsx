@@ -1,5 +1,4 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
-import useWindowSize from 'lib/hooks/useWindowSize'
 import { FC } from 'react'
 import DashboardNavbar from './DashboardNavbar'
 

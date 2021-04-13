@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { FC, useContext, useState } from 'react'
-import ResponseCard from 'types/ResponseCard'
+import { ResponseCard } from 'types/card'
 import { Box, Text, useColorModeValue } from '@chakra-ui/react'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import CardOptionsButton from './CardOptionsButton'

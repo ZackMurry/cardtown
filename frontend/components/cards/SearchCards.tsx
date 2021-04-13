@@ -1,7 +1,7 @@
 import SearchIcon from '@material-ui/icons/Search'
 import ClearIcon from '@material-ui/icons/Clear'
 import { FC, useState } from 'react'
-import CardPreview from 'types/CardPreview'
+import { CardPreview } from 'types/card'
 import { Input, InputGroup, InputRightElement, IconButton, useColorModeValue } from '@chakra-ui/react'
 
 interface Props {
