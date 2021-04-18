@@ -1,4 +1,4 @@
-import { Button, Heading, Text, Input, Textarea } from '@chakra-ui/react'
+import { Heading, Text, Input, Textarea, Box } from '@chakra-ui/react'
 import { convertToRaw } from 'draft-js'
 import { stateToHTML } from 'draft-js-export-html'
 import { useRouter } from 'next/router'
@@ -15,6 +15,7 @@ import redirectToLogin from 'lib/redirectToLogin'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import DashboardPage from 'components/dash/DashboardPage'
+import PrimaryButton from 'components/utils/PrimaryButton'
 
 const NewCard: FC = () => {
   const { width } = useWindowSize(1920, 1080)
@@ -95,113 +96,109 @@ const NewCard: FC = () => {
 
   return (
     <DashboardPage>
-      <div style={{ paddingLeft: 38, paddingRight: 38 }}>
-        <div style={{ width: width >= theme.breakpoints.values.lg ? '50%' : '80%', margin: '0 auto', padding: '6vh 0' }}>
+      <Box w={{ base: '85%', sm: '75%', md: '70%', lg: '60%', xl: '50%' }} m='0 auto' p='6vh 0'>
+        <div>
+          <Heading as='h2' fontSize={24} fontWeight='bold' paddingTop={1}>
+            Create a new card
+          </Heading>
+          <div
+            style={{
+              width: '100%',
+              margin: '2vh 0',
+              height: 1,
+              backgroundColor: theme.palette.lightGrey.main
+            }}
+          />
+        </div>
+        <form onSubmit={handleSubmit}>
+          {/* tag */}
           <div>
-            <Heading as='h2' fontSize={24} fontWeight='bold' paddingTop={1}>
-              Create a new card
-            </Heading>
-            <div
-              style={{
-                width: '100%',
-                margin: '2vh 0',
-                height: 1,
-                backgroundColor: theme.palette.lightGrey.main
-              }}
-            />
-          </div>
-          <form onSubmit={handleSubmit}>
-            {/* tag */}
-            <div>
-              <label htmlFor='tag' id='tagLabel'>
-                <Heading as='h3' fontSize={18} fontWeight={500}>
-                  Tag
-                  <span style={{ fontWeight: 300 }}>*</span>
-                </Heading>
-              </label>
-              <Text color='lightBlue' id='tagDescription' fontSize='14px' m='6px 0'>
-                Put a quick summary of what this card says.
-              </Text>
-              <Textarea
-                id='tag'
-                value={tag}
-                onChange={e => setTag(e.target.value)}
-                rows={2}
-                resize='none'
-                focusBorderColor='cardtownBlue'
-                aria-labelledby='tagLabel'
-                aria-describedby='tagDescription'
-              />
-            </div>
-
-            {/* cite */}
-            <div style={{ marginTop: 25 }}>
-              <label htmlFor='cite' id='citeLabel'>
-                <Heading as='h3' fontSize={18} fontWeight={500}>
-                  Cite
-                  <span style={{ fontWeight: 300 }}>*</span>
-                </Heading>
-              </label>
-              <Text color='lightBlue' id='citeDescription' fontSize={14} margin='6px 0'>
-                Put the last name of the author and the year it was written. You can also put more information. Example:
-                Miller 18.
-              </Text>
-              <Input
-                value={cite}
-                onChange={e => setCite(e.target.value)}
-                focusBorderColor='cardtownBlue'
-                aria-labelledby='citeLabel'
-                aria-describedby='citeDescription'
-              />
-            </div>
-
-            {/* cite information */}
-            <div style={{ marginTop: 25 }}>
-              <label htmlFor='citeInfo' id='citeInfoLabel'>
-                <Heading as='h3' fontSize={18} fontWeight={500}>
-                  Additional cite information
-                </Heading>
-              </label>
-              <Text color='lightBlue' id='citeInfoDescription' style={{ fontSize: 14, margin: '6px 0' }}>
-                Put some more information about the source of this card, like the author’s credentials and a link to the
-                place you found it.
-              </Text>
-              <Textarea
-                value={citeInformation}
-                onChange={e => setCiteInformation(e.target.value)}
-                focusBorderColor='cardtownBlue'
-                aria-labelledby='citeInfoLabel'
-                aria-describedby='citeInfoDescription'
-                resize='none'
-                rows={2}
-              />
-            </div>
-
-            {/* body */}
-            <div style={{ marginTop: 20 }}>
+            <label htmlFor='tag' id='tagLabel'>
               <Heading as='h3' fontSize={18} fontWeight={500}>
-                Body
+                Tag
                 <span style={{ fontWeight: 300 }}>*</span>
               </Heading>
-              <NewCardFormattingPopover />
-              <CardBodyEditor editorState={bodyState} setEditorState={setBodyState} style={{ padding: 10 }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Text color='lightBlue' fontSize={11}>
-                  *required field
-                </Text>
-                <Text color='lightBlue' fontSize={width >= theme.breakpoints.values.md ? 15 : 11}>
-                  {currentInlineStyles.toString()}
-                </Text>
-              </div>
+            </label>
+            <Text color='lightBlue' id='tagDescription' fontSize='14px' m='6px 0'>
+              Put a quick summary of what this card says.
+            </Text>
+            <Textarea
+              id='tag'
+              value={tag}
+              onChange={e => setTag(e.target.value)}
+              rows={2}
+              resize='none'
+              focusBorderColor='cardtownBlue'
+              aria-labelledby='tagLabel'
+              aria-describedby='tagDescription'
+            />
+          </div>
+
+          {/* cite */}
+          <div style={{ marginTop: 25 }}>
+            <label htmlFor='cite' id='citeLabel'>
+              <Heading as='h3' fontSize={18} fontWeight={500}>
+                Cite
+                <span style={{ fontWeight: 300 }}>*</span>
+              </Heading>
+            </label>
+            <Text color='lightBlue' id='citeDescription' fontSize={14} margin='6px 0'>
+              Put the last name of the author and the year it was written. You can also put more information. Example: Miller
+              18.
+            </Text>
+            <Input
+              value={cite}
+              onChange={e => setCite(e.target.value)}
+              focusBorderColor='cardtownBlue'
+              aria-labelledby='citeLabel'
+              aria-describedby='citeDescription'
+            />
+          </div>
+
+          {/* cite information */}
+          <div style={{ marginTop: 25 }}>
+            <label htmlFor='citeInfo' id='citeInfoLabel'>
+              <Heading as='h3' fontSize={18} fontWeight={500}>
+                Additional cite information
+              </Heading>
+            </label>
+            <Text color='lightBlue' id='citeInfoDescription' style={{ fontSize: 14, margin: '6px 0' }}>
+              Put some more information about the source of this card, like the author’s credentials and a link to the place
+              you found it.
+            </Text>
+            <Textarea
+              value={citeInformation}
+              onChange={e => setCiteInformation(e.target.value)}
+              focusBorderColor='cardtownBlue'
+              aria-labelledby='citeInfoLabel'
+              aria-describedby='citeInfoDescription'
+              resize='none'
+              rows={2}
+            />
+          </div>
+
+          {/* body */}
+          <div style={{ marginTop: 20 }}>
+            <Heading as='h3' fontSize={18} fontWeight={500}>
+              Body
+              <span style={{ fontWeight: 300 }}>*</span>
+            </Heading>
+            <NewCardFormattingPopover />
+            <CardBodyEditor editorState={bodyState} setEditorState={setBodyState} style={{ padding: 10 }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <Text color='lightBlue' fontSize={11}>
+                *required field
+              </Text>
+              <Text color='lightBlue' fontSize={width >= theme.breakpoints.values.md ? 15 : 11}>
+                {currentInlineStyles.toString()}
+              </Text>
             </div>
-            <div style={{ marginTop: 10, marginBottom: -5 }}>
-              <Button colorScheme='blue' variant='solid' type='submit' bg='cardtownBlue' color='white'>
-                Finish
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
+          </div>
+          <div style={{ marginTop: 10, marginBottom: -5 }}>
+            <PrimaryButton type='submit'>Finish</PrimaryButton>
+          </div>
+        </form>
+      </Box>
     </DashboardPage>
   )
 }

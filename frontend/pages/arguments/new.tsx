@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next'
 import { FC, FormEvent, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Heading, Input, Text, Button, useColorModeValue } from '@chakra-ui/react'
+import { Heading, Input, Text, useColorModeValue } from '@chakra-ui/react'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
@@ -10,6 +10,7 @@ import { CardPreview } from 'types/card'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import DashboardPage from 'components/dash/DashboardPage'
+import PrimaryButton from 'components/utils/PrimaryButton'
 
 const NewArgument: FC = () => {
   const [name, setName] = useState('')
@@ -177,9 +178,7 @@ const NewArgument: FC = () => {
             </div>
 
             <div style={{ marginTop: 10, marginBottom: -5 }}>
-              <Button type='submit' colorScheme='blue' bg='cardtownBlue' color='white'>
-                Finish
-              </Button>
+              <PrimaryButton type='submit'>Finish</PrimaryButton>
             </div>
           </form>
         </div>

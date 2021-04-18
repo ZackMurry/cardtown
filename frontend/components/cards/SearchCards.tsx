@@ -72,7 +72,7 @@ const SearchCards: FC<Props> = ({ cards, onResults, onClear, windowWidth }) => {
   }
 
   return (
-    <InputGroup w={windowWidth < 500 ? '100%' : '50%'} size='md'>
+    <InputGroup size='md' w='100%'>
       <Input
         value={query}
         placeholder='Search cards...'

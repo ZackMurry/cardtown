@@ -3,7 +3,7 @@ import { FC, useEffect, useState } from 'react'
 import SearchCards from 'components/cards/SearchCards'
 import { CardPreview } from 'types/card'
 import theme from 'lib/theme'
-import { Box, Flex, Grid, GridItem, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Grid, GridItem, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 
 interface Props {
   cardsInArgument: CardPreview[]
@@ -99,15 +99,17 @@ const ArgumentCardSelector: FC<Props> = ({
       />
       {/* todo: lazy load */}
       <div>
-        <Flex justifyContent='space-between' alignItems='center'>
+        <Stack direction={{ base: 'column', md: 'row' }} justifyContent='space-between'>
           <Text>Find more cards</Text>
-          <SearchCards
-            cards={cardsNotInArgument}
-            onResults={setCardsInSearch}
-            onClear={() => setCardsInSearch(cardsNotInArgument)}
-            windowWidth={windowWidth}
-          />
-        </Flex>
+          <Box w={{ base: '100%', md: '60%' }}>
+            <SearchCards
+              cards={cardsNotInArgument}
+              onResults={setCardsInSearch}
+              onClear={() => setCardsInSearch(cardsNotInArgument)}
+              windowWidth={windowWidth}
+            />
+          </Box>
+        </Stack>
         <Box w='100%' p='10px' mt='10px'>
           {!cardsInSearch?.length && (
             <Text color='darkGray' m='15px' fontSize='16px'>

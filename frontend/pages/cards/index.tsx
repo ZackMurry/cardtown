@@ -1,7 +1,8 @@
 import { useContext, useEffect, useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
-import { Box, Flex, GridItem, Grid, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import { Box, GridItem, Grid, Text, Tooltip, useColorModeValue, Stack } from '@chakra-ui/react'
+import { AddIcon } from '@chakra-ui/icons'
 import theme from 'lib/theme'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
@@ -9,6 +10,8 @@ import SearchCards from 'components/cards/SearchCards'
 import { CardPreview } from 'types/card'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import DashboardPage from 'components/dash/DashboardPage'
+import { useRouter } from 'next/router'
+import PrimaryButton from 'components/utils/PrimaryButton'
 
 interface Props {
   cards?: CardPreview[]
@@ -23,6 +26,7 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
   const itemBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
   const borderColor = useColorModeValue('lightGrayBorder', 'darkGrayBorder')
   const tooltipBgColor = useColorModeValue('white', 'darkElevated')
+  const router = useRouter()
 
   useEffect(() => {
     if (errorText) {
@@ -32,15 +36,26 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
 
   return (
     <DashboardPage>
-      <Box w='55%' m='25px auto'>
-        <Flex w='100%' justifyContent='flex-end'>
+      <Box w={{ base: '85%', sm: '80%', md: '70%', lg: '60%', xl: '55%' }} m='25px auto'>
+        <Stack direction={{ base: 'column', lg: 'row' }} mb='15px' spacing='10px'>
+          <Stack direction={{ base: 'column', md: 'row' }} spacing='10px'>
+            <PrimaryButton onClick={() => router.push('/cards/import')}>Import cards</PrimaryButton>
+            <PrimaryButton
+              onClick={() => router.push('/cards/new')}
+              leftIcon={<AddIcon w='24px' mt='-2px' />}
+              iconSpacing='1'
+              pl='10px'
+            >
+              Create new card
+            </PrimaryButton>
+          </Stack>
           <SearchCards
             cards={initialCards}
             onResults={setCards}
             onClear={() => setCards(initialCards)}
             windowWidth={width}
           />
-        </Flex>
+        </Stack>
         {width >= theme.breakpoints.values.lg && (
           <Grid templateColumns='repeat(4, 1fr)'>
             <GridItem colSpan={1} pl='20px'>

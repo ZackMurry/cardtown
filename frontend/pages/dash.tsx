@@ -1,5 +1,5 @@
 import { FC, useContext, useEffect } from 'react'
-import { Box } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { GetServerSideProps } from 'next'
 import redirectToLogin from 'lib/redirectToLogin'
 import DashboardSidebar from 'components/dash/DashboardSidebar'
@@ -29,10 +29,10 @@ const Dash: FC<Props> = ({ team, fetchErrorText, actions }) => {
 
   return (
     <DashboardPage>
-      <Box d='flex'>
+      <Flex>
         <DashboardSidebar team={team} />
         <DashActionFeed actions={actions} />
-      </Box>
+      </Flex>
     </DashboardPage>
   )
 }

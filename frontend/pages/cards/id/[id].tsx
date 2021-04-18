@@ -34,7 +34,7 @@ const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, relatedArguments }
   return (
     <DashboardPage>
       <Box
-        w='50%'
+        w={{ base: '90%', sm: '85%', md: '80%', lg: '70%', xl: '50%' }}
         m='10vh auto 5vh auto'
         bg='white'
         borderRadius='5px'

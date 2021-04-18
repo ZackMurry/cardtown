@@ -9,6 +9,7 @@ import userContext from 'lib/hooks/UserContext'
 import DashboardPage from 'components/dash/DashboardPage'
 import { Box, Text, Button, Input, useColorModeValue, Textarea, Heading } from '@chakra-ui/react'
 import chakraTheme from 'lib/chakraTheme'
+import PrimaryButton from 'components/utils/PrimaryButton'
 
 // this simply doesn't support exporting to draft-js, and it'd be hard to make it
 // if the user wants to edit a card, ig a warning will be shown and it will be imported to
@@ -182,9 +183,9 @@ const ImportCards: FC = () => {
           />
         </div>
         <form onSubmit={handleSubmit}>
-          <Button type='submit' bg='cardtownBlue' m='1.5vh 0' colorScheme='blue' color='white'>
+          <PrimaryButton type='submit' m='1.5vh 0'>
             Import
-          </Button>
+          </PrimaryButton>
           {/* tag */}
           <div>
             <label htmlFor='tag' id='tagLabel'>
