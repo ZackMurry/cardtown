@@ -403,7 +403,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentEntity> getArgumentsByTeam(@NonNull UUID teamId) {
-        final String sql = "SELECT id, name FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ? AND deleted = FALSE";
+        final String sql = "SELECT id, owner_id, name FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);
@@ -413,7 +413,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
                 args.add(
                         new ArgumentEntity(
                                 UUID.fromString(resultSet.getString("id")),
-                                teamId,
+                                UUID.fromString(resultSet.getString("owner_id")),
                                 resultSet.getString("name")
                         )
                 );

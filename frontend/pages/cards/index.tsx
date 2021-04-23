@@ -3,7 +3,6 @@ import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
 import { Box, GridItem, Grid, Text, Tooltip, useColorModeValue, Stack } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
-import theme from 'lib/theme'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import SearchCards from 'components/cards/SearchCards'
@@ -56,20 +55,18 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
             windowWidth={width}
           />
         </Stack>
-        {width >= theme.breakpoints.values.lg && (
-          <Grid templateColumns='repeat(4, 1fr)'>
-            <GridItem colSpan={1} pl='20px'>
-              <Text color='darkGray' fontWeight='medium'>
-                Cite
-              </Text>
-            </GridItem>
-            <GridItem colSpan={2} pl='10px'>
-              <Text color='darkGray' fontWeight='medium'>
-                Tag
-              </Text>
-            </GridItem>
-          </Grid>
-        )}
+        <Grid templateColumns='repeat(4, 1fr)' visibility={{ base: 'hidden', lg: 'visible' }}>
+          <GridItem colSpan={1} pl='20px'>
+            <Text color='darkGray' fontWeight='medium'>
+              Cite
+            </Text>
+          </GridItem>
+          <GridItem colSpan={2} pl='10px'>
+            <Text color='darkGray' fontWeight='medium'>
+              Tag
+            </Text>
+          </GridItem>
+        </Grid>
 
         {/* todo show information about the owner and make this expandable so that users can see the card body */}
         {cards.map(c => {
@@ -82,7 +79,7 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
             shortenedTag = c.tag.substring(0, 97) + '...'
           }
           return (
-            <Link href={`/cards/id/${encodeURIComponent(c.id)}`} passHref key={c.id}>
+            <Link href={`/cards/id/${c.id}`} passHref key={c.id}>
               <a>
                 <Grid
                   templateColumns='repeat(4, 1fr)'

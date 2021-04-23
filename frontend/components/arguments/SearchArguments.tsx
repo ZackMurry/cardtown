@@ -1,14 +1,13 @@
-import { IconButton, TextField } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import ClearIcon from '@material-ui/icons/Clear'
 import { FC, useState } from 'react'
 import { ArgumentPreview } from 'types/argument'
+import { Input, InputGroup, InputRightElement, IconButton, useColorModeValue } from '@chakra-ui/react'
 
 interface Props {
   args: ArgumentPreview[]
   onResults: (results: ArgumentPreview[]) => void
   onClear: () => void
-  windowWidth: number
 }
 
 interface SearchPoint {
@@ -16,8 +15,9 @@ interface SearchPoint {
   arg: ArgumentPreview
 }
 
-const SearchArguments: FC<Props> = ({ args, onResults, onClear, windowWidth }) => {
+const SearchArguments: FC<Props> = ({ args, onResults, onClear }) => {
   const [query, setQuery] = useState('')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
 
   const handleSearch = () => {
     if (!query) {
@@ -69,28 +69,26 @@ const SearchArguments: FC<Props> = ({ args, onResults, onClear, windowWidth }) =
   }
 
   return (
-    <div style={windowWidth < 500 ? { width: '100%' } : undefined}>
-      <TextField
-        variant='outlined'
+    <InputGroup size='md' w='100%'>
+      <Input
         value={query}
-        placeholder='Search arguments...'
+        placeholder='Search cards...'
         onChange={e => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
-        style={windowWidth < 500 ? { width: '100%' } : undefined}
-        InputProps={{
-          endAdornment: (
-            <>
-              <IconButton onClick={handleClear}>
-                <ClearIcon fontSize='small' />
-              </IconButton>
-              <IconButton onClick={handleSearch}>
-                <SearchIcon fontSize='small' />
-              </IconButton>
-            </>
-          )
+        borderColor={borderColor}
+        _focus={{
+          borderColor: 'cardtownBlue'
         }}
       />
-    </div>
+      <InputRightElement pr='35px'>
+        <IconButton aria-label='Clear search' bg='none' onClick={handleClear} size='sm'>
+          <ClearIcon fontSize='small' />
+        </IconButton>
+        <IconButton aria-label='Search' bg='none' onClick={handleSearch} size='sm'>
+          <SearchIcon fontSize='small' />
+        </IconButton>
+      </InputRightElement>
+    </InputGroup>
   )
 }
 
