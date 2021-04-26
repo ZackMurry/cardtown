@@ -1,6 +1,6 @@
 import { GetServerSideProps } from 'next'
 import { FC, useContext, useEffect, useState } from 'react'
-import { Box, Button, Grid, GridItem, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Grid, GridItem, Stack, Text, useColorModeValue } from '@chakra-ui/react'
 import { AddIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 import PrimaryButton from 'components/utils/PrimaryButton'
@@ -77,11 +77,20 @@ const ArgumentsPage: FC<Props> = ({ args, fetchErrorText }) => {
   return (
     <DashboardPage>
       <Box w={{ base: '85%', sm: '80%', md: '70%', lg: '60%', xl: '55%' }} m='25px auto'>
-        <PrimaryButton as='a' leftIcon={<AddIcon w='24px' mt='-2px' />} iconSpacing='1' pl='10px' href='/arguments/new'>
-          Create new argument
-        </PrimaryButton>
-        <SearchArguments args={args} onResults={handleSearchResults} onClear={handleClearSearch} />
-        <Grid templateColumns='repeat(4, 1fr)' visibility={{ base: 'hidden', lg: 'visible' }} pt='15px'>
+        <Stack direction={{ base: 'column', md: 'row' }}>
+          <PrimaryButton
+            as='a'
+            leftIcon={<AddIcon w='24px' mt='-2px' />}
+            iconSpacing='1'
+            pl='10px'
+            href='/arguments/new'
+            minW='215px'
+          >
+            Create new argument
+          </PrimaryButton>
+          <SearchArguments args={args} onResults={handleSearchResults} onClear={handleClearSearch} />
+        </Stack>
+        <Grid templateColumns='repeat(4, 1fr)' display={{ base: 'none', md: 'grid' }} pt='15px'>
           <GridItem colSpan={2}>
             <Button
               variant='ghost'

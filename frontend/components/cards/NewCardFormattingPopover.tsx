@@ -13,7 +13,6 @@ import {
 } from '@chakra-ui/react'
 import chakraTheme from 'lib/chakraTheme'
 
-// todo make this look a bit better
 const NewCardFormattingPopover: FC = () => {
   const [isOpen, setOpen] = useState(false)
   const openPopover = () => setOpen(true)

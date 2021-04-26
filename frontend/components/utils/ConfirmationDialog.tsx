@@ -1,5 +1,15 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core'
-import { FC } from 'react'
+import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Button,
+  useColorModeValue
+} from '@chakra-ui/react'
+import { FC, useRef } from 'react'
+import PrimaryButton from './PrimaryButton'
 
 interface Props {
   open: boolean
@@ -9,26 +19,29 @@ interface Props {
   title: string
 }
 
-const ConfirmationDialog: FC<Props> = ({ open, body, title, onCancel, onConfirm }) => (
-  <Dialog
-    open={open}
-    onClose={onCancel}
-    aria-labelledby='confirm-dialog-title'
-    aria-describedby='confirm-dialog-description'
-  >
-    <DialogTitle id='confirm-dialog-title'>{title}</DialogTitle>
-    <DialogContent>
-      <DialogContentText id='confirm-dialog-description'>{body}</DialogContentText>
-    </DialogContent>
-    <DialogActions>
-      <Button autoFocus onClick={onCancel}>
-        Cancel
-      </Button>
-      <Button onClick={onConfirm} color='primary' variant='contained'>
-        Confirm
-      </Button>
-    </DialogActions>
-  </Dialog>
-)
+const ConfirmationDialog: FC<Props> = ({ open, body, title, onCancel, onConfirm }) => {
+  const bgColor = useColorModeValue('white', 'darkElevated')
+  const cancelRef = useRef()
+  return (
+    <AlertDialog isOpen={open} onClose={onCancel} leastDestructiveRef={cancelRef}>
+      <AlertDialogOverlay>
+        <AlertDialogContent bgColor={bgColor}>
+          <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+            {title}
+          </AlertDialogHeader>
+          <AlertDialogBody>{body}</AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={onCancel}>
+              Cancel
+            </Button>
+            <PrimaryButton onClick={onConfirm} ml={3}>
+              Confirm
+            </PrimaryButton>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogOverlay>
+    </AlertDialog>
+  )
+}
 
 export default ConfirmationDialog

@@ -109,9 +109,7 @@ const CardBodyEditor: FC<Props> = ({ editorState, setEditorState, disableOutline
   }
 
   return (
-    // todo make this look more like the other inputs
     // todo get user's preferred formatting
-    // todo guide for shortcuts somewhere
     <>
       <Box
         bg={bgColor}

@@ -1,4 +1,4 @@
-import { Grow } from '@material-ui/core'
+import { ScaleFade } from '@chakra-ui/react'
 import React, { FC, ReactElement } from 'react'
 
 interface Props {
@@ -12,12 +12,12 @@ interface Props {
 
 const ToggleIcon: FC<Props> = ({ on, onIcon, offIcon, timeout, onMouseEnter, onMouseLeave }) => (
   <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} style={{ marginLeft: '-80%', marginTop: '-80%' }}>
-    <Grow in={on} timeout={timeout} style={{ position: 'absolute' }}>
+    <ScaleFade in={on} transition={{ duration: timeout }} style={{ position: 'absolute' }}>
       {onIcon}
-    </Grow>
-    <Grow in={!on} timeout={timeout} style={{ position: 'absolute' }}>
+    </ScaleFade>
+    <ScaleFade in={!on} transition={{ duration: timeout }} style={{ position: 'absolute' }}>
       {offIcon}
-    </Grow>
+    </ScaleFade>
   </div>
 )
 

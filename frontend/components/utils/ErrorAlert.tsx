@@ -8,6 +8,7 @@ interface Props {
   disableClose?: boolean
 }
 
+// Todo remove MUI from this
 const ErrorAlert: FC<Props> = ({ text, onClose, disableClose = false }) => (
   <Snackbar autoHideDuration={disableClose ? undefined : 10000} open={!!text}>
     {disableClose ? (

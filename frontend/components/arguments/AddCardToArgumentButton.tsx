@@ -1,13 +1,11 @@
 import { FC, useContext, useState } from 'react'
-import AddIcon from '@material-ui/icons/Add'
-import CloseIcon from '@material-ui/icons/Close'
-import { Grid } from '@material-ui/core'
+import { Grid, GridItem, Flex, useColorModeValue, IconButton, Heading } from '@chakra-ui/react'
+import { AddIcon, CloseIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import CardSearchMenu from 'components/cards/CardSearchMenu'
 import { CardPreview } from 'types/card'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
-import { Flex, useColorModeValue, IconButton, Heading } from '@chakra-ui/react'
 
 interface Props {
   windowWidth: number
@@ -77,19 +75,19 @@ const AddCardToArgumentButton: FC<Props> = ({ windowWidth, argId }) => {
       onClick={isOpen ? undefined : handleClick}
     >
       {isOpen ? (
-        <Grid container>
-          <Grid item xs={1} />
-          <Grid item xs={10}>
+        <Grid templateColumns='repeat(12, 1fr)'>
+          <GridItem colSpan={1} />
+          <GridItem colSpan={10}>
             <Heading as='h6' textAlign='center'>
               Add Card
             </Heading>
             <CardSearchMenu onCardSelect={handleCardAdd} cards={allCards} windowWidth={windowWidth} />
-          </Grid>
-          <Grid item xs={1}>
+          </GridItem>
+          <GridItem colSpan={1}>
             <IconButton aria-label='Close' onClick={() => setOpen(false)} bg='none'>
               <CloseIcon />
             </IconButton>
-          </Grid>
+          </GridItem>
         </Grid>
       ) : (
         <IconButton aria-label='Add card' bg='none'>

@@ -7,7 +7,7 @@ import styles from 'styles/ImportCards.module.css'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import userContext from 'lib/hooks/UserContext'
 import DashboardPage from 'components/dash/DashboardPage'
-import { Box, Text, Button, Input, useColorModeValue, Textarea, Heading } from '@chakra-ui/react'
+import { Box, Text, Input, useColorModeValue, Textarea, Heading } from '@chakra-ui/react'
 import chakraTheme from 'lib/chakraTheme'
 import PrimaryButton from 'components/utils/PrimaryButton'
 

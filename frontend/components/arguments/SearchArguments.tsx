@@ -72,7 +72,7 @@ const SearchArguments: FC<Props> = ({ args, onResults, onClear }) => {
     <InputGroup size='md' w='100%'>
       <Input
         value={query}
-        placeholder='Search cards...'
+        placeholder='Search arguments...'
         onChange={e => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
         borderColor={borderColor}
