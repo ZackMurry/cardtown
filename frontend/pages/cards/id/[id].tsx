@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
 import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
@@ -8,7 +8,8 @@ import { ArgumentWithCardModel } from 'types/argument'
 import CardArgumentsDisplay from 'components/cards/CardArgumentsDisplay'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import DashboardPage from 'components/dash/DashboardPage'
-import { Box, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
+import CardDeletedMessage from 'components/cards/CardDeletedMessage'
 
 interface Props {
   id?: string
@@ -20,10 +21,10 @@ interface Props {
 // todo show arguments (with hyperlink and the index that the card appears) that contain the card
 // using GET /api/v1/cards/[id]/arguments
 const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, relatedArguments }) => {
-  const { width } = useWindowSize(1920, 1080)
   const { setErrorMessage } = useContext(errorMessageContext)
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+  const [isRestored, setRestored] = useState(false)
 
   useEffect(() => {
     if (fetchingErrorText) {
@@ -31,22 +32,29 @@ const ViewCard: NextPage<Props> = ({ fetchingErrorText, card, relatedArguments }
     }
   }, [])
 
+  const handleRestore = () => {
+    setRestored(true)
+  }
+
   return (
     <DashboardPage>
-      <Box
-        w={{ base: '90%', sm: '85%', md: '80%', lg: '70%', xl: '50%' }}
-        m='10vh auto 5vh auto'
-        bg='white'
-        borderRadius='5px'
-        p='3vh 3vw'
-        bgColor={bgColor}
-        borderWidth='1px'
-        borderStyle='solid'
-        borderColor={borderColor}
-      >
-        {card && <CardDisplay card={card} windowWidth={width} />}
-      </Box>
-      {relatedArguments && relatedArguments.length !== 0 && <CardArgumentsDisplay relatedArguments={relatedArguments} />}
+      <Flex flexDirection='column' alignItems='center' w='100%' m='5vh 0'>
+        <Box w={{ base: '90%', sm: '85%', md: '80%', lg: '70%', xl: '50%' }}>
+          {card.deleted && !isRestored && <CardDeletedMessage id={card.id} onRestore={handleRestore} />}
+          <Box
+            bg='white'
+            borderRadius='5px'
+            p='3vh 3vw'
+            bgColor={bgColor}
+            borderWidth='1px'
+            borderStyle='solid'
+            borderColor={borderColor}
+          >
+            {card && <CardDisplay card={card} isRestored={isRestored} />}
+          </Box>
+          {relatedArguments && relatedArguments.length !== 0 && <CardArgumentsDisplay relatedArguments={relatedArguments} />}
+        </Box>
+      </Flex>
     </DashboardPage>
   )
 }

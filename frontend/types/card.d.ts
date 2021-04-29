@@ -17,6 +17,7 @@ export interface CardPreview {
   bodyText: string
   timeCreatedAt: number
   lastModified: number
+  deleted: boolean
 }
 
 export interface ResponseCard {
@@ -30,4 +31,5 @@ export interface ResponseCard {
   bodyText: string
   timeCreatedAt: number
   lastModified: number
+  deleted: boolean
 }

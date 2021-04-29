@@ -13,7 +13,7 @@ const CardArgumentsDisplay: FC<Props> = ({ relatedArguments }) => {
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   return (
     <Box
-      w='50%'
+      w='100%'
       m='1vh auto'
       bg={bgColor}
       borderWidth='1px'

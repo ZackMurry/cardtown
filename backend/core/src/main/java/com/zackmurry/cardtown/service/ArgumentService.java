@@ -24,9 +24,11 @@ import com.zackmurry.cardtown.util.UserSecretKeyHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -152,14 +154,12 @@ public class ArgumentService {
      * @param cardId     Id of card to add
      * @throws CardNotFoundException     If the card could not be found
      * @throws ArgumentNotFoundException If the argument could not be found
+     * @throws EntityDeletedException    If the card is deleted
      * @throws ForbiddenException        If the user does not have access to the card and write permission to the argument
      */
     public void addCardToArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
         final short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
-        final CardEntity cardEntity = cardService.getCardEntityById(cardId).orElse(null);
-        if (cardEntity == null) {
-            throw new CardNotFoundException();
-        }
+        final CardEntity cardEntity = cardService.getCardEntityById(cardId).orElseThrow(CardNotFoundException::new);
         final UUID principalId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         if (!teamService.usersInSameTeam(cardEntity.getOwnerId(), principalId)) {
             throw new ForbiddenException();
@@ -167,6 +167,9 @@ public class ArgumentService {
         final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
+        }
+        if (cardEntity.isDeleted()) {
+            throw new EntityDeletedException();
         }
         if (!teamService.usersInSameTeam(argumentEntity.getOwnerId(), principalId)) {
             throw new ForbiddenException();

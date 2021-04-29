@@ -20,7 +20,7 @@ public final class CardEntity extends EncryptedCard implements UUIDIdCard, UUIDO
     private UUID ownerId;
     private long timeCreatedAt;
     private long lastModified;
-    // todo add deleted field
+    private boolean deleted;
 
     public CardEntity(UUID ownerId, String tag, String cite, String citeInformation, String bodyHtml, String bodyDraft, String bodyText) {
         super(tag, cite, citeInformation, bodyHtml, bodyDraft, bodyText);
@@ -28,11 +28,12 @@ public final class CardEntity extends EncryptedCard implements UUIDIdCard, UUIDO
     }
 
     public CardEntity(UUID id, UUID ownerId, String tag, String cite, String citeInformation, String bodyHtml,
-                      String bodyDraft, String bodyText, long timeCreatedAt, long lastModified) {
+                      String bodyDraft, String bodyText, long timeCreatedAt, long lastModified, boolean deleted) {
         super(tag, cite, citeInformation, bodyHtml, bodyDraft, bodyText);
         this.id = id;
         this.ownerId = ownerId;
         this.timeCreatedAt = timeCreatedAt;
         this.lastModified = lastModified;
+        this.deleted = deleted;
     }
 }

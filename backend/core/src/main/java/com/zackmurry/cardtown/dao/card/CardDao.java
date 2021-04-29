@@ -29,17 +29,7 @@ public interface CardDao {
     Optional<CardEntity> getCardById(UUID id);
 
     /**
-     * Gets a card from the database with the specified id.
-     *
-     * @param id Id of card to get
-     * @param includeDeleted Whether deleted cards should be included in the results
-     * @return If found: an optional containing the card; if not: <code>Optional.empty()</code>
-     * @throws InternalServerException If there is a <code>SQLException</code>
-     */
-    Optional<CardEntity> getCardById(UUID id, boolean includeDeleted);
-
-    /**
-     * Gets all of the cards that are by the user with the specified id
+     * Gets all of the cards that are by the user with the specified id. Does not include deleted cards.
      *
      * @param id Id of user
      * @return A list of cards that the user owns
@@ -85,12 +75,20 @@ public interface CardDao {
     void updateCardById(UUID id, EncryptedCard request);
 
     /**
-     * Gets cards with an owner in a team
+     * Gets cards with an owner in a team. Does not include deleted cards.
      *
      * @param teamId Id of team to find cards of
      * @return List of cards associated with team
      * @throws InternalServerException If a <code>SQLException</code> occurs
      */
     List<CardEntity> getCardsByTeamId(UUID teamId);
+
+    /**
+     * Marks a card as undeleted
+     *
+     * @param id Id of card to restore
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    void restoreCardById(UUID id);
 
 }

@@ -127,8 +127,23 @@ const DashActionItem: FC<Props> = ({ action }) => {
       </DashActionCardItem>
     )
   }
+  if (action.actionType === 'EDIT_CARD') {
+    return (
+      <DashActionCardItem action={action}>
+        <Text fontSize={14}>
+          <b>{`${subjectName} `}</b>
+          edited
+          <Link href={`/cards/id/${action.card.id}`} passHref>
+            <a>
+              <b>{` ${action.card.cite}`}</b>
+            </a>
+          </Link>
+          {timeAgo}
+        </Text>
+      </DashActionCardItem>
+    )
+  }
   if (action.actionType === 'DELETE_CARD') {
-    // todo the linked card page needs to show that this card has been deleted instead of 404
     return (
       <DashActionCardItem action={action}>
         <Text fontSize={14}>
@@ -144,12 +159,12 @@ const DashActionItem: FC<Props> = ({ action }) => {
       </DashActionCardItem>
     )
   }
-  if (action.actionType === 'EDIT_CARD') {
+  if (action.actionType === 'RESTORE_CARD') {
     return (
       <DashActionCardItem action={action}>
         <Text fontSize={14}>
           <b>{`${subjectName} `}</b>
-          edited
+          restored
           <Link href={`/cards/id/${action.card.id}`} passHref>
             <a>
               <b>{` ${action.card.cite}`}</b>

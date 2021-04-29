@@ -17,7 +17,7 @@ interface Props {
   errorText?: string
 }
 
-// Todo add all general buttons for cards here (like create new card, download cards, import cards)
+// todo option to include deleted cards
 const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
   const [cards, setCards] = useState(initialCards)
   const { width } = useWindowSize(1920, 1080)

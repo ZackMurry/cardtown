@@ -15,7 +15,6 @@ interface Props {
   onCancel: () => void
   onDone: (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => void
   card: ResponseCard
-  windowWidth: number
 }
 
 const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {

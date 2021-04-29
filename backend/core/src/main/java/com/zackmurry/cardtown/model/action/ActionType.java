@@ -2,8 +2,9 @@ package com.zackmurry.cardtown.model.action;
 
 public enum ActionType {
     CREATE_CARD,
-    DELETE_CARD,
     EDIT_CARD,
+    DELETE_CARD,
+    RESTORE_CARD,
     CREATE_ARGUMENT,
     DELETE_ARGUMENT,
     EDIT_ARGUMENT,

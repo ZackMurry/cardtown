@@ -46,7 +46,7 @@ const ArgumentCardDisplay: FC<Props> = ({ card, windowWidth, argumentId, indexIn
       {(dragProvided: DraggableProvided) => (
         <div ref={dragProvided.innerRef} {...dragProvided.draggableProps}>
           {editing ? (
-            <EditCard card={card} windowWidth={windowWidth} onDone={handleDoneEditing} onCancel={handleCancelEditing} />
+            <EditCard card={card} onDone={handleDoneEditing} onCancel={handleCancelEditing} />
           ) : (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>

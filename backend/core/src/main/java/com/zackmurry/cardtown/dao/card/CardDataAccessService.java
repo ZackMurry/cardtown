@@ -72,7 +72,7 @@ public class CardDataAccessService implements CardDao {
 
     @Override
     public Optional<CardEntity> getCardById(@NonNull UUID id) {
-        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE id = ? AND deleted = FALSE";
+        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified, deleted FROM cards WHERE id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -93,42 +93,8 @@ public class CardDataAccessService implements CardDao {
                             resultSet.getString("body_draft"),
                             resultSet.getString("body_text"),
                             resultSet.getLong("time_created_at"),
-                            resultSet.getLong("last_modified")
-                    )
-            );
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new InternalServerException();
-        }
-    }
-
-    @Override
-    public Optional<CardEntity> getCardById(@NonNull UUID id, boolean includeDeleted) {
-        if (!includeDeleted) {
-            return getCardById(id);
-        }
-        final String sql = "SELECT owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified FROM cards WHERE id = ?";
-        try {
-            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
-            preparedStatement.setObject(1, id);
-            final ResultSet resultSet = preparedStatement.executeQuery();
-
-            // if card not found
-            if (!resultSet.next()) {
-                return Optional.empty();
-            }
-            return Optional.of(
-                    new CardEntity(
-                            id,
-                            UUID.fromString(resultSet.getString("owner_id")),
-                            resultSet.getString("tag"),
-                            resultSet.getString("cite"),
-                            resultSet.getString("cite_information"),
-                            resultSet.getString("body_html"),
-                            resultSet.getString("body_draft"),
-                            resultSet.getString("body_text"),
-                            resultSet.getLong("time_created_at"),
-                            resultSet.getLong("last_modified")
+                            resultSet.getLong("last_modified"),
+                            resultSet.getBoolean("deleted")
                     )
             );
         } catch (SQLException e) {
@@ -159,7 +125,8 @@ public class CardDataAccessService implements CardDao {
                                 resultSet.getString("body_draft"),
                                 resultSet.getString("body_text"),
                                 resultSet.getLong("time_created_at"),
-                                resultSet.getLong("last_modified")
+                                resultSet.getLong("last_modified"),
+                                false
                         )
                 );
             }
@@ -267,7 +234,8 @@ public class CardDataAccessService implements CardDao {
                                 resultSet.getString("body_draft"),
                                 resultSet.getString("body_text"),
                                 resultSet.getLong("time_created_at"),
-                                resultSet.getLong("last_modified")
+                                resultSet.getLong("last_modified"),
+                                false
                         )
                 );
             }
@@ -278,4 +246,22 @@ public class CardDataAccessService implements CardDao {
         }
     }
 
+    @Override
+    public void restoreCardById(@NonNull UUID id) {
+        final String sql = "UPDATE cards SET deleted = FALSE WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            final int rowsChanged = preparedStatement.executeUpdate();
+            if (rowsChanged == 0) {
+                throw new CardNotFoundException();
+            } else if (rowsChanged > 1) {
+                logger.warn("There were more than one rows changed in a statement to delete a card.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.warn("SQL exception occurred when restoring card {}", id);
+            throw new InternalServerException();
+        }
+    }
 }

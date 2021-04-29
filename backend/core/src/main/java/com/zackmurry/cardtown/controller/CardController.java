@@ -96,4 +96,9 @@ public class CardController {
         return argumentService.getArgumentPreviewsByCardId(cardId);
     }
 
+    @PostMapping("/id/{id}/restore")
+    public void restoreCard(@PathVariable String id) {
+        cardService.restoreCardById(id);
+    }
+
 }

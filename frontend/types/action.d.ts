@@ -26,6 +26,7 @@ export type ActionType =
   | 'ADD_CARD_TO_ARGUMENT'
   | 'REMOVE_CARD_FROM_ARGUMENT'
   | 'JOIN_TEAM'
+  | 'RESTORE_CARD'
 
 export interface ResponseAction {
   actionType: ActionType

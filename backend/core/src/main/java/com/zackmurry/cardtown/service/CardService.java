@@ -21,6 +21,7 @@ import com.zackmurry.cardtown.util.UserSecretKeyHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -207,6 +208,9 @@ public class CardService {
         // Every owner will be fetched exactly once
         final Map<UUID, ResponseUserDetails> userDetailsMap = new HashMap<>();
         for (CardEntity c : rawCards) {
+            if (c.isDeleted()) {
+                continue;
+            }
             final ResponseUserDetails responseUserDetails;
             if (userDetailsMap.containsKey(c.getOwnerId())) {
                 responseUserDetails = userDetailsMap.get(c.getOwnerId());
@@ -242,19 +246,21 @@ public class CardService {
      * @param id Id of card in Base64
      * @throws CardNotFoundException   If the card could not be found
      * @throws ForbiddenException      If the principal doesn't have permission to delete the card
+     * @throws ResponseStatusException (HttpStatus.NOT_MODIFIED) If the card is already deleted
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
     public void deleteCardById(String id) {
-        // todo probably make this internally call another method that takes a UUID param
+        // todo check if card is already deleted
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final UUID cardId = UUIDCompressor.decompress(id);
-        final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);
-        if (ownerId == null) {
-            throw new CardNotFoundException();
-        }
+        final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElseThrow(CardNotFoundException::new);
 
         if (!teamService.usersInSameTeam(principalId, ownerId)) {
             throw new ForbiddenException();
+        }
+        final CardEntity cardEntity = getCardEntityById(cardId).orElseThrow(CardNotFoundException::new);
+        if (cardEntity.isDeleted()) {
+            throw new ResponseStatusException(HttpStatus.NOT_MODIFIED);
         }
         argumentService.removeCardFromAllArguments(cardId);
         cardDao.markCardAsDeleted(cardId);
@@ -286,10 +292,7 @@ public class CardService {
         request.validateFields();
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final UUID cardId = UUIDCompressor.decompress(id);
-        final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElse(null);
-        if (ownerId == null) {
-            throw new CardNotFoundException();
-        }
+        final UUID ownerId = cardDao.getOwnerIdByCardId(cardId).orElseThrow(CardNotFoundException::new);
 
         if (!teamService.usersInSameTeam(principalId, ownerId)) {
             throw new ForbiddenException();
@@ -381,7 +384,7 @@ public class CardService {
      * @return If found: an <code>Optional</code> containing the card preview; else <code>Optional.empty()</code>
      */
     public Optional<CardPreview> getCardPreviewByIdIncludingDeleted(@NonNull UUID cardId) {
-        final CardEntity cardEntity = cardDao.getCardById(cardId, true).orElse(null);
+        final CardEntity cardEntity = cardDao.getCardById(cardId).orElse(null);
         if (cardEntity == null) {
             return Optional.empty();
         }
@@ -395,4 +398,24 @@ public class CardService {
         return Optional.of(cardPreview);
     }
 
+    public void restoreCardById(@NonNull String id) {
+        final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final UUID cardId = UUIDCompressor.decompress(id);
+        final CardEntity cardEntity = cardDao.getCardById(cardId).orElseThrow(CardNotFoundException::new);
+
+        if (!teamService.usersInSameTeam(principalId, cardEntity.getOwnerId())) {
+            throw new ForbiddenException();
+        }
+        if (!cardEntity.isDeleted()) {
+            throw new ResponseStatusException(HttpStatus.NOT_MODIFIED);
+        }
+        cardDao.restoreCardById(cardId);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.RESTORE_CARD)
+                        .principal()
+                        .card(cardId)
+                        .build()
+        );
+    }
 }

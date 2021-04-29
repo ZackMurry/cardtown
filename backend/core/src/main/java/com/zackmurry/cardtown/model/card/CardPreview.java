@@ -21,6 +21,7 @@ public class CardPreview {
     private String bodyText;
     private long timeCreatedAt;
     private long lastModified;
+    private boolean deleted;
 
     public static CardPreview of(ResponseCard responseCard) {
         return new CardPreview(
@@ -30,7 +31,8 @@ public class CardPreview {
                 responseCard.getCite(),
                 responseCard.getBodyText(),
                 responseCard.getTimeCreatedAt(),
-                responseCard.getLastModified()
+                responseCard.getLastModified(),
+                responseCard.isDeleted()
         );
     }
 
@@ -42,7 +44,8 @@ public class CardPreview {
                 cardEntity.getCite(),
                 cardEntity.getBodyText(),
                 cardEntity.getTimeCreatedAt(),
-                cardEntity.getLastModified()
+                cardEntity.getLastModified(),
+                cardEntity.isDeleted()
         );
     }
 

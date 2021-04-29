@@ -8,10 +8,10 @@ import EditCard from './EditCard'
 
 interface Props {
   card: ResponseCard
-  windowWidth: number
+  isRestored: boolean
 }
 
-const CardDisplay: FC<Props> = ({ card, windowWidth }) => {
+const CardDisplay: FC<Props> = ({ card, isRestored }) => {
   const [editing, setEditing] = useState(false)
   const router = useRouter()
   const { setErrorMessage } = useContext(errorMessageContext)
@@ -38,14 +38,14 @@ const CardDisplay: FC<Props> = ({ card, windowWidth }) => {
   return (
     <div>
       {editing ? (
-        <EditCard card={card} windowWidth={windowWidth} onDone={handleDoneEditing} onCancel={handleCancelEditing} />
+        <EditCard card={card} onDone={handleDoneEditing} onCancel={handleCancelEditing} />
       ) : (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <Text fontWeight='bold' fontSize='18px'>
               {card.tag}
             </Text>
-            <CardOptionsButton id={card.id} onEdit={handleEdit} />
+            {(!card.deleted || isRestored) && <CardOptionsButton id={card.id} onEdit={handleEdit} />}
           </div>
           <div>
             <Text fontWeight='bold' fontSize='18px'>

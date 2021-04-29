@@ -26,6 +26,7 @@ public class ResponseCard implements ShortenedIdCard {
     private String bodyText;
     private long timeCreatedAt;
     private long lastModified;
+    private boolean deleted;
 
     public static ResponseCard fromCard(CardEntity card, ResponseUserDetails responseUserDetails, String shortenedId) {
         return new ResponseCard(
@@ -38,7 +39,8 @@ public class ResponseCard implements ShortenedIdCard {
                 card.getBodyDraft(),
                 card.getBodyText(),
                 card.getTimeCreatedAt(),
-                card.getLastModified()
+                card.getLastModified(),
+                card.isDeleted()
         );
     }
 

@@ -3,6 +3,7 @@ package com.zackmurry.cardtown;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
+import com.zackmurry.cardtown.model.card.CardEntity;
 import com.zackmurry.cardtown.model.card.CardPreview;
 import com.zackmurry.cardtown.model.card.ResponseCard;
 import com.zackmurry.cardtown.model.team.TeamCreateRequest;
@@ -105,7 +106,9 @@ public class CardServiceTest {
         for (int i = 0; i < 100; i++) {
             final String cardId = cardService.createCard(generateMockCard(testEmail));
             assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
-            assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
+            final CardEntity cardEntity = cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).orElse(null);
+            assertNotNull(cardEntity);
+            assertTrue(cardEntity.isDeleted());
         }
     }
 
@@ -118,7 +121,6 @@ public class CardServiceTest {
             final ResponseCard returnedCard = cardService.getResponseCardById(cardId);
             assertTrue(createRequestEqualsResponse(req, returnedCard));
             assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
-            assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
         }
     }
 
@@ -134,7 +136,9 @@ public class CardServiceTest {
             assertTrue(createRequestEqualsResponse(updateReq, updatedCard));
         }
         assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
-        assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
+        final CardEntity cardEntity = cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).orElse(null);
+        assertNotNull(cardEntity);
+        assertTrue(cardEntity.isDeleted());
     }
 
     @DisplayName("Test card previews")
@@ -162,7 +166,9 @@ public class CardServiceTest {
         }
         for (String cardId : cardIds) {
             assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
-            assertTrue(cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).isEmpty());
+            final CardEntity cardEntity = cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).orElse(null);
+            assertNotNull(cardEntity);
+            assertTrue(cardEntity.isDeleted());
         }
     }
 
