@@ -172,7 +172,6 @@ const NewArgument: FC = () => {
                   cardsNotInArgument={unselectedCards}
                   onCardSelect={handleCardSelect}
                   onCardRemove={handleCardRemove}
-                  windowWidth={width}
                 />
               )}
             </div>

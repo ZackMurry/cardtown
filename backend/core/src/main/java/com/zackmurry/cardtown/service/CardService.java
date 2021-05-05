@@ -177,20 +177,45 @@ public class CardService {
     }
 
     /**
+     * Gets cards that the user owns (excludes cards owned by other team members)
+     *
+     * @param includeDeleted Whether to include deleted cards
+     * @return <code>ResponseCard</code>s representing the user's cards
+     * @throws InternalServerException If an error occurs while decrypting the cards
+     * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
+     */
+    public List<ResponseCard> getCardsOwnedByUser(boolean includeDeleted) {
+        final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final List<CardEntity> rawCards = cardDao.getCardsByUser(principal.getId(), includeDeleted);
+        final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
+        try {
+            for (CardEntity c : rawCards) {
+                c.decryptFields(secretKey);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+        final ResponseUserDetails resUserDetails = ResponseUserDetails.fromUser(principal);
+        return rawCards.stream().map(c -> ResponseCard.fromCard(c, resUserDetails)).collect(Collectors.toList());
+    }
+
+    /**
      * Gets a list of <code>ResponseCard</code>s representing the principal's cards (and those of their team)
      *
+     * @param showDeleted Whether to include deleted cards in the response
      * @return The principal's cards
      * @throws InternalServerException If there is an error decrypting the cards
      * @throws InternalServerException If a card's owner cannot be found in the users table
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      * @see CardService#getCardsOwnedByUser() If the user is not in a team, this is called
      */
-    public List<ResponseCard> getAllCardsVisibleToUser() {
+    public List<ResponseCard> getAllCardsVisibleToUser(boolean showDeleted) {
         final Optional<TeamEntity> userTeam = teamService.getTeamOfUser();
         if (userTeam.isEmpty()) {
-            return getCardsOwnedByUser();
+            return getCardsOwnedByUser(showDeleted);
         }
-        final List<CardEntity> rawCards = cardDao.getCardsByTeamId(userTeam.get().getId());
+        final List<CardEntity> rawCards = cardDao.getCardsByTeamId(userTeam.get().getId(), showDeleted);
 
         final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
         try {
@@ -208,9 +233,6 @@ public class CardService {
         // Every owner will be fetched exactly once
         final Map<UUID, ResponseUserDetails> userDetailsMap = new HashMap<>();
         for (CardEntity c : rawCards) {
-            if (c.isDeleted()) {
-                continue;
-            }
             final ResponseUserDetails responseUserDetails;
             if (userDetailsMap.containsKey(c.getOwnerId())) {
                 responseUserDetails = userDetailsMap.get(c.getOwnerId());

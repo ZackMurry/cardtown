@@ -7,10 +7,9 @@ import SearchCards from './SearchCards'
 interface Props {
   onCardSelect: (id: string) => void
   cards: CardPreview[] // null if still loading
-  windowWidth: number
 }
 
-const CardSearchMenu: FC<Props> = ({ onCardSelect, cards, windowWidth }) => {
+const CardSearchMenu: FC<Props> = ({ onCardSelect, cards }) => {
   const [cardsInSearch, setCardsInSearch] = useState(cards)
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
 
@@ -18,12 +17,7 @@ const CardSearchMenu: FC<Props> = ({ onCardSelect, cards, windowWidth }) => {
 
   return (
     <Box bg={bgColor} w='100%' p='25px'>
-      <SearchCards
-        cards={cards}
-        onResults={setCardsInSearch}
-        onClear={() => setCardsInSearch(cards)}
-        windowWidth={windowWidth}
-      />
+      <SearchCards cards={cards} onResults={setCardsInSearch} onClear={() => setCardsInSearch(cards)} />
       {cardsInSearch &&
         cardsInSearch.slice(0, 5).map(c => <CardHeaderPreview {...c} onClick={() => onCardSelect(c.id)} key={c.id} />)}
     </Box>

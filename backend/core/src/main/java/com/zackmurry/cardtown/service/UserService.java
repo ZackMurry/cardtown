@@ -267,7 +267,6 @@ public class UserService implements UserDetailsService {
 
         // Generate SHA-256 hash of password as their encryption key (hash is 32 bytes)
         final byte[] encryptionKey = encryptionUtils.getSHA256Hash(password.getBytes(StandardCharsets.UTF_8));
-        System.out.println(encryptionKey.length);
 
         final UserModel userModel = getUserModelByEmail(email, encryptionKey).orElseThrow(InternalServerException::new);
         return new AuthenticationResponse(buildJwtForUser(userModel), UUIDCompressor.compress(userModel.getId()));

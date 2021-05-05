@@ -295,7 +295,7 @@ public class CardServiceTest {
 
             // Switch context to teamOwner and see if they are still present
             SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
-            final List<ResponseCard> responseCards = cardService.getAllCardsVisibleToUser();
+            final List<ResponseCard> responseCards = cardService.getAllCardsVisibleToUser(false);
             for (ResponseCard rc : responseCards) {
                 assertTrue(cardCreateRequestsMap.containsKey(rc.getId()));
                 final CardCreateRequest createRequest = cardCreateRequestsMap.remove(rc.getId());

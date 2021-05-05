@@ -10,16 +10,9 @@ interface Props {
   cardsNotInArgument: CardPreview[]
   onCardRemove: (id: string) => void
   onCardSelect: (id: string) => void
-  windowWidth: number
 }
 
-const ArgumentCardSelector: FC<Props> = ({
-  cardsInArgument,
-  cardsNotInArgument,
-  windowWidth,
-  onCardSelect,
-  onCardRemove
-}) => {
+const ArgumentCardSelector: FC<Props> = ({ cardsInArgument, cardsNotInArgument, onCardSelect, onCardRemove }) => {
   const [cardsInSearch, setCardsInSearch] = useState(cardsNotInArgument)
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
@@ -106,7 +99,6 @@ const ArgumentCardSelector: FC<Props> = ({
               cards={cardsNotInArgument}
               onResults={setCardsInSearch}
               onClear={() => setCardsInSearch(cardsNotInArgument)}
-              windowWidth={windowWidth}
             />
           </Box>
         </Stack>

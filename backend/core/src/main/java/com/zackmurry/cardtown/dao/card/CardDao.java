@@ -38,6 +38,16 @@ public interface CardDao {
     List<CardEntity> getCardsByUser(UUID id);
 
     /**
+     * Gets all of the cards that are by the user with the specified id
+     *
+     * @param id Id of user
+     * @param includeDeleted Whether to include deleted cards
+     * @return A list of cards that the user owns
+     * @throws InternalServerException If there is a <code>SQLException</code>
+     */
+    List<CardEntity> getCardsByUser(UUID id, boolean includeDeleted);
+
+    /**
      * Gets the number of cards that the user owns
      *
      * @param id Id of the user
@@ -82,6 +92,16 @@ public interface CardDao {
      * @throws InternalServerException If a <code>SQLException</code> occurs
      */
     List<CardEntity> getCardsByTeamId(UUID teamId);
+
+    /**
+     * Gets cards with an owner in a team.
+     *
+     * @param teamId Id of team to find cards of
+     * @param includeDeleted Whether to include deleted cards
+     * @return List of cards associated with team
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    List<CardEntity> getCardsByTeamId(UUID teamId, boolean includeDeleted);
 
     /**
      * Marks a card as undeleted

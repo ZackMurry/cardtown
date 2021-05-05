@@ -1,6 +1,6 @@
 import SearchIcon from '@material-ui/icons/Search'
 import ClearIcon from '@material-ui/icons/Clear'
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { CardPreview } from 'types/card'
 import { Input, InputGroup, InputRightElement, IconButton, useColorModeValue } from '@chakra-ui/react'
 
@@ -8,7 +8,7 @@ interface Props {
   cards: CardPreview[]
   onResults: (results: CardPreview[]) => void
   onClear: () => void
-  windowWidth: number
+  showDeleted?: boolean
 }
 
 interface SearchPoint {
@@ -16,9 +16,13 @@ interface SearchPoint {
   card: CardPreview
 }
 
-const SearchCards: FC<Props> = ({ cards, onResults, onClear, windowWidth }) => {
+const SearchCards: FC<Props> = ({ cards, onResults, onClear, showDeleted }) => {
   const [query, setQuery] = useState('')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+
+  useEffect(() => {
+    setQuery('')
+  }, [showDeleted])
 
   const handleSearch = () => {
     if (!query) {

@@ -10,13 +10,12 @@ import ArgumentCardOptionsButton from './ArgumentCardOptionsButton'
 
 interface Props {
   card: ResponseCard
-  windowWidth: number
   argumentId: string
   indexInArgument: number
   onRemove: () => void
 }
 
-const ArgumentCardDisplay: FC<Props> = ({ card, windowWidth, argumentId, indexInArgument, onRemove }) => {
+const ArgumentCardDisplay: FC<Props> = ({ card, argumentId, indexInArgument, onRemove }) => {
   const [editing, setEditing] = useState(false)
   const router = useRouter()
   const { setErrorMessage } = useContext(errorMessageContext)

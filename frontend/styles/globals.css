@@ -8,6 +8,7 @@ body {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   position: relative;
+  --cardtown-blue: #3377ff;
 }
 
 a {
@@ -21,8 +22,4 @@ a {
 
 li > b {
   margin-right: 3px;
-}
-
-.dash-grid > div {
-  margin: 12px;
 }

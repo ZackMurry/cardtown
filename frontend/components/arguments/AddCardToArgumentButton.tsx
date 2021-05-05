@@ -8,12 +8,11 @@ import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 
 interface Props {
-  windowWidth: number
   argId: string
 }
 
 // todo don't reload after finished -- just update argument cards on client
-const AddCardToArgumentButton: FC<Props> = ({ windowWidth, argId }) => {
+const AddCardToArgumentButton: FC<Props> = ({ argId }) => {
   const [isOpen, setOpen] = useState(false)
   const [allCards, setAllCards] = useState<CardPreview[] | null>(null)
   const { jwt } = useContext(userContext)
@@ -81,7 +80,7 @@ const AddCardToArgumentButton: FC<Props> = ({ windowWidth, argId }) => {
             <Heading as='h6' textAlign='center'>
               Add Card
             </Heading>
-            <CardSearchMenu onCardSelect={handleCardAdd} cards={allCards} windowWidth={windowWidth} />
+            <CardSearchMenu onCardSelect={handleCardAdd} cards={allCards} />
           </GridItem>
           <GridItem colSpan={1}>
             <IconButton aria-label='Close' onClick={() => setOpen(false)} bg='none'>

@@ -59,8 +59,8 @@ public class CardController {
     }
 
     @GetMapping("")
-    public List<ResponseCard> getAllCardsByUser() {
-        return cardService.getAllCardsVisibleToUser();
+    public List<ResponseCard> getAllCardsByUser(@RequestParam(required = false) boolean showDeleted) {
+        return cardService.getAllCardsVisibleToUser(showDeleted);
     }
 
     @GetMapping("/count")

@@ -138,6 +138,42 @@ public class CardDataAccessService implements CardDao {
     }
 
     @Override
+    public List<CardEntity> getCardsByUser(@NonNull UUID id, boolean includeDeleted) {
+        if (!includeDeleted) {
+            return getCardsByUser(id);
+        }
+        final String sql = "SELECT id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified, deleted FROM cards WHERE owner_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+
+            final List<CardEntity> cards = new ArrayList<>();
+            while (resultSet.next()) {
+                cards.add(
+                        new CardEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                id,
+                                resultSet.getString("tag"),
+                                resultSet.getString("cite"),
+                                resultSet.getString("cite_information"),
+                                resultSet.getString("body_html"),
+                                resultSet.getString("body_draft"),
+                                resultSet.getString("body_text"),
+                                resultSet.getLong("time_created_at"),
+                                resultSet.getLong("last_modified"),
+                                resultSet.getBoolean("deleted")
+                        )
+                );
+            }
+            return cards;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
     public int getNumberOfCardsByUser(@NonNull UUID id) {
         final String sql = "SELECT COUNT(id) FROM cards WHERE owner_id = ? AND deleted = FALSE";
         try {
@@ -236,6 +272,42 @@ public class CardDataAccessService implements CardDao {
                                 resultSet.getLong("time_created_at"),
                                 resultSet.getLong("last_modified"),
                                 false
+                        )
+                );
+            }
+            return cards;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public List<CardEntity> getCardsByTeamId(@NonNull UUID teamId, boolean includeDeleted) {
+        if (!includeDeleted) {
+            return getCardsByTeamId(teamId);
+        }
+        final String sql = "SELECT id, owner_id, tag, cite, cite_information, body_html, body_draft, body_text, time_created_at, last_modified, deleted FROM cards INNER JOIN team_members ON cards.owner_id = team_members.user_id WHERE team_members.team_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, teamId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+
+            final List<CardEntity> cards = new ArrayList<>();
+            while (resultSet.next()) {
+                cards.add(
+                        new CardEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                UUID.fromString(resultSet.getString("owner_id")),
+                                resultSet.getString("tag"),
+                                resultSet.getString("cite"),
+                                resultSet.getString("cite_information"),
+                                resultSet.getString("body_html"),
+                                resultSet.getString("body_draft"),
+                                resultSet.getString("body_text"),
+                                resultSet.getLong("time_created_at"),
+                                resultSet.getLong("last_modified"),
+                                resultSet.getBoolean("deleted")
                         )
                 );
             }

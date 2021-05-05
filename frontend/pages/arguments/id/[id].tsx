@@ -7,7 +7,6 @@ import ArgumentCardDisplay from 'components/arguments/ArgumentCardDisplay'
 import ArgumentName from 'components/arguments/ArgumentName'
 import DeleteArgumentButton from 'components/arguments/DeleteArgumentButton'
 import { ResponseArgument } from 'types/argument'
-import useWindowSize from 'lib/hooks/useWindowSize'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
@@ -24,7 +23,6 @@ interface Props {
 const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArgument, id }) => {
   const [argument, setArgument] = useState(initialArgument)
   const [name, setName] = useState(argument?.name)
-  const { width } = useWindowSize(1920, 1080)
   const router = useRouter()
   const { setErrorMessage } = useContext(errorMessageContext)
   const { jwt } = useContext(userContext)
@@ -112,7 +110,6 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                     argument.cards.map((card, index) => (
                       <ArgumentCardDisplay
                         card={card}
-                        windowWidth={width}
                         // eslint-disable-next-line react/no-array-index-key
                         key={`${card.id}@${index}`}
                         argumentId={id}
@@ -128,7 +125,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
             </Droppable>
           </DragDropContext>
           <div style={{ marginTop: 25 }}>
-            <AddCardToArgumentButton argId={argument.id} windowWidth={width} />
+            <AddCardToArgumentButton argId={argument.id} />
           </div>
         </div>
       )}

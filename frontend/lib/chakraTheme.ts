@@ -29,6 +29,22 @@ const chakraTheme = extendTheme({
       }
     }
   },
+  components: {
+    Checkbox: {
+      baseStyle: {
+        control: {
+          _checked: {
+            bg: 'cardtownBlue',
+            borderColor: 'cardtownBlue',
+            _hover: {
+              bg: 'blueAccent',
+              borderColor: 'blueAccent'
+            }
+          }
+        }
+      }
+    }
+  },
   config: {
     initialColorMode: 'light',
     useSystemColorMode: false

@@ -1,9 +1,8 @@
 import { useContext, useEffect, useState } from 'react'
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
-import { Box, GridItem, Grid, Text, Tooltip, useColorModeValue, Stack } from '@chakra-ui/react'
-import { AddIcon } from '@chakra-ui/icons'
-import useWindowSize from 'lib/hooks/useWindowSize'
+import { Box, GridItem, Grid, Text, Tooltip, useColorModeValue, Stack, Flex, Checkbox } from '@chakra-ui/react'
+import { AddIcon, WarningIcon } from '@chakra-ui/icons'
 import redirectToLogin from 'lib/redirectToLogin'
 import SearchCards from 'components/cards/SearchCards'
 import { CardPreview } from 'types/card'
@@ -11,20 +10,25 @@ import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import DashboardPage from 'components/dash/DashboardPage'
 import { useRouter } from 'next/router'
 import PrimaryButton from 'components/utils/PrimaryButton'
+import userContext from 'lib/hooks/UserContext'
 
 interface Props {
   cards?: CardPreview[]
   errorText?: string
+  showDeleted?: boolean
 }
 
 // todo option to include deleted cards
-const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
+const Cards: NextPage<Props> = ({ cards: initialCards, errorText, showDeleted: initialShowDeleted }) => {
+  const [allCards, setAllCards] = useState(initialCards)
   const [cards, setCards] = useState(initialCards)
-  const { width } = useWindowSize(1920, 1080)
+  const [showDeleted, setShowDeleted] = useState(initialShowDeleted)
   const { setErrorMessage } = useContext(errorMessageContext)
   const itemBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
   const borderColor = useColorModeValue('lightGrayBorder', 'darkGrayBorder')
   const tooltipBgColor = useColorModeValue('white', 'darkElevated')
+  const deletedWarningColor = useColorModeValue('red.500', 'red.200')
+  const { jwt } = useContext(userContext)
   const router = useRouter()
 
   useEffect(() => {
@@ -32,6 +36,34 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
       setErrorMessage(errorText)
     }
   }, [])
+
+  const handleCheckChange = async () => {
+    let response: Response
+    if (showDeleted) {
+      router.push('/cards')
+      setShowDeleted(false)
+      response = await fetch('/api/v1/cards', {
+        headers: { Authorization: `Bearer ${jwt}` }
+      })
+    } else {
+      router.push('/cards?showDeleted=true')
+      setShowDeleted(true)
+      response = await fetch('/api/v1/cards?showDeleted=true', {
+        headers: { Authorization: `Bearer ${jwt}` }
+      })
+    }
+    if (response.ok) {
+      const newCards = (await response.json()) as CardPreview[]
+      setAllCards(newCards)
+      setCards(newCards)
+    } else if (response.status === 500) {
+      setErrorMessage('There was a server error. Please try again')
+    } else if (response.status === 406) {
+      setErrorMessage('Account not found. Please try again')
+    } else {
+      setErrorMessage('There was an error fetching your cards. Please try again')
+    }
+  }
 
   return (
     <DashboardPage>
@@ -48,13 +80,11 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
               Create new card
             </PrimaryButton>
           </Stack>
-          <SearchCards
-            cards={initialCards}
-            onResults={setCards}
-            onClear={() => setCards(initialCards)}
-            windowWidth={width}
-          />
+          <SearchCards cards={allCards} onResults={setCards} onClear={() => setCards(allCards)} showDeleted={showDeleted} />
         </Stack>
+        <Checkbox defaultChecked={showDeleted} onChange={handleCheckChange} iconColor='white' ml='15px' mb='10px'>
+          Show deleted cards
+        </Checkbox>
         <Grid templateColumns='repeat(4, 1fr)' visibility={{ base: 'hidden', lg: 'visible' }}>
           <GridItem colSpan={1} pl='20px'>
             <Text color='darkGray' fontWeight='medium'>
@@ -124,6 +154,15 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
                       </Tooltip>
                     )}
                   </GridItem>
+                  <GridItem colSpan={1}>
+                    <Flex justifyContent='flex-end' p='0 15px'>
+                      {c.deleted && (
+                        <Tooltip label='This card has been deleted' bg={tooltipBgColor} color='darkGray' fontWeight='normal'>
+                          <WarningIcon color={deletedWarningColor} fontSize='larger' />
+                        </Tooltip>
+                      )}
+                    </Flex>
+                  </GridItem>
                 </Grid>
               </a>
             </Link>
@@ -134,9 +173,9 @@ const AllCards: NextPage<Props> = ({ cards: initialCards, errorText }) => {
   )
 }
 
-export default AllCards
+export default Cards
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, query }) => {
   const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/cards/all')
@@ -144,26 +183,32 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
       props: {}
     }
   }
+  const showDeleted = Boolean(query.showDeleted)
 
   const dev = process.env.NODE_ENV !== 'production'
-  const response = await fetch((dev ? 'http://localhost' : 'https://cardtown.co') + '/api/v1/cards', {
-    headers: { Authorization: `Bearer ${jwt}` }
-  })
+  const response = await fetch(
+    (dev ? 'http://localhost' : 'https://cardtown.co') + `/api/v1/cards?showDeleted=${showDeleted.toString()}`,
+    {
+      headers: { Authorization: `Bearer ${jwt}` }
+    }
+  )
   let cards: CardPreview[] | null = null
   let errorText: string | null = null
   if (response.ok) {
     cards = await response.json()
+    console.log(JSON.stringify(cards, null, 2))
   } else if (response.status === 500) {
     errorText = 'There was a server error. Please try again'
   } else if (response.status === 406) {
-    errorText = 'Account not found. This is likely a bug and has been reported as such. Please try again'
+    errorText = 'Account not found. Please try again'
   } else {
-    errorText = 'There was an error finding the cards. Please try again'
+    errorText = 'There was an error fetching your cards. Please try again'
   }
   return {
     props: {
       cards,
-      errorText
+      errorText,
+      showDeleted
     }
   }
 }
