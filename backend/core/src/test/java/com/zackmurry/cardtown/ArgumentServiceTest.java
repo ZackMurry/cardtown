@@ -95,7 +95,7 @@ public class ArgumentServiceTest {
             final String argId = argumentService.createArgument(req);
             assertDoesNotThrow(() -> argumentService.getResponseArgumentById(argId));
             assertDoesNotThrow(() -> argumentService.deleteArgument(argId));
-            assertThrows(ArgumentNotFoundException.class, () -> argumentService.getResponseArgumentById(argId));
+            assertTrue(() -> argumentService.getResponseArgumentById(argId).isDeleted());
         }
     }
 
