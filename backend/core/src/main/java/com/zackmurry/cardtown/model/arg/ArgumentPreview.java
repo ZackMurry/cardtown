@@ -23,13 +23,15 @@ public class ArgumentPreview {
     private String name;
     private ResponseUserDetails owner;
     private List<CardHeader> cards;
+    private boolean deleted;
 
     public static ArgumentPreview of(ArgumentEntity arg, ResponseUserDetails owner, List<CardHeader> cards) {
         return new ArgumentPreview(
                 UUIDCompressor.compress(arg.getId()),
                 arg.getName(),
                 owner,
-                cards
+                cards,
+                arg.isDeleted()
         );
     }
 

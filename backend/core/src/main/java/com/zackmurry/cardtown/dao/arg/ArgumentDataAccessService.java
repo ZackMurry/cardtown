@@ -68,7 +68,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public Optional<ArgumentEntity> getArgumentEntity(@NonNull UUID id) {
-        final String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ? AND deleted = FALSE";
+        final String sql = "SELECT id, owner_id, name, deleted FROM arguments WHERE id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -78,33 +78,8 @@ public class ArgumentDataAccessService implements ArgumentDao {
                         new ArgumentEntity(
                                 UUID.fromString(resultSet.getString("id")),
                                 UUID.fromString(resultSet.getString("owner_id")),
-                                resultSet.getString("name")
-                        )
-                );
-            }
-            return Optional.empty();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
-    public Optional<ArgumentEntity> getArgumentEntity(@NonNull UUID id, boolean includeDeleted) {
-        if (!includeDeleted) {
-            return getArgumentEntity(id);
-        }
-        final String sql = "SELECT id, owner_id, name FROM arguments WHERE id = ?";
-        try {
-            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
-            preparedStatement.setObject(1, id);
-            final ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return Optional.of(
-                        new ArgumentEntity(
-                                UUID.fromString(resultSet.getString("id")),
-                                UUID.fromString(resultSet.getString("owner_id")),
-                                resultSet.getString("name")
+                                resultSet.getString("name"),
+                                resultSet.getBoolean("deleted")
                         )
                 );
             }
@@ -152,7 +127,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentEntity> getArgumentsByUser(@NonNull UUID id) {
-        final String sql = "SELECT id, name FROM arguments WHERE owner_id = ? AND deleted = FALSE";
+        final String sql = "SELECT id, name FROM arguments WHERE owner_id = ? AND deleted = false";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, id);
@@ -163,7 +138,36 @@ public class ArgumentDataAccessService implements ArgumentDao {
                         new ArgumentEntity(
                                 UUID.fromString(resultSet.getString("id")),
                                 id,
-                                resultSet.getString("name")
+                                resultSet.getString("name"),
+                                false
+                        )
+                );
+            }
+            return args;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public List<ArgumentEntity> getArgumentsByUser(@NonNull UUID id, boolean includeDeleted) {
+        if (!includeDeleted) {
+            return getArgumentsByUser(id);
+        }
+        final String sql = "SELECT id, name, deleted FROM arguments WHERE owner_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ArgumentEntity> args = new ArrayList<>();
+            while (resultSet.next()) {
+                args.add(
+                        new ArgumentEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                id,
+                                resultSet.getString("name"),
+                                resultSet.getBoolean("deleted")
                         )
                 );
             }
@@ -403,7 +407,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public List<ArgumentEntity> getArgumentsByTeam(@NonNull UUID teamId) {
-        final String sql = "SELECT id, owner_id, name FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ? AND deleted = FALSE";
+        final String sql = "SELECT id, owner_id, name, deleted FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ? AND deleted = FALSE";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, teamId);
@@ -414,7 +418,36 @@ public class ArgumentDataAccessService implements ArgumentDao {
                         new ArgumentEntity(
                                 UUID.fromString(resultSet.getString("id")),
                                 UUID.fromString(resultSet.getString("owner_id")),
-                                resultSet.getString("name")
+                                resultSet.getString("name"),
+                                resultSet.getBoolean("deleted")
+                        )
+                );
+            }
+            return args;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public List<ArgumentEntity> getArgumentsByTeam(@NonNull UUID teamId, boolean includeDeleted) {
+        if (!includeDeleted) {
+            return getArgumentsByTeam(teamId);
+        }
+        final String sql = "SELECT id, owner_id, name, deleted FROM arguments INNER JOIN team_members ON team_members.user_id = arguments.owner_id WHERE team_members.team_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, teamId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            final List<ArgumentEntity> args = new ArrayList<>();
+            while (resultSet.next()) {
+                args.add(
+                        new ArgumentEntity(
+                                UUID.fromString(resultSet.getString("id")),
+                                UUID.fromString(resultSet.getString("owner_id")),
+                                resultSet.getString("name"),
+                                resultSet.getBoolean("deleted")
                         )
                 );
             }

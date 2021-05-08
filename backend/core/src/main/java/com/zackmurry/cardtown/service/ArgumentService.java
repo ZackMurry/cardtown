@@ -196,8 +196,8 @@ public class ArgumentService {
         );
     }
 
-    public List<ArgumentPreview> listArgumentsByTeam(@NonNull UUID teamId) {
-        final List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByTeam(teamId);
+    public List<ArgumentPreview> listArgumentsByTeam(@NonNull UUID teamId, boolean includeDeleted) {
+        final List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByTeam(teamId, includeDeleted);
         final List<ArgumentPreview> argumentPreviews = new ArrayList<>();
         final byte[] teamSecretKey = UserSecretKeyHolder.getSecretKey();
         final Map<UUID, ResponseUserDetails> userDetailsMap = new HashMap<>();
@@ -245,22 +245,23 @@ public class ArgumentService {
     /**
      * Retrieves all arguments that the user has access to. Only retrieves previews for them
      *
+     * @param includeDeleted Whether to include deleted cards
      * @return Argument previews that the user has access to
      * @throws InternalServerException If an error occurs while decrypting information
      * @throws InternalServerException If a user was said to be the owner of an entity, but not found in the database
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
-    public List<ArgumentPreview> listArgumentsByUser() {
+    public List<ArgumentPreview> listArgumentsByUser(boolean includeDeleted) {
         // todo add unit tests
         final Optional<UUID> teamId = teamService.getTeamOfUser().map(TeamEntity::getId);
         // Delegate to listArgumentsByTeam if part of team
         if (teamId.isPresent()) {
-            return listArgumentsByTeam(teamId.get());
+            return listArgumentsByTeam(teamId.get(), includeDeleted);
         }
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
         final byte[] secretKey = UserSecretKeyHolder.getSecretKey();
-        final List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByUser(userId);
+        final List<ArgumentEntity> argumentEntities = argumentDao.getArgumentsByUser(userId, includeDeleted);
         final List<ArgumentPreview> argumentPreviews = new ArrayList<>();
         final ResponseUserDetails responseUserDetails = userService.getResponseUserDetailsById(userId).orElseThrow(InternalServerException::new);
         for (ArgumentEntity argumentEntity : argumentEntities) {
@@ -386,7 +387,11 @@ public class ArgumentService {
      */
     public void deleteArgument(@NonNull String argumentId) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElseThrow(ArgumentNotFoundException::new);
         checkAccessToArgument(decompressedArgId);
+        if (argumentEntity.isDeleted()) {
+            throw new ResponseStatusException(HttpStatus.NOT_MODIFIED);
+        }
         argumentDao.markArgumentAsDeleted(decompressedArgId);
         actionService.createAction(
                 ActionEntity.builder()
@@ -546,24 +551,4 @@ public class ArgumentService {
         return Optional.of(argumentEntity);
     }
 
-    /**
-     * Gets a decrypted argument entity by its id. Assumes privileges.
-     *
-     * @param argumentId Id of argument to get
-     * @param includeDeleted Whether to include deleted arguments in the results
-     * @return If found: an <code>Optional</code> containing the argument; else <code>Optional.empty()</code>
-     */
-    public Optional<ArgumentEntity> getArgumentEntityById(@NonNull UUID argumentId, boolean includeDeleted) {
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId, includeDeleted).orElse(null);
-        if (argumentEntity == null) {
-            return Optional.empty();
-        }
-        try {
-            argumentEntity.decryptFields(UserSecretKeyHolder.getSecretKey());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new InternalServerException();
-        }
-        return Optional.of(argumentEntity);
-    }
 }

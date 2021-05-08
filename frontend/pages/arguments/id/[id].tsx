@@ -78,7 +78,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
             <DeleteArgumentButton
               argumentId={argument.id}
               argumentName={argument.name}
-              onDelete={() => router.push('/arguments/all')}
+              onDelete={() => router.push('/arguments')}
             />
           </Flex>
           <div

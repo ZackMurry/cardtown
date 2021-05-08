@@ -55,8 +55,8 @@ public class ArgumentController {
     }
 
     @GetMapping("")
-    public List<ArgumentPreview> getArgumentsByUser() {
-        return argumentService.listArgumentsByUser();
+    public List<ArgumentPreview> getArgumentsByUser(@RequestParam(required = false) boolean showDeleted) {
+        return argumentService.listArgumentsByUser(showDeleted);
     }
 
     @GetMapping("/count")

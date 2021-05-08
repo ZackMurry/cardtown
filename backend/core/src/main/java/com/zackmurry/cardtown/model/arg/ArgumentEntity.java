@@ -15,11 +15,13 @@ public class ArgumentEntity extends EncryptedArgument {
 
     private UUID id;
     private UUID ownerId;
+    private boolean deleted;
 
-    public ArgumentEntity(UUID id, UUID ownerId, String name) {
+    public ArgumentEntity(UUID id, UUID ownerId, String name, boolean deleted) {
         super(name);
         this.id = id;
         this.ownerId = ownerId;
+        this.deleted = deleted;
     }
 
 }

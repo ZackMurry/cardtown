@@ -18,6 +18,7 @@ interface Props {
 }
 
 // todo: improve responsiveness and make top thing look better
+// todo: add show deleted option and warning that an argument is deleted
 const ArgumentsPage: FC<Props> = ({ args, fetchErrorText }) => {
   const [argsInSearch, setArgsInSearch] = useState(args)
   const [sort, setSort] = useState<Sort>({ by: 'none', ascending: false })

@@ -6,6 +6,7 @@ export interface ArgumentPreview {
   name: string
   owner: ResponseUserDetails
   cards: CardHeader[]
+  deleted: boolean
 }
 
 export interface ArgumentWithCardModel {
@@ -20,4 +21,5 @@ export interface ResponseArgument {
   owner: ResponseUserDetails
   name: string
   cards: ResponseCard[]
+  deleted: boolean
 }

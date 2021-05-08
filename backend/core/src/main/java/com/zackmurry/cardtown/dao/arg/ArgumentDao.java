@@ -33,16 +33,6 @@ public interface ArgumentDao {
     Optional<ArgumentEntity> getArgumentEntity(UUID id);
 
     /**
-     * Gets an argument entity from the database
-     *
-     * @param id Id of the argument
-     * @param includeDeleted Whether to include deleted arguments in the results
-     * @return An <code>Optional</code> of the requested argument
-     * @throws InternalServerException if there is a <code>SQLException</code>
-     */
-    Optional<ArgumentEntity> getArgumentEntity(UUID id, boolean includeDeleted);
-
-    /**
      * Gets cards from an argument with the given id, ordered by their index in the argument
      *
      * @param argumentId Id of the argument
@@ -84,13 +74,23 @@ public interface ArgumentDao {
     short getFirstOpenIndexInArgument(UUID id);
 
     /**
-     * Gets all arguments that are owned by a user
+     * Gets all arguments that are owned by a user. Does not include deleted cards.
      *
      * @param id User to find arguments for
      * @return Data about the arguments (not the cards in them)
      * @throws InternalServerException If there is a <code>SQLException</code>
      */
     List<ArgumentEntity> getArgumentsByUser(UUID id);
+
+    /**
+     * Gets all arguments that are owned by a user
+     *
+     * @param id User to find arguments for
+     * @param includeDeleted Whether to include deleted cards
+     * @return Data about the arguments (not the cards in them)
+     * @throws InternalServerException If there is a <code>SQLException</code>
+     */
+    List<ArgumentEntity> getArgumentsByUser(UUID id, boolean includeDeleted);
 
     /**
      * Gets the number of arguments that are owned by a user
@@ -184,5 +184,7 @@ public interface ArgumentDao {
     int getNumberOfArgumentsByTeam(UUID teamId);
 
     List<ArgumentEntity> getArgumentsByTeam(UUID teamId);
+
+    List<ArgumentEntity> getArgumentsByTeam(UUID teamId, boolean includeDeleted);
 
 }

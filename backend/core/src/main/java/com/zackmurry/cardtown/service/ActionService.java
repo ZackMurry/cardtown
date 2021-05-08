@@ -82,7 +82,7 @@ public class ActionService {
                 actionCardPreviewMap.put(actionEntity.getCardId(), ActionCardPreview.of(cardPreview, numAppearancesInArgs));
             }
             if (actionEntity.getArgumentId() != null && !actionArgumentPreviewMap.containsKey(actionEntity.getArgumentId())) {
-                final ArgumentEntity argumentEntity = argumentService.getArgumentEntityById(actionEntity.getArgumentId(), true).orElseThrow(InternalServerException::new);
+                final ArgumentEntity argumentEntity = argumentService.getArgumentEntityById(actionEntity.getArgumentId()).orElseThrow(InternalServerException::new);
                 final int numCardsInArgument = argumentService.getNumCardsInArgument(actionEntity.getArgumentId());
                 final ActionArgumentPreview actionArgumentPreview = new ActionArgumentPreview(UUIDCompressor.compress(actionEntity.getArgumentId()), argumentEntity.getName(), numCardsInArgument);
                 actionArgumentPreviewMap.put(actionEntity.getArgumentId(), actionArgumentPreview);

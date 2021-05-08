@@ -20,9 +20,10 @@ public class ResponseArgument {
     private ResponseUserDetails owner;
     private String name;
     private List<ResponseCard> cards;
+    private boolean deleted;
 
     public static ResponseArgument fromArgumentEntity(ArgumentEntity argumentEntity, ResponseUserDetails userDetails, List<ResponseCard> cards) {
-        return new ResponseArgument(UUIDCompressor.compress(argumentEntity.getId()), userDetails, argumentEntity.getName(), cards);
+        return new ResponseArgument(UUIDCompressor.compress(argumentEntity.getId()), userDetails, argumentEntity.getName(), cards, argumentEntity.isDeleted());
     }
 
 }
