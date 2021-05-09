@@ -271,7 +271,7 @@ public class CardService {
      * @throws ResponseStatusException (HttpStatus.NOT_MODIFIED) If the card is already deleted
      * @throws InternalServerException If a <code>SQLException</code> occurs in the DAO layer
      */
-    public void deleteCardById(String id) {
+    public void markCardAsDeletedById(String id) {
         // todo check if card is already deleted
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final UUID cardId = UUIDCompressor.decompress(id);
@@ -440,4 +440,25 @@ public class CardService {
                         .build()
         );
     }
+
+    /**
+     * Permanently deletes a card
+     *
+     * @param id Id of card to delete
+     * @throws CardNotFoundException If the card could not be found
+     * @throws ForbiddenException If the owner of the card is not in the same team as the principal
+     */
+    public void permanentlyDeleteCardById(@NonNull String id) {
+        final UUID cardId = UUIDCompressor.decompress(id);
+        final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final CardEntity cardEntity = cardDao.getCardById(cardId).orElseThrow(CardNotFoundException::new);
+        if (!teamService.usersInSameTeam(principalId, cardEntity.getOwnerId())) {
+            throw new ForbiddenException();
+        }
+        if (!cardEntity.isDeleted()) {
+            argumentService.removeCardFromAllArguments(cardId);
+        }
+        cardDao.deleteCardById(cardId);
+    }
+
 }

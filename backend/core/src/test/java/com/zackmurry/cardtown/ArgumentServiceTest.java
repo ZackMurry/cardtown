@@ -1,6 +1,5 @@
 package com.zackmurry.cardtown;
 
-import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.LengthRequiredException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
@@ -145,7 +144,7 @@ public class ArgumentServiceTest {
             assertTrue(CardServiceTest.createRequestEqualsResponse(newCard, returnedCard));
             assertDoesNotThrow(() -> argumentService.removeCardFromArgument(argId, cardId, (short) 0));
             assertEquals(0, argumentService.getResponseArgumentById(argId).getCards().size());
-            cardService.deleteCardById(cardId);
+            cardService.markCardAsDeletedById(cardId);
             argumentService.deleteArgument(argId);
         }
         for (int i = 0; i < 10; i++) {
@@ -160,7 +159,7 @@ public class ArgumentServiceTest {
             for (short j = 25; j > 0; j--) {
                 assertEquals(j, argumentService.getResponseArgumentById(argId).getCards().size());
                 argumentService.removeCardFromArgument(argId, cardIds[j - 1], (short) (j - 1));
-                cardService.deleteCardById(cardIds[j - 1]);
+                cardService.markCardAsDeletedById(cardIds[j - 1]);
             }
             assertEquals(0, argumentService.getResponseArgumentById(argId).getCards().size());
             argumentService.deleteArgument(argId);
@@ -201,7 +200,7 @@ public class ArgumentServiceTest {
 
         // Clean up
         for (String cardId : cardIds) {
-            cardService.deleteCardById(cardId);
+            cardService.markCardAsDeletedById(cardId);
         }
         assertDoesNotThrow(() -> argumentService.deleteArgument(argumentId));
     }
@@ -243,7 +242,7 @@ public class ArgumentServiceTest {
                 argumentIds.remove(argumentWithCardModel.getId());
             }
             assertEquals(0, argumentIds.size());
-            cardService.deleteCardById(cardId);
+            cardService.markCardAsDeletedById(cardId);
         }
     }
 
@@ -371,7 +370,7 @@ public class ArgumentServiceTest {
                 assertEquals(0, argumentService.getResponseArgumentById(argId).getCards().size());
                 // Delete the card and argument as testUser
                 SecurityContextHolder.getContext().setAuthentication(token);
-                cardService.deleteCardById(cardId);
+                cardService.markCardAsDeletedById(cardId);
                 argumentService.deleteArgument(argId);
             }
             SecurityContextHolder.getContext().setAuthentication(token);
@@ -392,7 +391,7 @@ public class ArgumentServiceTest {
                 for (short j = 25; j > 0; j--) {
                     assertEquals(j, argumentService.getResponseArgumentById(argId).getCards().size());
                     argumentService.removeCardFromArgument(argId, cardIds[j - 1], (short) (j - 1));
-                    cardService.deleteCardById(cardIds[j - 1]);
+                    cardService.markCardAsDeletedById(cardIds[j - 1]);
                 }
                 assertEquals(0, argumentService.getResponseArgumentById(argId).getCards().size());
                 // Delete the argument as testUser
@@ -479,7 +478,7 @@ public class ArgumentServiceTest {
             // Clean up as testUser
             SecurityContextHolder.getContext().setAuthentication(token);
             for (String cardId : cardIds) {
-                cardService.deleteCardById(cardId);
+                cardService.markCardAsDeletedById(cardId);
             }
             assertDoesNotThrow(() -> argumentService.deleteArgument(argumentId));
         }
@@ -509,7 +508,7 @@ public class ArgumentServiceTest {
                 }
                 assertEquals(0, argumentIds.size());
                 // Delete the card as testUser
-                cardService.deleteCardById(cardId);
+                cardService.markCardAsDeletedById(cardId);
             }
         }
 

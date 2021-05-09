@@ -75,7 +75,7 @@ public class CardController {
         if (cardId == null) {
             throw new BadRequestException();
         }
-        cardService.deleteCardById(cardId);
+        cardService.markCardAsDeletedById(cardId);
     }
 
     @PutMapping("/id/**")
@@ -99,6 +99,11 @@ public class CardController {
     @PostMapping("/id/{id}/restore")
     public void restoreCard(@PathVariable String id) {
         cardService.restoreCardById(id);
+    }
+
+    @PostMapping("/id/{id}/delete")
+    public void permanentlyDeleteCard(@PathVariable String id) {
+        cardService.permanentlyDeleteCardById(id);
     }
 
 }

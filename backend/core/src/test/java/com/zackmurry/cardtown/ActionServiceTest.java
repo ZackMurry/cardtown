@@ -82,7 +82,7 @@ public class ActionServiceTest {
         assertEquals(ActionType.CREATE_CARD, cardCreateAction.getActionType());
         assertEquals(((UserModel) token.getPrincipal()).getId(), cardCreateAction.getSubjectId());
         assertEquals(UUIDCompressor.decompress(cardId), cardCreateAction.getCardId());
-        cardService.deleteCardById(cardId);
+        cardService.markCardAsDeletedById(cardId);
         actions = actionService.getAllActionsVisibleToUser();
         assertEquals(2, actions.size());
         final ActionEntity cardDeleteAction = actions.get(0);

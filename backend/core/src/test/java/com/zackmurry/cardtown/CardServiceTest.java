@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown;
 
+import com.zackmurry.cardtown.exception.CardNotFoundException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
 import com.zackmurry.cardtown.model.auth.UserModel;
 import com.zackmurry.cardtown.model.card.CardCreateRequest;
@@ -105,10 +106,12 @@ public class CardServiceTest {
     public void testCreateAndDeleteCard() {
         for (int i = 0; i < 100; i++) {
             final String cardId = cardService.createCard(generateMockCard(testEmail));
-            assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
+            assertDoesNotThrow(() -> cardService.markCardAsDeletedById(cardId));
             final CardEntity cardEntity = cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).orElse(null);
             assertNotNull(cardEntity);
             assertTrue(cardEntity.isDeleted());
+            assertDoesNotThrow(() -> cardService.permanentlyDeleteCardById(cardId));
+            assertThrows(CardNotFoundException.class, () -> cardService.getResponseCardById(cardId));
         }
     }
 
@@ -120,7 +123,7 @@ public class CardServiceTest {
             final String cardId = cardService.createCard(req);
             final ResponseCard returnedCard = cardService.getResponseCardById(cardId);
             assertTrue(createRequestEqualsResponse(req, returnedCard));
-            assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
+            assertDoesNotThrow(() -> cardService.markCardAsDeletedById(cardId));
         }
     }
 
@@ -135,7 +138,7 @@ public class CardServiceTest {
             final ResponseCard updatedCard = cardService.getResponseCardById(cardId);
             assertTrue(createRequestEqualsResponse(updateReq, updatedCard));
         }
-        assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
+        assertDoesNotThrow(() -> cardService.markCardAsDeletedById(cardId));
         final CardEntity cardEntity = cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).orElse(null);
         assertNotNull(cardEntity);
         assertTrue(cardEntity.isDeleted());
@@ -165,7 +168,7 @@ public class CardServiceTest {
             assertEquals(cardCreateRequest.getBodyText(), cardPreview.getBodyText());
         }
         for (String cardId : cardIds) {
-            assertDoesNotThrow(() -> cardService.deleteCardById(cardId));
+            assertDoesNotThrow(() -> cardService.markCardAsDeletedById(cardId));
             final CardEntity cardEntity = cardService.getCardEntityById(UUIDCompressor.decompress(cardId)).orElse(null);
             assertNotNull(cardEntity);
             assertTrue(cardEntity.isDeleted());
@@ -239,7 +242,7 @@ public class CardServiceTest {
 
                 // Delete card
                 SecurityContextHolder.getContext().setAuthentication(token);
-                cardService.deleteCardById(cardId);
+                cardService.markCardAsDeletedById(cardId);
             }
         }
 
@@ -262,7 +265,7 @@ public class CardServiceTest {
                 assertTrue(createRequestEqualsResponse(editRequest, responseCard));
 
                 // Delete the card
-                cardService.deleteCardById(cardId);
+                cardService.markCardAsDeletedById(cardId);
             }
         }
 
@@ -276,7 +279,7 @@ public class CardServiceTest {
 
                 // Delete card as teamOwner
                 SecurityContextHolder.getContext().setAuthentication(teamOwnerToken);
-                assertDoesNotThrow(() -> cardService.deleteCardById(cardId), "Team members should be able to delete cards");
+                assertDoesNotThrow(() -> cardService.markCardAsDeletedById(cardId), "Team members should be able to delete cards");
                 // Switch context back
                 SecurityContextHolder.getContext().setAuthentication(token);
             }
@@ -300,7 +303,7 @@ public class CardServiceTest {
                 assertTrue(cardCreateRequestsMap.containsKey(rc.getId()));
                 final CardCreateRequest createRequest = cardCreateRequestsMap.remove(rc.getId());
                 assertTrue(createRequestEqualsResponse(createRequest, rc));
-                cardService.deleteCardById(rc.getId()); // Delete the card now that we're done
+                cardService.markCardAsDeletedById(rc.getId()); // Delete the card now that we're done
             }
             assertTrue(cardCreateRequestsMap.isEmpty());
         }

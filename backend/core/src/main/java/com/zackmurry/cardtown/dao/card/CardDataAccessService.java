@@ -336,4 +336,18 @@ public class CardDataAccessService implements CardDao {
             throw new InternalServerException();
         }
     }
+
+    @Override
+    public void deleteCardById(@NonNull UUID id) {
+        final String sql = "DELETE FROM cards WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
 }

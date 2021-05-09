@@ -20,7 +20,7 @@ public interface CardDao {
     UUID createCard(CardEntity card);
 
     /**
-     * Gets a card from the database with the specified id. Ignores deleted cards.
+     * Gets a card from the database with the specified id.
      *
      * @param id Id of card to get
      * @return If found: an optional containing the card; if not: <code>Optional.empty()</code>
@@ -110,5 +110,13 @@ public interface CardDao {
      * @throws InternalServerException If a <code>SQLException</code> occurs
      */
     void restoreCardById(UUID id);
+
+    /**
+     * Permanently deletes a card
+     *
+     * @param id Id of card to permanently delete
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    void deleteCardById(UUID id);
 
 }
