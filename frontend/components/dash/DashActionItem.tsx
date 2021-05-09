@@ -235,11 +235,27 @@ const DashActionItem: FC<Props> = ({ action }) => {
       </DashActionArgumentItem>
     )
   }
+  if (action.actionType === 'EDIT_ARGUMENT') {
+    return (
+      <DashActionArgumentItem action={action}>
+        <Text fontSize={14}>
+          <b>{`${subjectName} `}</b>
+          edited
+          <Link href={`/arguments/id/${action.argument.id}`} passHref>
+            <a>
+              <b>{` ${action.argument.name}`}</b>
+            </a>
+          </Link>
+          {timeAgo}
+        </Text>
+      </DashActionArgumentItem>
+    )
+  }
   if (action.actionType === 'DELETE_ARGUMENT') {
     return (
       <DashActionArgumentItem action={action}>
         <Text fontSize={14}>
-          <b>{`${subjectName}`}</b>
+          <b>{`${subjectName} `}</b>
           deleted
           <Link href={`/arguments/id/${action.argument.id}`} passHref>
             <a>
@@ -251,12 +267,12 @@ const DashActionItem: FC<Props> = ({ action }) => {
       </DashActionArgumentItem>
     )
   }
-  if (action.actionType === 'EDIT_ARGUMENT') {
+  if (action.actionType === 'RESTORE_ARGUMENT') {
     return (
       <DashActionArgumentItem action={action}>
         <Text fontSize={14}>
           <b>{`${subjectName} `}</b>
-          edited
+          restored
           <Link href={`/arguments/id/${action.argument.id}`} passHref>
             <a>
               <b>{` ${action.argument.name}`}</b>

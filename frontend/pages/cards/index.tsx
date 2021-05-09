@@ -21,7 +21,7 @@ interface Props {
 // todo option to include deleted cards
 const Cards: NextPage<Props> = ({ cards: initialCards, errorText, showDeleted: initialShowDeleted }) => {
   const [allCards, setAllCards] = useState(initialCards)
-  const [cards, setCards] = useState(initialCards)
+  const [cardsInSearch, setCardsInSearch] = useState(initialCards)
   const [showDeleted, setShowDeleted] = useState(initialShowDeleted)
   const { setErrorMessage } = useContext(errorMessageContext)
   const itemBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
@@ -55,7 +55,7 @@ const Cards: NextPage<Props> = ({ cards: initialCards, errorText, showDeleted: i
     if (response.ok) {
       const newCards = (await response.json()) as CardPreview[]
       setAllCards(newCards)
-      setCards(newCards)
+      setCardsInSearch(newCards)
     } else if (response.status === 500) {
       setErrorMessage('There was a server error. Please try again')
     } else if (response.status === 406) {
@@ -80,7 +80,12 @@ const Cards: NextPage<Props> = ({ cards: initialCards, errorText, showDeleted: i
               Create new card
             </PrimaryButton>
           </Stack>
-          <SearchCards cards={allCards} onResults={setCards} onClear={() => setCards(allCards)} showDeleted={showDeleted} />
+          <SearchCards
+            cards={allCards}
+            onResults={setCardsInSearch}
+            onClear={() => setCardsInSearch(allCards)}
+            showDeleted={showDeleted}
+          />
         </Stack>
         <Checkbox defaultChecked={showDeleted} onChange={handleCheckChange} iconColor='white' ml='15px' mb='10px'>
           Show deleted cards
@@ -99,7 +104,7 @@ const Cards: NextPage<Props> = ({ cards: initialCards, errorText, showDeleted: i
         </Grid>
 
         {/* todo show information about the owner and make this expandable so that users can see the card body */}
-        {cards.map(c => {
+        {cardsInSearch.map(c => {
           let shortenedCite = c.cite
           let shortenedTag = c.tag
           if (c.cite.length > 50) {
@@ -196,7 +201,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, 
   let errorText: string | null = null
   if (response.ok) {
     cards = await response.json()
-    console.log(JSON.stringify(cards, null, 2))
   } else if (response.status === 500) {
     errorText = 'There was a server error. Please try again'
   } else if (response.status === 406) {

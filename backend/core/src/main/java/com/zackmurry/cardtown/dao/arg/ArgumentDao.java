@@ -187,4 +187,6 @@ public interface ArgumentDao {
 
     List<ArgumentEntity> getArgumentsByTeam(UUID teamId, boolean includeDeleted);
 
+    void restoreArgumentById(UUID id);
+
 }

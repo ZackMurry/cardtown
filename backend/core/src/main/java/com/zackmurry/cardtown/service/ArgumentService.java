@@ -551,4 +551,25 @@ public class ArgumentService {
         return Optional.of(argumentEntity);
     }
 
+    public void restoreArgumentById(@NonNull String id) {
+        final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final UUID argumentId = UUIDCompressor.decompress(id);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElseThrow(ArgumentNotFoundException::new);
+
+        if (!teamService.usersInSameTeam(principalId, argumentEntity.getOwnerId())) {
+            throw new ForbiddenException();
+        }
+        if (!argumentEntity.isDeleted()) {
+            throw new ResponseStatusException(HttpStatus.NOT_MODIFIED);
+        }
+        argumentDao.restoreArgumentById(argumentId);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.RESTORE_ARGUMENT)
+                        .principal()
+                        .argument(argumentId)
+                        .build()
+        );
+
+    }
 }

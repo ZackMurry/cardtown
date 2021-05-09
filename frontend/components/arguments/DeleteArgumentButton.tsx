@@ -42,7 +42,7 @@ const DeleteArgumentButton: FC<Props> = ({ argumentId, argumentName, onDelete })
         onCancel={() => setDialogOpen(false)}
         onConfirm={handleDelete}
         title={`Delete ${argumentName}?`}
-        body='Are you sure? This action cannot be reverted.'
+        body='Are you sure? This action can be reverted.'
       />
     </>
   )

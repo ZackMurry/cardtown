@@ -328,7 +328,7 @@ public class CardDataAccessService implements CardDao {
             if (rowsChanged == 0) {
                 throw new CardNotFoundException();
             } else if (rowsChanged > 1) {
-                logger.warn("There were more than one rows changed in a statement to delete a card.");
+                logger.warn("There were more than one rows changed in a statement to restore a card.");
             }
         } catch (SQLException e) {
             e.printStackTrace();

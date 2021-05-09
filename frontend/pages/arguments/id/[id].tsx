@@ -13,6 +13,7 @@ import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import userContext from 'lib/hooks/UserContext'
 import DashboardPage from 'components/dash/DashboardPage'
 import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import ArgumentDeletedMessage from 'components/arguments/ArgumentDeletedMessage'
 
 interface Props {
   id?: string
@@ -23,6 +24,7 @@ interface Props {
 const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArgument, id }) => {
   const [argument, setArgument] = useState(initialArgument)
   const [name, setName] = useState(argument?.name)
+  const [isRestored, setRestored] = useState(false)
   const router = useRouter()
   const { setErrorMessage } = useContext(errorMessageContext)
   const { jwt } = useContext(userContext)
@@ -64,70 +66,72 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
     }
   }
 
+  const handleRestore = () => {
+    setRestored(true)
+  }
+
   return (
     <DashboardPage>
       {argument && (
-        <div
-          style={{
-            width: '50%',
-            margin: '10vh auto'
-          }}
-        >
-          <Flex justifyContent='space-between' alignItems='center'>
-            <ArgumentName name={name} argumentId={argument.id} onNameChange={setName} />
-            <DeleteArgumentButton
-              argumentId={argument.id}
-              argumentName={argument.name}
-              onDelete={() => router.push('/arguments')}
+        <Flex flexDirection='column' alignItems='center' w='100%' m='5vh 0'>
+          <Box w={{ base: '90%', sm: '85%', md: '80%', lg: '70%', xl: '50%' }}>
+            {argument.deleted && !isRestored && <ArgumentDeletedMessage id={argument.id} onRestore={handleRestore} />}
+            <Flex justifyContent='space-between' alignItems='center'>
+              <ArgumentName name={name} argumentId={argument.id} onNameChange={setName} />
+              <DeleteArgumentButton
+                argumentId={argument.id}
+                argumentName={argument.name}
+                onDelete={() => router.push('/arguments')}
+              />
+            </Flex>
+            <div
+              style={{
+                width: '100%',
+                margin: '2vh 0',
+                height: 1,
+                backgroundColor: theme.palette.lightGrey.main
+              }}
             />
-          </Flex>
-          <div
-            style={{
-              width: '100%',
-              margin: '2vh 0',
-              height: 1,
-              backgroundColor: theme.palette.lightGrey.main
-            }}
-          />
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId='CARDS_LIST'>
-              {(dropProvided: DroppableProvided) => (
-                <Box
-                  bg={bgColor}
-                  borderWidth='1px'
-                  borderStyle='solid'
-                  borderColor={borderColor}
-                  borderRadius='5px'
-                  p='3vh 3vw'
-                  ref={dropProvided.innerRef}
-                >
-                  {!argument?.cards?.length && (
-                    <Text color='darkGray' textAlign='center'>
-                      This argument doesn't have any cards
-                    </Text>
-                  )}
-                  {argument?.cards &&
-                    argument.cards.map((card, index) => (
-                      <ArgumentCardDisplay
-                        card={card}
-                        // eslint-disable-next-line react/no-array-index-key
-                        key={`${card.id}@${index}`}
-                        argumentId={id}
-                        indexInArgument={index}
-                        onRemove={() =>
-                          setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })
-                        }
-                      />
-                    ))}
-                  {dropProvided.placeholder}
-                </Box>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <div style={{ marginTop: 25 }}>
-            <AddCardToArgumentButton argId={argument.id} />
-          </div>
-        </div>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId='CARDS_LIST'>
+                {(dropProvided: DroppableProvided) => (
+                  <Box
+                    bg={bgColor}
+                    borderWidth='1px'
+                    borderStyle='solid'
+                    borderColor={borderColor}
+                    borderRadius='5px'
+                    p='3vh 3vw'
+                    ref={dropProvided.innerRef}
+                  >
+                    {!argument?.cards?.length && (
+                      <Text color='darkGray' textAlign='center'>
+                        This argument doesn't have any cards
+                      </Text>
+                    )}
+                    {argument?.cards &&
+                      argument.cards.map((card, index) => (
+                        <ArgumentCardDisplay
+                          card={card}
+                          // eslint-disable-next-line react/no-array-index-key
+                          key={`${card.id}@${index}`}
+                          argumentId={id}
+                          indexInArgument={index}
+                          onRemove={() =>
+                            setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })
+                          }
+                        />
+                      ))}
+                    {dropProvided.placeholder}
+                  </Box>
+                )}
+              </Droppable>
+            </DragDropContext>
+            <div style={{ marginTop: 25 }}>
+              <AddCardToArgumentButton argId={argument.id} />
+            </div>
+          </Box>
+        </Flex>
       )}
     </DashboardPage>
   )

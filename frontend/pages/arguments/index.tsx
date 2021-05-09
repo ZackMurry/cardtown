@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next'
 import { FC, useContext, useEffect, useState } from 'react'
-import { Box, Button, Grid, GridItem, Stack, Text, useColorModeValue } from '@chakra-ui/react'
-import { AddIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { Box, Button, Checkbox, Flex, Grid, GridItem, Stack, Text, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import { AddIcon, ChevronDownIcon, ChevronUpIcon, WarningIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 import PrimaryButton from 'components/utils/PrimaryButton'
 import { ArgumentPreview } from 'types/argument'
@@ -9,22 +9,31 @@ import SearchArguments from 'components/arguments/SearchArguments'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
 import DashboardPage from 'components/dash/DashboardPage'
 import redirectToLogin from 'lib/redirectToLogin'
+import { useRouter } from 'next/router'
+import userContext from 'lib/hooks/UserContext'
 
 type Sort = { by: 'none' | 'name' | 'cards'; ascending: boolean }
 
 interface Props {
   args?: ArgumentPreview[]
   fetchErrorText?: string
+  showDeleted?: boolean
 }
 
 // todo: improve responsiveness and make top thing look better
 // todo: add show deleted option and warning that an argument is deleted
-const ArgumentsPage: FC<Props> = ({ args, fetchErrorText }) => {
-  const [argsInSearch, setArgsInSearch] = useState(args)
+const ArgumentsPage: FC<Props> = ({ args: initialArgs, fetchErrorText, showDeleted: initialShowDeleted }) => {
+  const [allArgs, setAllArgs] = useState(initialArgs)
+  const [argsInSearch, setArgsInSearch] = useState(initialArgs)
   const [sort, setSort] = useState<Sort>({ by: 'none', ascending: false })
+  const [showDeleted, setShowDeleted] = useState(initialShowDeleted)
   const { setErrorMessage } = useContext(errorMessageContext)
   const itemBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
   const borderColor = useColorModeValue('lightGrayBorder', 'darkGrayBorder')
+  const tooltipBgColor = useColorModeValue('white', 'darkElevated')
+  const deletedWarningColor = useColorModeValue('red.500', 'red.200')
+  const router = useRouter()
+  const { jwt } = useContext(userContext)
 
   useEffect(() => {
     if (fetchErrorText) {
@@ -39,7 +48,7 @@ const ArgumentsPage: FC<Props> = ({ args, fetchErrorText }) => {
 
   const handleClearSearch = () => {
     setSort({ by: 'none', ascending: false })
-    setArgsInSearch(args)
+    setArgsInSearch(allArgs)
   }
 
   const handleNameSortUpdate = () => {
@@ -62,23 +71,51 @@ const ArgumentsPage: FC<Props> = ({ args, fetchErrorText }) => {
     setSort(options)
     if (options.by === 'name') {
       if (options.ascending) {
-        setArgsInSearch(args.sort((a, b) => b.name.localeCompare(a.name)))
+        setArgsInSearch(argsInSearch.sort((a, b) => b.name.localeCompare(a.name)))
       } else {
-        setArgsInSearch(args.sort((a, b) => a.name.localeCompare(b.name)))
+        setArgsInSearch(argsInSearch.sort((a, b) => a.name.localeCompare(b.name)))
       }
     } else if (options.by === 'cards') {
       if (options.ascending) {
-        setArgsInSearch(args.sort((a, b) => a.cards.length - b.cards.length))
+        setArgsInSearch(argsInSearch.sort((a, b) => a.cards.length - b.cards.length))
       } else {
-        setArgsInSearch(args.sort((a, b) => b.cards.length - a.cards.length))
+        setArgsInSearch(argsInSearch.sort((a, b) => b.cards.length - a.cards.length))
       }
+    }
+  }
+
+  const handleCheckChange = async () => {
+    let response: Response
+    if (showDeleted) {
+      router.push('/arguments')
+      setShowDeleted(false)
+      response = await fetch('/api/v1/arguments', {
+        headers: { Authorization: `Bearer ${jwt}` }
+      })
+    } else {
+      router.push('/arguments?showDeleted=true')
+      setShowDeleted(true)
+      response = await fetch('/api/v1/arguments?showDeleted=true', {
+        headers: { Authorization: `Bearer ${jwt}` }
+      })
+    }
+    if (response.ok) {
+      const newArgs = (await response.json()) as ArgumentPreview[]
+      setAllArgs(newArgs)
+      setArgsInSearch(newArgs)
+    } else if (response.status === 500) {
+      setErrorMessage('There was a server error. Please try again')
+    } else if (response.status === 406) {
+      setErrorMessage('Account not found. Please try again')
+    } else {
+      setErrorMessage('There was an error fetching your cards. Please try again')
     }
   }
 
   return (
     <DashboardPage>
       <Box w={{ base: '85%', sm: '80%', md: '70%', lg: '60%', xl: '55%' }} m='25px auto'>
-        <Stack direction={{ base: 'column', md: 'row' }}>
+        <Stack direction={{ base: 'column', md: 'row' }} mb='15px' spacing='10px'>
           <PrimaryButton
             as='a'
             leftIcon={<AddIcon w='24px' mt='-2px' />}
@@ -89,9 +126,12 @@ const ArgumentsPage: FC<Props> = ({ args, fetchErrorText }) => {
           >
             Create new argument
           </PrimaryButton>
-          <SearchArguments args={args} onResults={handleSearchResults} onClear={handleClearSearch} />
+          <SearchArguments args={allArgs} onResults={handleSearchResults} onClear={handleClearSearch} />
         </Stack>
-        <Grid templateColumns='repeat(4, 1fr)' display={{ base: 'none', md: 'grid' }} pt='15px'>
+        <Checkbox defaultChecked={showDeleted} onChange={handleCheckChange} iconColor='white' ml='15px' mb='10px'>
+          Show deleted arguments
+        </Checkbox>
+        <Grid templateColumns='repeat(4, 1fr)' display={{ base: 'none', md: 'grid' }}>
           <GridItem colSpan={2}>
             <Button
               variant='ghost'
@@ -140,6 +180,15 @@ const ArgumentsPage: FC<Props> = ({ args, fetchErrorText }) => {
                 <GridItem colSpan={1} pl='20px'>
                   <Text color='darkGray'>{a.cards.length}</Text>
                 </GridItem>
+                <GridItem colSpan={1}>
+                  <Flex justifyContent='flex-end' p='0 15px'>
+                    {a.deleted && (
+                      <Tooltip label='This card has been deleted' bg={tooltipBgColor} color='darkGray' fontWeight='normal'>
+                        <WarningIcon color={deletedWarningColor} fontSize='larger' />
+                      </Tooltip>
+                    )}
+                  </Flex>
+                </GridItem>
               </Grid>
             </a>
           </Link>
@@ -151,7 +200,7 @@ const ArgumentsPage: FC<Props> = ({ args, fetchErrorText }) => {
 
 export default ArgumentsPage
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res, query }) => {
   const { jwt } = req.cookies
   if (!jwt) {
     redirectToLogin(res, '/arguments')
@@ -159,15 +208,17 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
       props: {}
     }
   }
+  const showDeleted = Boolean(query.showDeleted)
   const domain = process.env.NODE_ENV !== 'production' ? 'http://localhost' : 'https://cardtown.co'
-  const response = await fetch(`${domain}/api/v1/arguments`, {
+  const response = await fetch(`${domain}/api/v1/arguments?showDeleted=${showDeleted.toString()}`, {
     headers: { Authorization: `Bearer ${jwt}` }
   })
   if (response.ok) {
     const args = (await response.json()) as ArgumentPreview[]
     return {
       props: {
-        args
+        args,
+        showDeleted
       }
     }
   }
@@ -186,7 +237,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
   }
   return {
     props: {
-      fetchErrorText
+      fetchErrorText,
+      showDeleted
     }
   }
 }

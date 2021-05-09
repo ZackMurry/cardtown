@@ -458,4 +458,23 @@ public class ArgumentDataAccessService implements ArgumentDao {
         }
     }
 
+    @Override
+    public void restoreArgumentById(@NonNull UUID id) {
+        final String sql = "UPDATE arguments SET deleted = FALSE WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            final int rowsChanged = preparedStatement.executeUpdate();
+            if (rowsChanged == 0) {
+                throw new ArgumentNotFoundException();
+            } else if (rowsChanged > 1) {
+                logger.warn("There were more than one rows changed in a statement to restore a argument.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.warn("SQL exception occurred when restoring argument {}", id);
+            throw new InternalServerException();
+        }
+
+    }
 }

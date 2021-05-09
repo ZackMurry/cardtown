@@ -20,13 +20,14 @@ export type ActionType =
   | 'CREATE_CARD'
   | 'DELETE_CARD'
   | 'EDIT_CARD'
+  | 'RESTORE_CARD'
   | 'CREATE_ARGUMENT'
-  | 'DELETE_ARGUMENT'
   | 'EDIT_ARGUMENT'
+  | 'DELETE_ARGUMENT'
+  | 'RESTORE_ARGUMENT'
   | 'ADD_CARD_TO_ARGUMENT'
   | 'REMOVE_CARD_FROM_ARGUMENT'
   | 'JOIN_TEAM'
-  | 'RESTORE_CARD'
 
 export interface ResponseAction {
   actionType: ActionType

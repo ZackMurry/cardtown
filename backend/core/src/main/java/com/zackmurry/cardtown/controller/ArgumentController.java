@@ -100,4 +100,9 @@ public class ArgumentController {
         argumentService.updateCardPositions(argId, reorderRequest.getNewIndex(), reorderRequest.getOldIndex());
     }
 
+    @PostMapping("/id/{id}/restore")
+    public void restoreArgumentById(@PathVariable String id) {
+        argumentService.restoreArgumentById(id);
+    }
+
 }
