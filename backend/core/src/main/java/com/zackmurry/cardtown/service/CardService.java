@@ -446,7 +446,7 @@ public class CardService {
      *
      * @param id Id of card to delete
      * @throws CardNotFoundException If the card could not be found
-     * @throws ForbiddenException If the owner of the card is not in the same team as the principal
+     * @throws ForbiddenException If the principal does not have permission to delete the card
      */
     public void permanentlyDeleteCardById(@NonNull String id) {
         final UUID cardId = UUIDCompressor.decompress(id);

@@ -1,5 +1,6 @@
 package com.zackmurry.cardtown;
 
+import com.zackmurry.cardtown.exception.ArgumentNotFoundException;
 import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.exception.LengthRequiredException;
 import com.zackmurry.cardtown.exception.UserNotFoundException;
@@ -94,7 +95,9 @@ public class ArgumentServiceTest {
             final String argId = argumentService.createArgument(req);
             assertDoesNotThrow(() -> argumentService.getResponseArgumentById(argId));
             assertDoesNotThrow(() -> argumentService.deleteArgument(argId));
-            assertTrue(() -> argumentService.getResponseArgumentById(argId).isDeleted());
+            assertTrue(argumentService.getResponseArgumentById(argId).isDeleted());
+            assertDoesNotThrow(() -> argumentService.permanentlyDeleteArgumentById(argId));
+            assertThrows(ArgumentNotFoundException.class, () -> argumentService.getResponseArgumentById(argId));
         }
     }
 

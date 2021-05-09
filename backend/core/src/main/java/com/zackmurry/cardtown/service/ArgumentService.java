@@ -121,7 +121,7 @@ public class ArgumentService {
         final UUID userId = principal.getId();
 
         final UUID uuidId = UUIDCompressor.decompress(id);
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(uuidId).orElse(null);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(uuidId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
@@ -164,7 +164,7 @@ public class ArgumentService {
         if (!teamService.usersInSameTeam(cardEntity.getOwnerId(), principalId)) {
             throw new ForbiddenException();
         }
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
@@ -348,7 +348,7 @@ public class ArgumentService {
      * @throws ArgumentNotFoundException If the argument could not be found
      */
     private void checkAccessToArgument(@NonNull UUID argumentId) {
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
@@ -387,7 +387,7 @@ public class ArgumentService {
      */
     public void deleteArgument(@NonNull String argumentId) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(decompressedArgId).orElseThrow(ArgumentNotFoundException::new);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(decompressedArgId).orElseThrow(ArgumentNotFoundException::new);
         checkAccessToArgument(decompressedArgId);
         if (argumentEntity.isDeleted()) {
             throw new ResponseStatusException(HttpStatus.NOT_MODIFIED);
@@ -538,7 +538,7 @@ public class ArgumentService {
      * @return If found: an <code>Optional</code> containing the argument; else <code>Optional.empty()</code>
      */
     public Optional<ArgumentEntity> getArgumentEntityById(@NonNull UUID argumentId) {
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElse(null);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElse(null);
         if (argumentEntity == null) {
             return Optional.empty();
         }
@@ -554,7 +554,7 @@ public class ArgumentService {
     public void restoreArgumentById(@NonNull String id) {
         final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final UUID argumentId = UUIDCompressor.decompress(id);
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntity(argumentId).orElseThrow(ArgumentNotFoundException::new);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElseThrow(ArgumentNotFoundException::new);
 
         if (!teamService.usersInSameTeam(principalId, argumentEntity.getOwnerId())) {
             throw new ForbiddenException();
@@ -570,6 +570,25 @@ public class ArgumentService {
                         .argument(argumentId)
                         .build()
         );
+
+    }
+
+    /**
+     * Permanently deletes an argument
+     *
+     * @param id Id of argument to delete
+     * @throws ArgumentNotFoundException If the argument could not be found
+     * @throws ForbiddenException If the principal does not have permission to delete the argument
+     */
+    public void permanentlyDeleteArgumentById(@NonNull String id) {
+        final UUID argumentId = UUIDCompressor.decompress(id);
+        final UUID principalId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElseThrow(ArgumentNotFoundException::new);
+        if (!teamService.usersInSameTeam(principalId, argumentEntity.getOwnerId())) {
+            throw new ForbiddenException();
+        }
+        // todo: when speeches are added, arguments need to be removed from speeches before they are deleted
+        argumentDao.deleteArgumentById(argumentId);
 
     }
 }

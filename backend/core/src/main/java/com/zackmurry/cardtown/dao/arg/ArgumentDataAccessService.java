@@ -67,7 +67,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public Optional<ArgumentEntity> getArgumentEntity(@NonNull UUID id) {
+    public Optional<ArgumentEntity> getArgumentEntityById(@NonNull UUID id) {
         final String sql = "SELECT id, owner_id, name, deleted FROM arguments WHERE id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
@@ -477,4 +477,18 @@ public class ArgumentDataAccessService implements ArgumentDao {
         }
 
     }
+
+    @Override
+    public void deleteArgumentById(@NonNull UUID id) {
+        final String sql = "DELETE FROM arguments WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
 }

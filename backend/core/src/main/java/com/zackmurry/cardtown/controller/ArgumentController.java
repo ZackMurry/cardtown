@@ -105,4 +105,9 @@ public class ArgumentController {
         argumentService.restoreArgumentById(id);
     }
 
+    @PostMapping("/id/{id}/delete")
+    public void permanentlyDeleteArgument(@PathVariable String id) {
+        argumentService.permanentlyDeleteArgumentById(id);
+    }
+
 }

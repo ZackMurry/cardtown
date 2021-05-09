@@ -30,7 +30,7 @@ public interface ArgumentDao {
      * @return An <code>Optional</code> of the requested argument
      * @throws InternalServerException if there is a <code>SQLException</code>
      */
-    Optional<ArgumentEntity> getArgumentEntity(UUID id);
+    Optional<ArgumentEntity> getArgumentEntityById(UUID id);
 
     /**
      * Gets cards from an argument with the given id, ordered by their index in the argument
@@ -188,5 +188,13 @@ public interface ArgumentDao {
     List<ArgumentEntity> getArgumentsByTeam(UUID teamId, boolean includeDeleted);
 
     void restoreArgumentById(UUID id);
+
+    /**
+     * Permanently deletes an argument
+     *
+     * @param id Id of argument to permanently delete
+     * @throws InternalServerException If a <code>SQLException</code> occurs
+     */
+    void deleteArgumentById(UUID id);
 
 }
