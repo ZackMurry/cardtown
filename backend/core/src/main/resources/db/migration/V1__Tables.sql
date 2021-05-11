@@ -62,3 +62,10 @@ CREATE TABLE IF NOT EXISTS actions (
     card_id UUID REFERENCES cards ON DELETE CASCADE, -- if this action involves a card, the id of the card
     argument_id UUID REFERENCES arguments ON DELETE CASCADE -- if an argument is involved, the id of the argument
 );
+
+CREATE TABLE IF NOT EXISTS argument_analytics (
+    id UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+    argument_id UUID NOT NULL,
+    body VARCHAR(2776) NOT NULL, -- limited length: 2048
+    index_in_argument SMALLINT DEFAULT 0 NOT NULL
+);

@@ -50,9 +50,11 @@ public interface ArgumentDao {
      */
     void incrementCardPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, short index);
 
+    void decrementCardPositionsInArgumentAtOrPastIndex(UUID argumentId, short index);
+
     /**
      * Inserts a card into an argument and the specified index (0-based).
-     * If a card already exists there, this pushes it (and other possible cards) to the next index
+     * Does not push cards/analytics if there is already one in its place
      *
      * @param argumentId      Argument to add to. Must already be in the database
      * @param cardId          Card to add to argument. Must already be in the database

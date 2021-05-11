@@ -1,6 +1,7 @@
 package com.zackmurry.cardtown.service;
 
 import com.zackmurry.cardtown.dao.arg.ArgumentDao;
+import com.zackmurry.cardtown.dao.arg.analytic.ArgumentAnalyticDao;
 import com.zackmurry.cardtown.exception.*;
 import com.zackmurry.cardtown.model.action.ActionEntity;
 import com.zackmurry.cardtown.model.action.ActionType;
@@ -43,6 +44,9 @@ public class ArgumentService {
 
     @Autowired
     private ArgumentDao argumentDao;
+
+    @Autowired
+    private ArgumentAnalyticDao argumentAnalyticDao;
 
     @Autowired
     private UserService userService;
@@ -174,6 +178,7 @@ public class ArgumentService {
         if (!teamService.usersInSameTeam(argumentEntity.getOwnerId(), principalId)) {
             throw new ForbiddenException();
         }
+        incrementItemPositionsInArgumentAtOrPastIndex(argumentId, index);
         argumentDao.addCardToArgument(argumentId, cardId, index);
     }
 
@@ -338,6 +343,7 @@ public class ArgumentService {
     public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
         checkAccessToArgument(argumentId);
         argumentDao.removeCardFromArgument(argumentId, cardId, index);
+        decrementItemPositionsInArgumentAtOrPastIndex(argumentId, index);
     }
 
     /**
@@ -448,7 +454,7 @@ public class ArgumentService {
      * @throws BadRequestException       If the new position list contains either a card that is not in the argument or one card more than it appears in the argument
      * @throws InternalServerException   If a <code>SQLException</code> occurs in the DAO layer
      */
-    public void updateCardPositions(@NonNull String argumentId, @NonNull Short newIndex, @NonNull Short oldIndex) {
+    public void updateCardPosition(@NonNull String argumentId, @NonNull Short newIndex, @NonNull Short oldIndex) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         checkAccessToArgument(decompressedArgId);
         final short argumentSize = argumentDao.getNumberOfCardsInArgument(decompressedArgId);
@@ -457,8 +463,12 @@ public class ArgumentService {
         }
 
         // Remove the card from the argument, then add it back at the new index
-        final UUID cardId = argumentDao.getCardsByArgumentId(decompressedArgId).get(oldIndex).getCardId();
+        final UUID cardId = argumentDao.getCardsByArgumentId(decompressedArgId).stream().filter(argumentCardEntity -> argumentCardEntity.getIndexInArgument() == oldIndex).findFirst().orElseThrow(BadRequestException::new).getCardId();
+        System.out.println(UUIDCompressor.compress(cardId) + ": " + argumentDao.getArgumentCardEntitiesByCardId(cardId).stream().filter(argumentCardEntity -> argumentCardEntity.getArgumentId().equals(decompressedArgId)).map(ArgumentCardEntity::getIndexInArgument).collect(Collectors.toList()));
         argumentDao.removeCardFromArgument(decompressedArgId, cardId, oldIndex);
+        decrementItemPositionsInArgumentAtOrPastIndex(decompressedArgId, oldIndex);
+
+        incrementItemPositionsInArgumentAtOrPastIndex(decompressedArgId, newIndex);
         argumentDao.addCardToArgument(decompressedArgId, cardId, newIndex);
 
         actionService.createAction(
@@ -591,4 +601,15 @@ public class ArgumentService {
         argumentDao.deleteArgumentById(argumentId);
 
     }
+
+    private void incrementItemPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, short index) {
+        argumentDao.incrementCardPositionsInArgumentAtOrPastIndex(argumentId, index);
+        argumentAnalyticDao.incrementPositionsOfAnalyticsInArgumentAtOrPastIndex(argumentId, index);
+    }
+
+    private void decrementItemPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, short index) {
+        argumentDao.decrementCardPositionsInArgumentAtOrPastIndex(argumentId, index);
+        argumentAnalyticDao.decrementPositionsOfAnalyticsInArgumentAtOrPastIndex(argumentId, index);
+    }
+
 }

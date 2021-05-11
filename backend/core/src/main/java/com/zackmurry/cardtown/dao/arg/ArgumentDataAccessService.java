@@ -7,6 +7,7 @@ import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
 import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
+import com.zackmurry.cardtown.util.UUIDCompressor;
 import org.flywaydb.core.internal.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,7 +218,6 @@ public class ArgumentDataAccessService implements ArgumentDao {
             throw new IllegalArgumentException("Expected index of new card in argument to be positive");
         }
 
-        incrementCardPositionsInArgumentAtOrPastIndex(argumentId, indexInArgument);
         final String sql = "INSERT INTO argument_cards (argument_id, card_id, index_in_argument) VALUES (?, ?, ?)";
 
         try {
@@ -250,23 +250,32 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
-        final String removeSql = "DELETE FROM argument_cards WHERE argument_id = ? AND card_id = ? AND index_in_argument = ?";
-        final String decrementSql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ?";
+    public void decrementCardPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, @NonNull short index) {
+        final String sql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ?";
         try {
-            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(removeSql);
+            final PreparedStatement decrementStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            decrementStatement.setObject(1, argumentId);
+            decrementStatement.setShort(2, index);
+            decrementStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
+        final String sql = "DELETE FROM argument_cards WHERE argument_id = ? AND card_id = ? AND index_in_argument = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, argumentId);
             preparedStatement.setObject(2, cardId);
             preparedStatement.setShort(3, index);
             if (preparedStatement.executeUpdate() == 0) {
-                logger.warn("ArgumentDataAccessService#removeCardFromArgument removed 0 cards");
+                logger.warn("ArgumentDataAccessService#removeCardFromArgument removed 0 cards; params: ({}, {}, {})", UUIDCompressor.compress(argumentId), UUIDCompressor.compress(cardId), index);
                 // Since this should never happen at the DAO layer, throw an exception
                 throw new InternalServerException();
             }
-            final PreparedStatement decrementStatement = jdbcTemplate.getConnection().prepareStatement(decrementSql);
-            decrementStatement.setObject(1, argumentId);
-            decrementStatement.setShort(2, index);
-            decrementStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new InternalServerException();

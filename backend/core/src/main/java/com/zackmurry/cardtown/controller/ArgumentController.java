@@ -97,7 +97,7 @@ public class ArgumentController {
             throw new BadRequestException();
         }
         final String argId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1].split("/cards")[0];
-        argumentService.updateCardPositions(argId, reorderRequest.getNewIndex(), reorderRequest.getOldIndex());
+        argumentService.updateCardPosition(argId, reorderRequest.getNewIndex(), reorderRequest.getOldIndex());
     }
 
     @PostMapping("/id/{id}/restore")
