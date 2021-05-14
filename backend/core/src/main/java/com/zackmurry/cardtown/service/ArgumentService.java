@@ -178,16 +178,13 @@ public class ArgumentService {
      * @throws ForbiddenException        If the user does not have access to the card and write permission to the argument
      */
     public void addCardToArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
-        final short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
+        final short index = getFirstOpenIndexInArgument(argumentId);
         final CardEntity cardEntity = cardService.getCardEntityById(cardId).orElseThrow(CardNotFoundException::new);
         final UUID principalId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         if (!teamService.usersInSameTeam(cardEntity.getOwnerId(), principalId)) {
             throw new ForbiddenException();
         }
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElse(null);
-        if (argumentEntity == null) {
-            throw new ArgumentNotFoundException();
-        }
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElseThrow(ArgumentNotFoundException::new);
         if (cardEntity.isDeleted()) {
             throw new EntityDeletedException();
         }
@@ -638,7 +635,7 @@ public class ArgumentService {
         } catch (Exception e) {
             throw new InternalServerException();
         }
-        short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
+        short index = getFirstOpenIndexInArgument(argumentId);
         final UUID analyticId = argumentAnalyticDao.createAnalytic(argumentId, createRequest.getBody(), index);
 
         // todo add actions for analytics
@@ -658,6 +655,10 @@ public class ArgumentService {
             throw new InternalServerException();
         }
         argumentAnalyticDao.updateAnalyticById(decompressedAnalyticId, updateRequest);
+    }
+
+    private short getFirstOpenIndexInArgument(@NonNull UUID id) {
+        return (short) Math.max(argumentDao.getFirstOpenIndexInArgument(id), argumentAnalyticDao.getFirstOpenIndexInArgument(id));
     }
 
 }

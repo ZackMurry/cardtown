@@ -59,8 +59,6 @@ public interface ArgumentDao {
      * @param argumentId      Argument to add to. Must already be in the database
      * @param cardId          Card to add to argument. Must already be in the database
      * @param indexInArgument The desired zero-based index to set the card at
-     * @throws IllegalArgumentException If the index would create a gap between two cards
-     * @throws IllegalArgumentException If the index is negative
      * @throws InternalServerException  If there is a <code>SQLException</code>
      */
     void addCardToArgument(UUID argumentId, UUID cardId, short indexInArgument);

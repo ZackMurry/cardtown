@@ -1,11 +1,12 @@
 import { FC, useContext, useState } from 'react'
-import { Grid, GridItem, Flex, useColorModeValue, IconButton, Heading } from '@chakra-ui/react'
+import { Grid, GridItem, Flex, useColorModeValue, IconButton, Heading, Text } from '@chakra-ui/react'
 import { AddIcon, CloseIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import CardSearchMenu from 'components/cards/CardSearchMenu'
 import { CardPreview } from 'types/card'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import ArgumentAnalyticCreateForm from './ArgumentAnalyticCreateForm'
 
 interface Props {
   argId: string
@@ -60,6 +61,24 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
     }
   }
 
+  const handleCreateAnalytic = async (body: string) => {
+    if (!body) {
+      setErrorMessage('The body of your analytic cannot be blank')
+    }
+    const response = await fetch(`/api/v1/arguments/id/${argId}/analytics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
+      body: JSON.stringify({
+        body
+      })
+    })
+    if (response.ok) {
+      router.reload()
+    } else {
+      setErrorMessage(`Error creating analytic. Status code: ${response.status}`)
+    }
+  }
+
   return (
     <Flex
       justifyContent='center'
@@ -70,17 +89,21 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
       borderColor={borderColor}
       borderRadius='5px'
       p='3vh 3vw'
-      cursor='pointer'
+      cursor={isOpen ? undefined : 'pointer'}
       onClick={isOpen ? undefined : handleClick}
     >
       {isOpen ? (
         <Grid templateColumns='repeat(12, 1fr)'>
           <GridItem colSpan={1} />
-          <GridItem colSpan={10}>
+          <GridItem colSpan={10} mb='15px'>
             <Heading as='h6' textAlign='center'>
-              Add Card
+              Add Item
             </Heading>
             <CardSearchMenu onCardSelect={handleCardAdd} cards={allCards} />
+            <Text textAlign='center' mb='35px'>
+              or create a new analytic
+            </Text>
+            <ArgumentAnalyticCreateForm onCreate={handleCreateAnalytic} />
           </GridItem>
           <GridItem colSpan={1}>
             <IconButton aria-label='Close' onClick={() => setOpen(false)} bg='none'>

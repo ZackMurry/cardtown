@@ -16,6 +16,7 @@ interface SearchPoint {
   card: CardPreview
 }
 
+// todo include a link to the card's page that opens in a new tab
 const SearchCards: FC<Props> = ({ cards, onResults, onClear, showDeleted }) => {
   const [query, setQuery] = useState('')
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')

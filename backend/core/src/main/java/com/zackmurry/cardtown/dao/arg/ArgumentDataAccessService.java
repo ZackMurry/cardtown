@@ -111,7 +111,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public short getFirstOpenIndexInArgument(@NonNull UUID argumentId) {
-        final String sql = "SELECT index_in_argument FROM argument_cards WHERE argument_id = ? ORDER BY index_in_argument DESC";
+        final String sql = "SELECT index_in_argument FROM argument_cards WHERE argument_id = ? ORDER BY index_in_argument DESC LIMIT 1";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, argumentId);
@@ -211,15 +211,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public void addCardToArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short indexInArgument) {
-        final short firstOpenIndex = getFirstOpenIndexInArgument(argumentId);
-        if (indexInArgument > firstOpenIndex) {
-            throw new IllegalArgumentException("Expected index of new card in argument to be <= current argument size. First open index: " + firstOpenIndex + "; got: " + indexInArgument);
-        } else if (indexInArgument < 0) {
-            throw new IllegalArgumentException("Expected index of new card in argument to be positive");
-        }
-
         final String sql = "INSERT INTO argument_cards (argument_id, card_id, index_in_argument) VALUES (?, ?, ?)";
-
         try {
             final PreparedStatement insertStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             insertStatement.setObject(1, argumentId);

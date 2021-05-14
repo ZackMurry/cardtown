@@ -26,9 +26,12 @@ public interface ArgumentAnalyticDao {
     /**
      *
      * @param id Id of analytic to update
-     * @param analyticEntity
+     * @param analytic New content of analytic
      */
     void updateAnalyticById(UUID id, EncryptedAnalytic analytic);
 
     List<AnalyticEntity> getAnalyticsByArgumentId(UUID id);
+
+    short getFirstOpenIndexInArgument(UUID argId);
+
 }

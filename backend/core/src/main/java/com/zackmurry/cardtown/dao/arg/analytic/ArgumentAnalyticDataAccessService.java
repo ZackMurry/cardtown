@@ -118,4 +118,21 @@ public class ArgumentAnalyticDataAccessService implements ArgumentAnalyticDao {
             throw new InternalServerException();
         }
     }
+
+    @Override
+    public short getFirstOpenIndexInArgument(@NonNull UUID argId) {
+        final String sql = "SELECT index_in_argument FROM argument_analytics WHERE argument_id = ? ORDER BY index_in_argument DESC LIMIT 1";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return (short) (resultSet.getShort("index_in_argument") + 1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
 }
