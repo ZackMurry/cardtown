@@ -15,6 +15,7 @@ import DashboardPage from 'components/dash/DashboardPage'
 import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import ArgumentDeletedMessage from 'components/arguments/ArgumentDeletedMessage'
 import { ResponseAnalytic } from 'types/analytic'
+import ArgumentAnalyticDisplay from 'components/arguments/ArgumentAnalyticDisplay'
 
 interface ResponseArgumentCardWithType extends ResponseArgumentCard {
   type: 'card'
@@ -60,18 +61,38 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
   }, [])
 
   const handleDragEnd = async (result: DropResult) => {
-    if (!result.destination) {
-      return
-    }
-    if (result.destination.index === result.source.index) {
+    if (!result.destination || result.destination.index === result.source.index) {
       return
     }
 
-    const newCards = Array.from(argument.cards)
+    const newItems = Array.from(items)
+
+    newItems[result.source.index].position = result.destination.index
+    if (result.source.index < result.destination.index) {
+      for (let i = result.source.index + 1; i <= result.destination.index; i++) {
+        newItems[i].position--
+      }
+    } else {
+      for (let i = result.destination.index; i < result.source.index; i++) {
+        newItems[i].position++
+      }
+    }
+
     // https://stackoverflow.com/a/7180095
     // Move element from old index to new index
-    newCards.splice(result.destination.index, 0, newCards.splice(result.source.index, 1)[0])
-    setArgument({ ...argument, cards: newCards })
+    newItems.splice(result.destination.index, 0, newItems.splice(result.source.index, 1)[0])
+
+    const newCards = []
+    const newAnalytics = []
+    newItems.forEach(i => {
+      if (i.type === 'card') {
+        newCards.push(i)
+      } else {
+        newAnalytics.push(i)
+      }
+    })
+
+    setArgument({ ...argument, cards: newCards, analytics: newAnalytics })
 
     // todo throttle
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argument.id)}/items`, {
@@ -84,7 +105,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
     })
     // todo show success alert if worked
     if (!response.ok) {
-      setErrorMessage(`Unknown error occurred while reordering cards. Status code: ${response.status}`)
+      setErrorMessage(`Unknown error occurred while reordering items. Status code: ${response.status}`)
     }
   }
 
@@ -148,11 +169,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                           )
                         }
                         // todo separate component for analytics with drag and drop, editing, and deleting
-                        return (
-                          <Text color='white' fontWeight='bold' fontSize='18px' mt='25px'>
-                            {item.body}
-                          </Text>
-                        )
+                        return <ArgumentAnalyticDisplay analytic={item} argId={argument.id} />
                       })}
                     {dropProvided.placeholder}
                   </Box>

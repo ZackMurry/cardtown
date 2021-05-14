@@ -189,7 +189,7 @@ public class ArgumentServiceTest {
             final String tempId = cardIds.get(oldIndex);
             cardIds.remove(oldIndex);
             cardIds.add(newIndex, tempId);
-            argumentService.updateCardPosition(argumentId, newIndex, oldIndex);
+            argumentService.updateItemPosition(argumentId, newIndex, oldIndex);
             final List<String> updatedPositions = argumentService.getResponseArgumentById(argumentId)
                     .getCards().stream()
                     .map(ResponseCard::getId)
@@ -467,7 +467,7 @@ public class ArgumentServiceTest {
                 final String tempId = cardIds.get(oldIndex);
                 cardIds.remove(oldIndex);
                 cardIds.add(newIndex, tempId);
-                argumentService.updateCardPosition(argumentId, newIndex, oldIndex);
+                argumentService.updateItemPosition(argumentId, newIndex, oldIndex);
                 final List<String> updatedPositions = argumentService.getResponseArgumentById(argumentId)
                         .getCards().stream()
                         .map(ResponseCard::getId)

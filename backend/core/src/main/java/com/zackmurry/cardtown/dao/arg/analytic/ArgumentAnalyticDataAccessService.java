@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -134,5 +135,85 @@ public class ArgumentAnalyticDataAccessService implements ArgumentAnalyticDao {
             e.printStackTrace();
             throw new InternalServerException();
         }
+    }
+
+    @Override
+    public Optional<UUID> getAnalyticIdInArgumentAtPosition(UUID argId, short indexInArgument) {
+        final String sql = "SELECT id FROM argument_analytics WHERE argument_id = ? AND index_in_argument = ? LIMIT 1";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argId);
+            preparedStatement.setShort(2, indexInArgument);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(UUID.fromString(resultSet.getString("id")));
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void incrementPositionsOfAnalyticsInArgument(@NonNull UUID argumentId, short startInclusive, short endInclusive) {
+        final String sql = "UPDATE argument_analytics SET index_in_argument = index_in_argument + 1 WHERE argument_id = ? AND index_in_argument >= ? AND index_in_argument <= ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argumentId);
+            preparedStatement.setShort(2, startInclusive);
+            preparedStatement.setShort(3, endInclusive);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void decrementPositionsOfAnalyticsInArgument(@NonNull UUID argumentId, short startInclusive, short endInclusive) {
+        final String sql = "UPDATE argument_analytics SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ? AND index_in_argument <= ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argumentId);
+            preparedStatement.setShort(2, startInclusive);
+            preparedStatement.setShort(3, endInclusive);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void updatePositionOfAnalyticById(@NonNull UUID id, short indexInArgument) {
+        final String sql = "UPDATE argument_analytics SET index_in_argument = ? WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setShort(1, indexInArgument);
+            preparedStatement.setObject(2, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public short getNumberOfAnalyticsInArgument(UUID argumentId) {
+        final String sql = "SELECT COUNT(*) FROM argument_analytics WHERE argument_id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argumentId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getShort("count");
+            }
+            throw new InternalServerException();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+
     }
 }

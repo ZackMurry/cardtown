@@ -28,6 +28,7 @@ import java.util.UUID;
 /**
  * arguments are in a many-to-many relationship with cards.
  * there are two tables for arguments: arguments (meta-data about the argument) and argument_cards (links card ids to arguments, including the order they occur in)
+ * todo refactor so that card-related methods are in an ArgumentCardDao
  */
 @Repository
 public class ArgumentDataAccessService implements ArgumentDao {
@@ -226,7 +227,7 @@ public class ArgumentDataAccessService implements ArgumentDao {
 
     @Override
     public short getNumberOfCardsInArgument(@NonNull UUID argumentId) {
-        final String sql = "SELECT COUNT(card_id) FROM argument_cards WHERE argument_id = ?";
+        final String sql = "SELECT COUNT(*) FROM argument_cards WHERE argument_id = ?";
         try {
             final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
             preparedStatement.setObject(1, argumentId);
@@ -492,4 +493,51 @@ public class ArgumentDataAccessService implements ArgumentDao {
         }
     }
 
+    @Override
+    public Optional<UUID> getCardIdInArgumentAtPosition(@NonNull UUID argId, short indexInArgument) {
+        final String sql = "SELECT card_id FROM argument_cards WHERE argument_id = ? AND index_in_argument = ? LIMIT 1";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argId);
+            preparedStatement.setShort(2, indexInArgument);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(UUID.fromString(resultSet.getString("card_id")));
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void incrementPositionsOfCardsInArgument(UUID argumentId, short startInclusive, short endInclusive) {
+        final String sql = "UPDATE argument_cards SET index_in_argument = index_in_argument + 1 WHERE argument_id = ? AND index_in_argument >= ? AND index_in_argument <= ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argumentId);
+            preparedStatement.setShort(2, startInclusive);
+            preparedStatement.setShort(3, endInclusive);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void decrementPositionsOfCardsInArgument(UUID argumentId, short startInclusive, short endInclusive) {
+        final String sql = "UPDATE argument_cards SET index_in_argument = index_in_argument - 1 WHERE argument_id = ? AND index_in_argument >= ? AND index_in_argument <= ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, argumentId);
+            preparedStatement.setShort(2, startInclusive);
+            preparedStatement.setShort(3, endInclusive);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
 }

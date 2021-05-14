@@ -5,6 +5,7 @@ import com.zackmurry.cardtown.model.analytic.AnalyticEntity;
 import com.zackmurry.cardtown.model.analytic.EncryptedAnalytic;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ArgumentAnalyticDao {
@@ -33,5 +34,16 @@ public interface ArgumentAnalyticDao {
     List<AnalyticEntity> getAnalyticsByArgumentId(UUID id);
 
     short getFirstOpenIndexInArgument(UUID argId);
+
+    Optional<UUID> getAnalyticIdInArgumentAtPosition(UUID argId, short indexInArgument);
+
+    void incrementPositionsOfAnalyticsInArgument(UUID argumentId, short startInclusive, short endInclusive);
+
+    void decrementPositionsOfAnalyticsInArgument(UUID argumentId, short startInclusive, short endInclusive);
+
+    // todo rename indexInArgument to position
+    void updatePositionOfAnalyticById(UUID id, short indexInArgument);
+
+    short getNumberOfAnalyticsInArgument(UUID argumentId);
 
 }

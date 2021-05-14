@@ -47,8 +47,8 @@ const ArgumentCardDisplay: FC<Props> = ({ card, argumentId, indexInArgument, onR
           {editing ? (
             <EditCard card={card} onDone={handleDoneEditing} onCancel={handleCancelEditing} />
           ) : (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <Box pb='25px'>
+              <Flex justifyContent='space-between' alignItems='flex-end'>
                 <Text fontWeight='bold' fontSize='18px'>
                   {card.tag}
                 </Text>
@@ -66,7 +66,7 @@ const ArgumentCardDisplay: FC<Props> = ({ card, argumentId, indexInArgument, onR
                     onRemove={onRemove}
                   />
                 </Flex>
-              </div>
+              </Flex>
               <div>
                 <Text fontWeight='bold' fontSize='18px' style={{ fontWeight: 'bold', fontSize: 18 }}>
                   {card.cite}
@@ -83,7 +83,7 @@ const ArgumentCardDisplay: FC<Props> = ({ card, argumentId, indexInArgument, onR
                 mt='5px'
                 dangerouslySetInnerHTML={{ __html: card.bodyHtml }}
               />
-            </>
+            </Box>
           )}
         </div>
       )}

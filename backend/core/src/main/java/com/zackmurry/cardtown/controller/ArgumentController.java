@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
 
 @RequestMapping("/api/v1/arguments")
 @RestController
@@ -94,13 +93,9 @@ public class ArgumentController {
         argumentService.deleteArgument(decodedId);
     }
 
-    @PatchMapping("/id/**/items")
-    public void updateArgumentCardPositions(@NonNull @RequestBody ReorderCardsInArgumentRequest reorderRequest, HttpServletRequest servletRequest) {
-        if (reorderRequest.getOldIndex() == null || reorderRequest.getNewIndex() == null) {
-            throw new BadRequestException();
-        }
-        final String argId = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1].split("/cards")[0];
-        argumentService.updateCardPosition(argId, reorderRequest.getNewIndex(), reorderRequest.getOldIndex());
+    @PatchMapping("/id/{id}/items")
+    public void updateArgumentItemPosition(@PathVariable String id, @NonNull @RequestBody ReorderCardsInArgumentRequest reorderRequest) {
+        argumentService.updateItemPosition(id, reorderRequest.getNewIndex(), reorderRequest.getOldIndex());
     }
 
     @PostMapping("/id/{id}/restore")

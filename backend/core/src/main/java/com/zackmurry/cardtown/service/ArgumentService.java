@@ -467,21 +467,40 @@ public class ArgumentService {
      * @throws BadRequestException       If the new position list contains either a card that is not in the argument or one card more than it appears in the argument
      * @throws InternalServerException   If a <code>SQLException</code> occurs in the DAO layer
      */
-    public void updateCardPosition(@NonNull String argumentId, @NonNull Short newIndex, @NonNull Short oldIndex) {
+    public void updateItemPosition(@NonNull String argumentId, @NonNull Short newIndex, @NonNull Short oldIndex) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         checkAccessToArgument(decompressedArgId);
-        final short argumentSize = argumentDao.getNumberOfCardsInArgument(decompressedArgId);
+        final short argumentSize = getNumberOfItemsInArgument(decompressedArgId);
         if (newIndex >= argumentSize || oldIndex >= argumentSize || newIndex < 0 || oldIndex < 0) {
             throw new BadRequestException();
         }
+        if (oldIndex.equals(newIndex)) {
+            return;
+        }
 
-        // Remove the card from the argument, then add it back at the new index
-        final UUID cardId = argumentDao.getCardsByArgumentId(decompressedArgId).stream().filter(argumentCardEntity -> argumentCardEntity.getIndexInArgument() == oldIndex).findFirst().orElseThrow(BadRequestException::new).getCardId();
-        argumentDao.removeCardFromArgument(decompressedArgId, cardId, oldIndex);
-        decrementItemPositionsInArgumentAtOrPastIndex(decompressedArgId, oldIndex);
+        final UUID cardId = argumentDao.getCardIdInArgumentAtPosition(decompressedArgId, oldIndex).orElse(null);
+        if (cardId != null) {
+            // Remove the card from the argument, then add it back at the new index
+            argumentDao.removeCardFromArgument(decompressedArgId, cardId, oldIndex);
+            decrementItemPositionsInArgumentAtOrPastIndex(decompressedArgId, oldIndex);
 
-        incrementItemPositionsInArgumentAtOrPastIndex(decompressedArgId, newIndex);
-        argumentDao.addCardToArgument(decompressedArgId, cardId, newIndex);
+            incrementItemPositionsInArgumentAtOrPastIndex(decompressedArgId, newIndex);
+            argumentDao.addCardToArgument(decompressedArgId, cardId, newIndex);
+        } else {
+            // The item is an analytic
+            // Set the analytic's position to -1, move the other items, and then set it to the new index
+            final UUID analyticId = argumentAnalyticDao.getAnalyticIdInArgumentAtPosition(decompressedArgId, oldIndex).orElse(null);
+            if (analyticId == null) {
+                throw new InternalServerException();
+            }
+            argumentAnalyticDao.updatePositionOfAnalyticById(analyticId, (short) -1);
+            if (newIndex > oldIndex) {
+                decrementItemPositionsInArgument(decompressedArgId, (short) (oldIndex + 1), newIndex);
+            } else {
+                incrementItemPositionsInArgument(decompressedArgId, newIndex, (short) (oldIndex - 1));
+            }
+            argumentAnalyticDao.updatePositionOfAnalyticById(analyticId, newIndex);
+        }
 
         actionService.createAction(
                 ActionEntity.builder()
@@ -621,6 +640,20 @@ public class ArgumentService {
     private void decrementItemPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, short index) {
         argumentDao.decrementCardPositionsInArgumentAtOrPastIndex(argumentId, index);
         argumentAnalyticDao.decrementPositionsOfAnalyticsInArgumentAtOrPastIndex(argumentId, index);
+    }
+
+    private void incrementItemPositionsInArgument(@NonNull UUID argumentId, short startInclusive, short endInclusive) {
+        argumentDao.incrementPositionsOfCardsInArgument(argumentId, startInclusive, endInclusive);
+        argumentAnalyticDao.incrementPositionsOfAnalyticsInArgument(argumentId, startInclusive, endInclusive);
+    }
+
+    private void decrementItemPositionsInArgument(@NonNull UUID argumentId, short startInclusive, short endInclusive) {
+        argumentDao.decrementPositionsOfCardsInArgument(argumentId, startInclusive, endInclusive);
+        argumentAnalyticDao.decrementPositionsOfAnalyticsInArgument(argumentId, startInclusive, endInclusive);
+    }
+
+    private short getNumberOfItemsInArgument(@NonNull UUID argumentId) {
+        return (short) (argumentDao.getNumberOfCardsInArgument(argumentId) + argumentAnalyticDao.getNumberOfAnalyticsInArgument(argumentId));
     }
 
     public IdHolder addAnalyticToArgument(@NonNull String id, @NonNull AnalyticCreateRequest createRequest) {

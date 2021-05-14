@@ -197,4 +197,10 @@ public interface ArgumentDao {
      */
     void deleteArgumentById(UUID id);
 
+    Optional<UUID> getCardIdInArgumentAtPosition(UUID argId, short indexInArgument);
+
+    void incrementPositionsOfCardsInArgument(UUID argumentId, short startInclusive, short endInclusive);
+
+    void decrementPositionsOfCardsInArgument(UUID argumentId, short startInclusive, short endInclusive);
+
 }
