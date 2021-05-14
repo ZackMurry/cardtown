@@ -1,7 +1,10 @@
 package com.zackmurry.cardtown.dao.arg.analytic;
 
 import com.zackmurry.cardtown.model.analytic.AnalyticCreateRequest;
+import com.zackmurry.cardtown.model.analytic.AnalyticEntity;
+import com.zackmurry.cardtown.model.analytic.EncryptedAnalytic;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ArgumentAnalyticDao {
@@ -20,4 +23,12 @@ public interface ArgumentAnalyticDao {
 
     void decrementPositionsOfAnalyticsInArgumentAtOrPastIndex(UUID argumentId, short index);
 
+    /**
+     *
+     * @param id Id of analytic to update
+     * @param analyticEntity
+     */
+    void updateAnalyticById(UUID id, EncryptedAnalytic analytic);
+
+    List<AnalyticEntity> getAnalyticsByArgumentId(UUID id);
 }

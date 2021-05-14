@@ -5,13 +5,15 @@ import com.zackmurry.cardtown.dao.arg.analytic.ArgumentAnalyticDao;
 import com.zackmurry.cardtown.exception.*;
 import com.zackmurry.cardtown.model.action.ActionEntity;
 import com.zackmurry.cardtown.model.action.ActionType;
+import com.zackmurry.cardtown.model.analytic.AnalyticCreateRequest;
+import com.zackmurry.cardtown.model.analytic.AnalyticEntity;
+import com.zackmurry.cardtown.model.analytic.AnalyticUpdateRequest;
+import com.zackmurry.cardtown.model.analytic.ResponseAnalytic;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentEntity;
 import com.zackmurry.cardtown.model.arg.ArgumentPreview;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
-import com.zackmurry.cardtown.model.arg.card.ArgumentCardEntity;
-import com.zackmurry.cardtown.model.arg.card.ArgumentCardJoinEntity;
-import com.zackmurry.cardtown.model.arg.card.ArgumentWithCardModel;
+import com.zackmurry.cardtown.model.arg.card.*;
 import com.zackmurry.cardtown.model.auth.ResponseUserDetails;
 import com.zackmurry.cardtown.model.auth.User;
 import com.zackmurry.cardtown.model.auth.UserModel;
@@ -124,8 +126,8 @@ public class ArgumentService {
         final UserModel principal = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final UUID userId = principal.getId();
 
-        final UUID uuidId = UUIDCompressor.decompress(id);
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(uuidId).orElse(null);
+        final UUID argId = UUIDCompressor.decompress(id);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argId).orElse(null);
         if (argumentEntity == null) {
             throw new ArgumentNotFoundException();
         }
@@ -148,7 +150,21 @@ public class ArgumentService {
                         .map(ArgumentCardEntity::getCardId)
                         .collect(Collectors.toList())
         );
-        return ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner), responseCards);
+        final List<ResponseArgumentCard> responseArgumentCards = new ArrayList<>();
+        for (int i = 0; i < responseCards.size(); i++) {
+            responseArgumentCards.add(ResponseArgumentCard.of(responseCards.get(i), argumentCardEntities.get(i).getIndexInArgument()));
+        }
+        final List<AnalyticEntity> analyticEntities = argumentAnalyticDao.getAnalyticsByArgumentId(argId);
+        final List<ResponseAnalytic> responseAnalytics = new ArrayList<>();
+        try {
+            for (AnalyticEntity analyticEntity : analyticEntities) {
+                analyticEntity.decryptFields(UserSecretKeyHolder.getSecretKey());
+                responseAnalytics.add(ResponseAnalytic.of(analyticEntity));
+            }
+        } catch (Exception e) {
+            throw new InternalServerException();
+        }
+        return ResponseArgument.fromArgumentEntity(argumentEntity, ResponseUserDetails.fromUser(owner), responseArgumentCards, responseAnalytics);
     }
 
     /**
@@ -464,7 +480,6 @@ public class ArgumentService {
 
         // Remove the card from the argument, then add it back at the new index
         final UUID cardId = argumentDao.getCardsByArgumentId(decompressedArgId).stream().filter(argumentCardEntity -> argumentCardEntity.getIndexInArgument() == oldIndex).findFirst().orElseThrow(BadRequestException::new).getCardId();
-        System.out.println(UUIDCompressor.compress(cardId) + ": " + argumentDao.getArgumentCardEntitiesByCardId(cardId).stream().filter(argumentCardEntity -> argumentCardEntity.getArgumentId().equals(decompressedArgId)).map(ArgumentCardEntity::getIndexInArgument).collect(Collectors.toList()));
         argumentDao.removeCardFromArgument(decompressedArgId, cardId, oldIndex);
         decrementItemPositionsInArgumentAtOrPastIndex(decompressedArgId, oldIndex);
 
@@ -580,7 +595,6 @@ public class ArgumentService {
                         .argument(argumentId)
                         .build()
         );
-
     }
 
     /**
@@ -610,6 +624,40 @@ public class ArgumentService {
     private void decrementItemPositionsInArgumentAtOrPastIndex(@NonNull UUID argumentId, short index) {
         argumentDao.decrementCardPositionsInArgumentAtOrPastIndex(argumentId, index);
         argumentAnalyticDao.decrementPositionsOfAnalyticsInArgumentAtOrPastIndex(argumentId, index);
+    }
+
+    public IdHolder addAnalyticToArgument(@NonNull String id, @NonNull AnalyticCreateRequest createRequest) {
+        final UUID userId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final UUID argumentId = UUIDCompressor.decompress(id);
+        if (createRequest.getBody() == null || createRequest.getBody().isBlank()) {
+            throw new BadRequestException();
+        }
+
+        try {
+            createRequest.encryptFields(UserSecretKeyHolder.getSecretKey());
+        } catch (Exception e) {
+            throw new InternalServerException();
+        }
+        short index = argumentDao.getFirstOpenIndexInArgument(argumentId);
+        final UUID analyticId = argumentAnalyticDao.createAnalytic(argumentId, createRequest.getBody(), index);
+
+        // todo add actions for analytics
+        return new IdHolder(UUIDCompressor.compress(analyticId));
+    }
+
+    public void updateAnalytic(@NonNull String analyticId, @NonNull AnalyticUpdateRequest updateRequest) {
+        final UUID userId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        final UUID decompressedAnalyticId = UUIDCompressor.decompress(analyticId);
+        if (updateRequest.getBody() == null || updateRequest.getBody().isBlank()) {
+            throw new BadRequestException();
+        }
+
+        try {
+            updateRequest.encryptFields(UserSecretKeyHolder.getSecretKey());
+        } catch (Exception e) {
+            throw new InternalServerException();
+        }
+        argumentAnalyticDao.updateAnalyticById(decompressedAnalyticId, updateRequest);
     }
 
 }

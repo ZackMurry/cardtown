@@ -349,7 +349,7 @@ public class CardService {
     }
 
     /**
-     * Finds the response cards of a list of ids. Does not preserve order. Does not check if the principal has access to them
+     * Finds the response cards of a list of ids. Preserves order. Does not check if the principal has access to them
      *
      * @param ids Ids of cards to find
      * @return A list of <code>ResponseCard</code>s that have the requested ids

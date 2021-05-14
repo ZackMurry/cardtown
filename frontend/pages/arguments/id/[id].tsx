@@ -1,12 +1,12 @@
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { DragDropContext, Droppable, DroppableProvided, DropResult } from 'react-beautiful-dnd'
-import AddCardToArgumentButton from 'components/arguments/AddCardToArgumentButton'
+import AddItemToArgumentButton from 'components/arguments/AddItemToArgumentButton'
 import ArgumentCardDisplay from 'components/arguments/ArgumentCardDisplay'
 import ArgumentName from 'components/arguments/ArgumentName'
 import DeleteArgumentButton from 'components/arguments/DeleteArgumentButton'
-import { ResponseArgument } from 'types/argument'
+import { ResponseArgument, ResponseArgumentCard } from 'types/argument'
 import redirectToLogin from 'lib/redirectToLogin'
 import theme from 'lib/theme'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
@@ -14,6 +14,15 @@ import userContext from 'lib/hooks/UserContext'
 import DashboardPage from 'components/dash/DashboardPage'
 import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import ArgumentDeletedMessage from 'components/arguments/ArgumentDeletedMessage'
+import { ResponseAnalytic } from 'types/analytic'
+
+interface ResponseArgumentCardWithType extends ResponseArgumentCard {
+  type: 'card'
+}
+
+interface AnalyticWithType extends ResponseAnalytic {
+  type: 'analytic'
+}
 
 interface Props {
   id?: string
@@ -30,6 +39,19 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
   const { jwt } = useContext(userContext)
   const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
+  const items = useMemo(() => {
+    const arr: (ResponseArgumentCardWithType | AnalyticWithType)[] = []
+    if (!argument) {
+      return arr
+    }
+    argument.cards.forEach(c => {
+      arr[c.position] = { ...c, type: 'card' }
+    })
+    argument.analytics.forEach(a => {
+      arr[a.position] = { ...a, type: 'analytic' }
+    })
+    return arr
+  }, [argument.cards, argument.analytics])
 
   useEffect(() => {
     if (fetchingErrorText) {
@@ -52,7 +74,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
     setArgument({ ...argument, cards: newCards })
 
     // todo throttle
-    const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argument.id)}/cards`, {
+    const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argument.id)}/items`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -104,31 +126,41 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                     p='3vh 3vw'
                     ref={dropProvided.innerRef}
                   >
-                    {!argument?.cards?.length && (
+                    {!items.length && (
                       <Text color='darkGray' textAlign='center'>
-                        This argument doesn't have any cards
+                        This argument doesn't have any items
                       </Text>
                     )}
-                    {argument?.cards &&
-                      argument.cards.map((card, index) => (
-                        <ArgumentCardDisplay
-                          card={card}
-                          // eslint-disable-next-line react/no-array-index-key
-                          key={`${card.id}@${index}`}
-                          argumentId={id}
-                          indexInArgument={index}
-                          onRemove={() =>
-                            setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })
-                          }
-                        />
-                      ))}
+                    {items &&
+                      items.map((item, index) => {
+                        if (item.type === 'card') {
+                          return (
+                            <ArgumentCardDisplay
+                              card={item}
+                              // eslint-disable-next-line react/no-array-index-key
+                              key={`${item.id}@${index}`}
+                              argumentId={id}
+                              indexInArgument={index}
+                              onRemove={() =>
+                                setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })
+                              }
+                            />
+                          )
+                        }
+                        // todo separate component for analytics with drag and drop, editing, and deleting
+                        return (
+                          <Text color='white' fontWeight='bold' fontSize='18px' mt='25px'>
+                            {item.body}
+                          </Text>
+                        )
+                      })}
                     {dropProvided.placeholder}
                   </Box>
                 )}
               </Droppable>
             </DragDropContext>
             <div style={{ marginTop: 25 }}>
-              <AddCardToArgumentButton argId={argument.id} />
+              <AddItemToArgumentButton argId={argument.id} />
             </div>
           </Box>
         </Flex>

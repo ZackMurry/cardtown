@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS actions (
     argument_id UUID REFERENCES arguments ON DELETE CASCADE -- if an argument is involved, the id of the argument
 );
 
+-- the owner_id of an argument analytic is the owner_id of the argument
 CREATE TABLE IF NOT EXISTS argument_analytics (
     id UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
     argument_id UUID NOT NULL,

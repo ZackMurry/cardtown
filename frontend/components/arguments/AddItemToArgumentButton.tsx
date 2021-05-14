@@ -12,7 +12,7 @@ interface Props {
 }
 
 // todo don't reload after finished -- just update argument cards on client
-const AddCardToArgumentButton: FC<Props> = ({ argId }) => {
+const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
   const [isOpen, setOpen] = useState(false)
   const [allCards, setAllCards] = useState<CardPreview[] | null>(null)
   const { jwt } = useContext(userContext)
@@ -45,7 +45,7 @@ const AddCardToArgumentButton: FC<Props> = ({ argId }) => {
     }
   }
 
-  const handleCardAdd = async id => {
+  const handleCardAdd = async (id: string) => {
     const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argId)}/cards`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
@@ -97,4 +97,4 @@ const AddCardToArgumentButton: FC<Props> = ({ argId }) => {
   )
 }
 
-export default AddCardToArgumentButton
+export default AddItemToArgumentButton

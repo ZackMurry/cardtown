@@ -1,4 +1,5 @@
-import CardHeader from './card'
+import { ResponseAnalytic } from './analytic'
+import CardHeader, { ResponseCard } from './card'
 import ResponseUserDetails from './user'
 
 export interface ArgumentPreview {
@@ -16,10 +17,15 @@ export interface ArgumentWithCardModel {
   indexInArgument: number
 }
 
+export interface ResponseArgumentCard extends ResponseCard {
+  position: number
+}
+
 export interface ResponseArgument {
   id: string
   owner: ResponseUserDetails
   name: string
-  cards: ResponseCard[]
+  cards: ResponseArgumentCard[]
+  analytics: ResponseAnalytic[]
   deleted: boolean
 }
