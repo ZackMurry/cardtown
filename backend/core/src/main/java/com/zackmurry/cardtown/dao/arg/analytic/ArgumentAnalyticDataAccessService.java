@@ -216,4 +216,56 @@ public class ArgumentAnalyticDataAccessService implements ArgumentAnalyticDao {
         }
 
     }
+
+    @Override
+    public Optional<UUID> getArgumentIdByAnalyticId(@NonNull UUID analyticId) {
+        final String sql = "SELECT argument_id FROM argument_analytics WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, analyticId);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(UUID.fromString(resultSet.getString("argument_id")));
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public Optional<AnalyticEntity> getAnalyticById(@NonNull UUID id) {
+        final String sql = "SELECT body, argument_id, index_in_argument FROM argument_analytics WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            final ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return Optional.of(new AnalyticEntity(
+                        id,
+                        UUID.fromString(resultSet.getString("argument_id")),
+                        resultSet.getString("body"),
+                        resultSet.getShort("index_in_argument")
+                ));
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
+
+    @Override
+    public void deleteAnalyticById(@NonNull UUID id) {
+        final String sql = "DELETE FROM argument_analytics WHERE id = ?";
+        try {
+            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
+            preparedStatement.setObject(1, id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalServerException();
+        }
+    }
 }

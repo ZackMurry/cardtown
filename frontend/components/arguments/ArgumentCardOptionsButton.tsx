@@ -20,7 +20,7 @@ const ArgumentCardOptionsButton: FC<Props> = ({ cardId, argumentId, onEdit, inde
 
   const handleRemove = async () => {
     const response = await fetch(
-      `/api/v1/arguments/id/${encodeURIComponent(argumentId)}/cards/${encodeURIComponent(cardId)}?index=${indexInArgument}`,
+      `/api/v1/arguments/id/${argumentId}/cards/id/${encodeURIComponent(cardId)}?index=${indexInArgument}`,
       {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${jwt}` }
@@ -29,7 +29,7 @@ const ArgumentCardOptionsButton: FC<Props> = ({ cardId, argumentId, onEdit, inde
     if (response.ok) {
       onRemove()
     } else {
-      setErrorMessage(`Error deleting card: ${response.status}`)
+      setErrorMessage(`Error removing card: ${response.status}`)
     }
   }
 

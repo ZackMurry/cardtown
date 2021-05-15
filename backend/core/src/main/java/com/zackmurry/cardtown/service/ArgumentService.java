@@ -367,10 +367,7 @@ public class ArgumentService {
      * @throws ArgumentNotFoundException If the argument could not be found
      */
     private void checkAccessToArgument(@NonNull UUID argumentId) {
-        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElse(null);
-        if (argumentEntity == null) {
-            throw new ArgumentNotFoundException();
-        }
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(argumentId).orElseThrow(ArgumentNotFoundException::new);
         final UUID userId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         if (!teamService.usersInSameTeam(argumentEntity.getOwnerId(), userId)) {
             throw new ForbiddenException();
@@ -657,11 +654,11 @@ public class ArgumentService {
     }
 
     public IdHolder addAnalyticToArgument(@NonNull String id, @NonNull AnalyticCreateRequest createRequest) {
-        final UUID userId = ((UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         final UUID argumentId = UUIDCompressor.decompress(id);
         if (createRequest.getBody() == null || createRequest.getBody().isBlank()) {
             throw new BadRequestException();
         }
+        checkAccessToArgument(argumentId);
 
         try {
             createRequest.encryptFields(UserSecretKeyHolder.getSecretKey());
@@ -670,6 +667,14 @@ public class ArgumentService {
         }
         short index = getFirstOpenIndexInArgument(argumentId);
         final UUID analyticId = argumentAnalyticDao.createAnalytic(argumentId, createRequest.getBody(), index);
+
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.EDIT_ARGUMENT)
+                        .principal()
+                        .argument(argumentId)
+                        .build()
+        );
 
         // todo add actions for analytics
         return new IdHolder(UUIDCompressor.compress(analyticId));
@@ -681,6 +686,11 @@ public class ArgumentService {
         if (updateRequest.getBody() == null || updateRequest.getBody().isBlank()) {
             throw new BadRequestException();
         }
+        final AnalyticEntity analyticEntity = argumentAnalyticDao.getAnalyticById(decompressedAnalyticId).orElseThrow(AnalyticNotFoundException::new);
+        final ArgumentEntity argumentEntity = argumentDao.getArgumentEntityById(analyticEntity.getArgumentId()).orElseThrow(InternalServerException::new);
+        if (!teamService.usersInSameTeam(userId, argumentEntity.getOwnerId())) {
+            throw new ForbiddenException();
+        }
 
         try {
             updateRequest.encryptFields(UserSecretKeyHolder.getSecretKey());
@@ -688,10 +698,31 @@ public class ArgumentService {
             throw new InternalServerException();
         }
         argumentAnalyticDao.updateAnalyticById(decompressedAnalyticId, updateRequest);
+
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.EDIT_ARGUMENT)
+                        .principal()
+                        .argument(argumentEntity.getId())
+                        .build()
+        );
     }
 
     private short getFirstOpenIndexInArgument(@NonNull UUID id) {
         return (short) Math.max(argumentDao.getFirstOpenIndexInArgument(id), argumentAnalyticDao.getFirstOpenIndexInArgument(id));
     }
 
+    public void deleteAnalytic(@NonNull String id) {
+        final UUID analyticId = UUIDCompressor.decompress(id);
+        final UUID argumentId = argumentAnalyticDao.getArgumentIdByAnalyticId(analyticId).orElseThrow(AnalyticNotFoundException::new);
+        checkAccessToArgument(argumentId);
+        argumentAnalyticDao.deleteAnalyticById(analyticId);
+        actionService.createAction(
+                ActionEntity.builder()
+                        .type(ActionType.EDIT_ARGUMENT)
+                        .principal()
+                        .argument(argumentId)
+                        .build()
+        );
+    }
 }

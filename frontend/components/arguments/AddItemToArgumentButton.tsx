@@ -6,7 +6,7 @@ import CardSearchMenu from 'components/cards/CardSearchMenu'
 import { CardPreview } from 'types/card'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
-import ArgumentAnalyticCreateForm from './ArgumentAnalyticCreateForm'
+import ArgumentAnalyticCreateForm from './analytics/ArgumentAnalyticCreateForm'
 
 interface Props {
   argId: string

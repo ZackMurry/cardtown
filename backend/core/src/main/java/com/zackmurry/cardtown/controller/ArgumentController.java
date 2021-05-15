@@ -67,11 +67,9 @@ public class ArgumentController {
         return new CountResponse(c);
     }
 
-    @DeleteMapping("/id/**/cards/**")
-    public void removeCardFromArgument(@RequestParam short index, HttpServletRequest servletRequest) {
-        final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
-        final String[] parts = relevantPath.split("/cards/");
-        argumentService.removeCardFromArgument(parts[0], parts[1], index);
+    @DeleteMapping("/id/{argId}/cards/id/{cardId}")
+    public void removeCardFromArgument(@PathVariable String argId, @PathVariable String cardId, @RequestParam short index) {
+        argumentService.removeCardFromArgument(argId, cardId, index);
     }
 
     @PutMapping("/id/**")
@@ -123,6 +121,11 @@ public class ArgumentController {
             throw new BadRequestException();
         }
         argumentService.updateAnalytic(id, updateRequest);
+    }
+
+    @DeleteMapping("/id/{argId}/analytics/id/{id}")
+    public void deleteAnalyticById(@PathVariable String argId, @PathVariable String id) {
+        argumentService.deleteAnalytic(id);
     }
 
 }

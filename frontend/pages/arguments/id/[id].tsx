@@ -15,7 +15,7 @@ import DashboardPage from 'components/dash/DashboardPage'
 import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import ArgumentDeletedMessage from 'components/arguments/ArgumentDeletedMessage'
 import { ResponseAnalytic } from 'types/analytic'
-import ArgumentAnalyticDisplay from 'components/arguments/ArgumentAnalyticDisplay'
+import ArgumentAnalyticDisplay from 'components/arguments/analytics/ArgumentAnalyticDisplay'
 
 interface ResponseArgumentCardWithType extends ResponseArgumentCard {
   type: 'card'
@@ -113,6 +113,16 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
     setRestored(true)
   }
 
+  const handleDeleteAnalytic = (position: number) => {
+    const newAnalytics = Array.from(argument.analytics)
+    for (let i = 0; i < newAnalytics.length; i++) {
+      if (newAnalytics[i].position === position) {
+        newAnalytics.splice(i, 1)
+      }
+    }
+    setArgument({ ...argument, analytics: newAnalytics })
+  }
+
   return (
     <DashboardPage>
       {argument && (
@@ -169,7 +179,15 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                           )
                         }
                         // todo separate component for analytics with drag and drop, editing, and deleting
-                        return <ArgumentAnalyticDisplay analytic={item} argId={argument.id} />
+                        return (
+                          <ArgumentAnalyticDisplay
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={`${item.id}@${index}`}
+                            analytic={item}
+                            argId={argument.id}
+                            onDelete={() => handleDeleteAnalytic(item.position)}
+                          />
+                        )
                       })}
                     {dropProvided.placeholder}
                   </Box>

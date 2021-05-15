@@ -46,4 +46,10 @@ public interface ArgumentAnalyticDao {
 
     short getNumberOfAnalyticsInArgument(UUID argumentId);
 
+    Optional<UUID> getArgumentIdByAnalyticId(UUID analyticId);
+
+    Optional<AnalyticEntity> getAnalyticById(UUID id);
+
+    void deleteAnalyticById(UUID id);
+
 }

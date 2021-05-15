@@ -1,4 +1,4 @@
-import { Box, Flex, Input, Textarea } from '@chakra-ui/react'
+import { Box, Flex, Textarea } from '@chakra-ui/react'
 import PrimaryButton from 'components/utils/PrimaryButton'
 import { FC, FormEvent, useState } from 'react'
 
