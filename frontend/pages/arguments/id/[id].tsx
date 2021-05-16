@@ -118,6 +118,18 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
     for (let i = 0; i < newAnalytics.length; i++) {
       if (newAnalytics[i].position === position) {
         newAnalytics.splice(i, 1)
+        break
+      }
+    }
+    setArgument({ ...argument, analytics: newAnalytics })
+  }
+
+  const handleUpdateAnalytic = (position: number, newValue: ResponseAnalytic) => {
+    const newAnalytics = Array.from(argument.analytics)
+    for (let i = 0; i < newAnalytics.length; i++) {
+      if (newAnalytics[i].position === position) {
+        newAnalytics[i] = newValue
+        break
       }
     }
     setArgument({ ...argument, analytics: newAnalytics })
@@ -178,7 +190,6 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                             />
                           )
                         }
-                        // todo separate component for analytics with drag and drop, editing, and deleting
                         return (
                           <ArgumentAnalyticDisplay
                             // eslint-disable-next-line react/no-array-index-key
@@ -186,6 +197,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                             analytic={item}
                             argId={argument.id}
                             onDelete={() => handleDeleteAnalytic(item.position)}
+                            onUpdate={newValue => handleUpdateAnalytic(item.position, newValue)}
                           />
                         )
                       })}

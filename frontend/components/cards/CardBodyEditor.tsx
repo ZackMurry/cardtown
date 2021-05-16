@@ -2,6 +2,7 @@ import { Editor, EditorState, getDefaultKeyBinding, RichUtils } from 'draft-js'
 import { CSSProperties, FC } from 'react'
 import styles from 'styles/NewCard.module.css'
 import { Box, useColorModeValue } from '@chakra-ui/react'
+import chakraTheme from 'lib/chakraTheme'
 
 const styleMap = {
   HIGHLIGHT: {
@@ -120,7 +121,9 @@ const CardBodyEditor: FC<Props> = ({ editorState, setEditorState, disableOutline
         })}
         borderRadius='3px'
         color='black'
+        p='5px'
         style={{
+          fontFamily: chakraTheme.fonts.body,
           ...customStyles
         }}
         className={styles['editor-container']}

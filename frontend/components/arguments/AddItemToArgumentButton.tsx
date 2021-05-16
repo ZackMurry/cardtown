@@ -64,6 +64,11 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
   const handleCreateAnalytic = async (body: string) => {
     if (!body) {
       setErrorMessage('The body of your analytic cannot be blank')
+      return
+    }
+    if (body.length > 2048) {
+      setErrorMessage('The body of your analytic cannot be longer than 2048 characters')
+      return
     }
     const response = await fetch(`/api/v1/arguments/id/${argId}/analytics`, {
       method: 'POST',

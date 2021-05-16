@@ -655,7 +655,7 @@ public class ArgumentService {
 
     public IdHolder addAnalyticToArgument(@NonNull String id, @NonNull AnalyticCreateRequest createRequest) {
         final UUID argumentId = UUIDCompressor.decompress(id);
-        if (createRequest.getBody() == null || createRequest.getBody().isBlank()) {
+        if (createRequest.getBody() == null || createRequest.getBody().isBlank() || createRequest.getBody().length() > 2048) {
             throw new BadRequestException();
         }
         checkAccessToArgument(argumentId);

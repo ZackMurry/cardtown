@@ -3,7 +3,7 @@ import DoneIcon from '@material-ui/icons/Done'
 import { stateToHTML } from 'draft-js-export-html'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 import React, { FC, useContext, useState } from 'react'
-import { useColorModeValue, IconButton, Tooltip } from '@chakra-ui/react'
+import { useColorModeValue, IconButton, Tooltip, Textarea, Input } from '@chakra-ui/react'
 import chakraTheme from 'lib/chakraTheme'
 import { ResponseCard } from 'types/card'
 import useErrorMessage from 'lib/hooks/useErrorMessage'
@@ -25,7 +25,6 @@ const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
   const { setErrorMessage } = useErrorMessage()
   const { jwt } = useContext(userContext)
   const bgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
-  const textColor = useColorModeValue('black', 'white')
 
   const handleDone = async (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
     if (!jwt) {
@@ -86,21 +85,17 @@ const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <textarea
+        <Textarea
           value={tag}
           onChange={e => setTag(e.target.value)}
-          style={{
-            color: textColor,
-            backgroundColor: chakraTheme.colors[bgColor],
-            fontWeight: 'bold',
-            fontSize: 18,
-            outline: 'none',
-            border: 'none',
-            width: '100%',
-            fontFamily: 'Roboto',
-            resize: 'none'
-          }}
+          bg={bgColor}
+          fontWeight='bold'
+          fontSize='18px'
+          w='100%'
+          resize='none'
           rows={3}
+          m='5px 0'
+          _focus={{ borderColor: 'cardtownBlue' }}
         />
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <Tooltip label='Done'>
@@ -115,36 +110,29 @@ const EditCard: FC<Props> = ({ onCancel, onDone, card }) => {
           </Tooltip>
         </div>
       </div>
-      <input
+      <Input
         type='text'
         value={cite}
         onChange={e => setCite(e.target.value)}
-        style={{
-          color: textColor,
-          backgroundColor: chakraTheme.colors[bgColor],
-          fontWeight: 'bold',
-          fontSize: 18,
-          outline: 'none',
-          border: 'none',
-          width: '100%',
-          fontFamily: 'Roboto'
-        }}
+        bg={bgColor}
+        fontWeight='bold'
+        fontSize='18px'
+        w='100%'
+        m='5px 0'
+        _focus={{ borderColor: 'cardtownBlue' }}
       />
-      <textarea
+      <Textarea
         value={citeInformation}
         onChange={e => setCiteInformation(e.target.value)}
-        style={{
-          color: textColor,
-          backgroundColor: chakraTheme.colors[bgColor],
-          fontWeight: 'normal',
-          fontSize: 12,
-          outline: 'none',
-          border: 'none',
-          width: '100%',
-          fontFamily: 'Roboto',
-          resize: 'none'
-        }}
+        bg={bgColor}
+        fontSize='14px'
+        w='100%'
+        resize='none'
         rows={3}
+        m='5px 0'
+        mb='10px'
+        _focus={{ borderColor: 'cardtownBlue' }}
+        placeholder='Cite information'
       />
       <CardBodyEditor editorState={bodyState} setEditorState={setBodyState} disableOutline />
     </div>
