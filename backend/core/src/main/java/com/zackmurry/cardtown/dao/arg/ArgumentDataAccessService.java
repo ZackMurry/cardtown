@@ -276,24 +276,6 @@ public class ArgumentDataAccessService implements ArgumentDao {
     }
 
     @Override
-    public short getIndexOfCardInArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
-        final String sql = "SELECT index_in_argument FROM argument_cards WHERE argument_id = ? AND card_id = ?";
-        try {
-            final PreparedStatement preparedStatement = jdbcTemplate.getConnection().prepareStatement(sql);
-            preparedStatement.setObject(1, argumentId);
-            preparedStatement.setObject(2, cardId);
-            final ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return resultSet.getShort("index_in_argument");
-            }
-            throw new CardNotFoundException();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new InternalServerException();
-        }
-    }
-
-    @Override
     public void markArgumentAsDeleted(@NonNull UUID argumentId) {
         final String sql = "UPDATE arguments SET deleted = TRUE WHERE id = ?";
         try {

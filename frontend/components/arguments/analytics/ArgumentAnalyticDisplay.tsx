@@ -39,9 +39,9 @@ const ArgumentAnalyticDisplay: FC<Props> = ({ analytic, argId, onDelete, onUpdat
             <Flex
               justifyContent='space-between'
               alignItems='flex-end'
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
             >
-              <Text color='white' fontWeight='bold' fontSize='18px' pt='12px' pb='13px'>
+              <Text color='white' fontWeight='bold' fontSize='18px' pt='12px' pb='13px' overflowWrap='anywhere'>
                 {analytic.body}
               </Text>
               <Flex justifyContent='flex-end'>

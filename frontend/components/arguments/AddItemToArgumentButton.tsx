@@ -1,20 +1,25 @@
 import { FC, useContext, useState } from 'react'
-import { Grid, GridItem, Flex, useColorModeValue, IconButton, Heading, Text } from '@chakra-ui/react'
+import { Grid, GridItem, Flex, useColorModeValue, IconButton, Heading, Text, Spinner } from '@chakra-ui/react'
 import { AddIcon, CloseIcon } from '@chakra-ui/icons'
 import { useRouter } from 'next/router'
 import CardSearchMenu from 'components/cards/CardSearchMenu'
-import { CardPreview } from 'types/card'
+import { CardPreview, ResponseCard } from 'types/card'
 import userContext from 'lib/hooks/UserContext'
 import { errorMessageContext } from 'lib/hooks/ErrorMessageContext'
+import { ResponseAnalytic } from 'types/analytic'
+import { ResponseArgumentCard } from 'types/argument'
 import ArgumentAnalyticCreateForm from './analytics/ArgumentAnalyticCreateForm'
 
 interface Props {
   argId: string
+  onCreateAnalytic: (analytic: ResponseAnalytic) => void
+  onAddCard: (card: ResponseArgumentCard) => void
 }
 
 // todo don't reload after finished -- just update argument cards on client
-const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
+const AddItemToArgumentButton: FC<Props> = ({ argId, onCreateAnalytic, onAddCard }) => {
   const [isOpen, setOpen] = useState(false)
+  const [isLoading, setLoading] = useState(false)
   const [allCards, setAllCards] = useState<CardPreview[] | null>(null)
   const { jwt } = useContext(userContext)
   const { setErrorMessage } = useContext(errorMessageContext)
@@ -46,8 +51,8 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
     }
   }
 
-  const handleCardAdd = async (id: string) => {
-    const response = await fetch(`/api/v1/arguments/id/${encodeURIComponent(argId)}/cards`, {
+  const handleAddCard = async (id: string) => {
+    const response = await fetch(`/api/v1/arguments/id/${argId}/cards`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -55,7 +60,9 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
       })
     })
     if (response.ok) {
-      router.reload()
+      const card = (await response.json()) as ResponseArgumentCard
+      setOpen(false)
+      onAddCard(card)
     } else {
       setErrorMessage(`Error adding card to argument. Status code: ${response.status}`)
     }
@@ -70,6 +77,7 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
       setErrorMessage('The body of your analytic cannot be longer than 2048 characters')
       return
     }
+    setLoading(true)
     const response = await fetch(`/api/v1/arguments/id/${argId}/analytics`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jwt}` },
@@ -78,7 +86,10 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
       })
     })
     if (response.ok) {
-      router.reload()
+      const newAnalytic = (await response.json()) as ResponseAnalytic
+      setLoading(false)
+      setOpen(false)
+      onCreateAnalytic(newAnalytic)
     } else {
       setErrorMessage(`Error creating analytic. Status code: ${response.status}`)
     }
@@ -97,14 +108,14 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
       cursor={isOpen ? undefined : 'pointer'}
       onClick={isOpen ? undefined : handleClick}
     >
-      {isOpen ? (
+      {isOpen && !isLoading && (
         <Grid templateColumns='repeat(12, 1fr)'>
           <GridItem colSpan={1} />
           <GridItem colSpan={10} mb='15px'>
             <Heading as='h6' textAlign='center'>
               Add Item
             </Heading>
-            <CardSearchMenu onCardSelect={handleCardAdd} cards={allCards} />
+            <CardSearchMenu onCardSelect={handleAddCard} cards={allCards} />
             <Text textAlign='center' mb='35px'>
               or create a new analytic
             </Text>
@@ -116,7 +127,9 @@ const AddItemToArgumentButton: FC<Props> = ({ argId }) => {
             </IconButton>
           </GridItem>
         </Grid>
-      ) : (
+      )}
+      {isOpen && isLoading && <Spinner />}
+      {!isOpen && (
         <IconButton aria-label='Add card' bg='none'>
           <AddIcon fontSize='large' />
         </IconButton>

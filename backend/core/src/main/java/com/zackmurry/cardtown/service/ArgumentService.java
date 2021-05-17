@@ -37,7 +37,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * todo allow for analytics somehow
+ * todo auto-fix broken positions in argument when cards are reordered
  */
 @Service
 public class ArgumentService {
@@ -168,16 +168,17 @@ public class ArgumentService {
     }
 
     /**
-     * Adds a card to the end of an argument
+     * Adds a card to the end of an argument.
      *
      * @param argumentId Id of argument to add to
      * @param cardId     Id of card to add
+     * @return The position of the card in the argument
      * @throws CardNotFoundException     If the card could not be found
      * @throws ArgumentNotFoundException If the argument could not be found
      * @throws EntityDeletedException    If the card is deleted
      * @throws ForbiddenException        If the user does not have access to the card and write permission to the argument
      */
-    public void addCardToArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
+    public short addCardToArgument(@NonNull UUID argumentId, @NonNull UUID cardId) {
         final short index = getFirstOpenIndexInArgument(argumentId);
         final CardEntity cardEntity = cardService.getCardEntityById(cardId).orElseThrow(CardNotFoundException::new);
         final UUID principalId = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
@@ -193,6 +194,7 @@ public class ArgumentService {
         }
         incrementItemPositionsInArgumentAtOrPastIndex(argumentId, index);
         argumentDao.addCardToArgument(argumentId, cardId, index);
+        return index;
     }
 
     /**
@@ -200,10 +202,10 @@ public class ArgumentService {
      *
      * @see ArgumentService#addCardToArgument(UUID, UUID)
      */
-    public void addCardToArgument(@NonNull String argumentId, @NonNull String cardId) {
+    public ResponseArgumentCard addCardToArgument(@NonNull String argumentId, @NonNull String cardId) {
         final UUID decompressedArgId = UUIDCompressor.decompress(argumentId);
         final UUID decompressedCardId = UUIDCompressor.decompress(cardId);
-        addCardToArgument(decompressedArgId, decompressedCardId);
+        final short position = addCardToArgument(decompressedArgId, decompressedCardId);
         actionService.createAction(
                 ActionEntity.builder()
                         .type(ActionType.ADD_CARD_TO_ARGUMENT)
@@ -212,6 +214,8 @@ public class ArgumentService {
                         .argument(decompressedArgId)
                         .build()
         );
+        final ResponseCard responseCard = cardService.getResponseCardById(decompressedCardId);
+        return ResponseArgumentCard.of(responseCard, position);
     }
 
     public List<ArgumentPreview> listArgumentsByTeam(@NonNull UUID teamId, boolean includeDeleted) {
@@ -352,9 +356,14 @@ public class ArgumentService {
      * @param index      Index that the card appears in the argument at
      * @throws ArgumentNotFoundException If the argument could not be found
      * @throws ForbiddenException        If the principal does not have permission to view/modify this argument
+     * @throws BadRequestException       If the card is not found at that position in the argument
      */
     public void removeCardFromArgument(@NonNull UUID argumentId, @NonNull UUID cardId, short index) {
         checkAccessToArgument(argumentId);
+        final Optional<UUID> actualCardId = argumentDao.getCardIdInArgumentAtPosition(argumentId, index);
+        if (actualCardId.isEmpty() || !actualCardId.get().equals(cardId)) {
+            throw new BadRequestException();
+        }
         argumentDao.removeCardFromArgument(argumentId, cardId, index);
         decrementItemPositionsInArgumentAtOrPastIndex(argumentId, index);
     }
@@ -653,13 +662,13 @@ public class ArgumentService {
         return (short) (argumentDao.getNumberOfCardsInArgument(argumentId) + argumentAnalyticDao.getNumberOfAnalyticsInArgument(argumentId));
     }
 
-    public IdHolder addAnalyticToArgument(@NonNull String id, @NonNull AnalyticCreateRequest createRequest) {
+    public ResponseAnalytic addAnalyticToArgument(@NonNull String id, @NonNull AnalyticCreateRequest createRequest) {
         final UUID argumentId = UUIDCompressor.decompress(id);
         if (createRequest.getBody() == null || createRequest.getBody().isBlank() || createRequest.getBody().length() > 2048) {
             throw new BadRequestException();
         }
         checkAccessToArgument(argumentId);
-
+        final String plaintextBody = createRequest.getBody();
         try {
             createRequest.encryptFields(UserSecretKeyHolder.getSecretKey());
         } catch (Exception e) {
@@ -676,8 +685,7 @@ public class ArgumentService {
                         .build()
         );
 
-        // todo add actions for analytics
-        return new IdHolder(UUIDCompressor.compress(analyticId));
+        return new ResponseAnalytic(UUIDCompressor.compress(analyticId), plaintextBody, index);
     }
 
     public void updateAnalytic(@NonNull String analyticId, @NonNull AnalyticUpdateRequest updateRequest) {

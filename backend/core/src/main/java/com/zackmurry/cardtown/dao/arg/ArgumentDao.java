@@ -123,17 +123,6 @@ public interface ArgumentDao {
     void removeCardFromArgument(UUID argumentId, UUID cardId, short index);
 
     /**
-     * Gets the position of a card in an argument
-     *
-     * @param argumentId Id of argument to search in
-     * @param cardId     Card to find index for
-     * @return The (0-based) position of the card in the argument
-     * @throws com.zackmurry.cardtown.exception.CardNotFoundException If the card could not be found in the argument
-     * @throws InternalServerException                                If there is a <code>SQLException</code>
-     */
-    short getIndexOfCardInArgument(UUID argumentId, UUID cardId);
-
-    /**
      * Marks an argument as deleted
      * todo allow user to permanently delete
      *

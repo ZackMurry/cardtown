@@ -103,7 +103,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
         newIndex: result.destination.index
       })
     })
-    // todo show success alert if worked
+    // todo show minor success alert if worked
     if (!response.ok) {
       setErrorMessage(`Unknown error occurred while reordering items. Status code: ${response.status}`)
     }
@@ -133,6 +133,19 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
       }
     }
     setArgument({ ...argument, analytics: newAnalytics })
+  }
+
+  const handleCreateAnalytic = (newAnalytic: ResponseAnalytic) => {
+    setArgument({ ...argument, analytics: [...argument.analytics, newAnalytic] })
+  }
+
+  const handleAddCard = (newCard: ResponseArgumentCard) => {
+    setArgument({ ...argument, cards: [...argument.cards, newCard] })
+  }
+
+  const handleRemoveCard = (position: number) => {
+    const newCards = Array.from(argument.cards).filter(c => c.position !== position)
+    setArgument({ ...argument, cards: newCards })
   }
 
   return (
@@ -184,9 +197,7 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
                               key={`${item.id}@${index}`}
                               argumentId={id}
                               indexInArgument={index}
-                              onRemove={() =>
-                                setArgument({ ...argument, cards: argument.cards.filter((_element, i) => i !== index) })
-                              }
+                              onRemove={() => handleRemoveCard(item.position)}
                             />
                           )
                         }
@@ -207,7 +218,11 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
               </Droppable>
             </DragDropContext>
             <div style={{ marginTop: 25 }}>
-              <AddItemToArgumentButton argId={argument.id} />
+              <AddItemToArgumentButton
+                argId={argument.id}
+                onCreateAnalytic={handleCreateAnalytic}
+                onAddCard={handleAddCard}
+              />
             </div>
           </Box>
         </Flex>

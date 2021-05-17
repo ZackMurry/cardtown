@@ -4,12 +4,14 @@ import com.zackmurry.cardtown.exception.BadRequestException;
 import com.zackmurry.cardtown.model.CountResponse;
 import com.zackmurry.cardtown.model.analytic.AnalyticCreateRequest;
 import com.zackmurry.cardtown.model.analytic.AnalyticUpdateRequest;
+import com.zackmurry.cardtown.model.analytic.ResponseAnalytic;
 import com.zackmurry.cardtown.model.arg.ArgumentCreateRequest;
 import com.zackmurry.cardtown.model.arg.ArgumentPreview;
 import com.zackmurry.cardtown.model.arg.ArgumentRenameRequest;
 import com.zackmurry.cardtown.model.arg.ResponseArgument;
 import com.zackmurry.cardtown.model.arg.card.IdHolder;
 import com.zackmurry.cardtown.model.arg.card.ReorderCardsInArgumentRequest;
+import com.zackmurry.cardtown.model.arg.card.ResponseArgumentCard;
 import com.zackmurry.cardtown.service.ArgumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -44,16 +46,13 @@ public class ArgumentController {
         return argumentService.getResponseArgumentById(cardId);
     }
 
-    @PostMapping("/id/**/cards")
-    public void addCardToArgument(@NonNull @RequestBody IdHolder addRequest, HttpServletRequest servletRequest) {
-        final String relevantPath = servletRequest.getRequestURI().split("/api/v1/arguments/id/")[1];
-        final String argId = relevantPath.split("/")[0];
-
-        if (addRequest.getId() == null || argId == null) {
+    @PostMapping("/id/{id}/cards")
+    public ResponseArgumentCard addCardToArgument(@PathVariable String id, @NonNull @RequestBody IdHolder addRequest) {
+        if (addRequest.getId() == null) {
             throw new BadRequestException();
         }
 
-        argumentService.addCardToArgument(argId, addRequest.getId());
+        return argumentService.addCardToArgument(id, addRequest.getId());
     }
 
     @GetMapping("")
@@ -107,7 +106,7 @@ public class ArgumentController {
     }
 
     @PostMapping("/id/{id}/analytics")
-    public IdHolder addAnalyticToArgument(@PathVariable String id, @NonNull @RequestBody AnalyticCreateRequest addRequest) {
+    public ResponseAnalytic addAnalyticToArgument(@PathVariable String id, @NonNull @RequestBody AnalyticCreateRequest addRequest) {
         if (addRequest.getBody() == null) {
             throw new BadRequestException();
         }

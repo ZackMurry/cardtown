@@ -33,9 +33,7 @@ const ArgumentAnalyticOptionsButton: FC<Props> = ({ analytic, onDelete, onEdit, 
   return (
     <Menu>
       <MenuButton>
-        <IconButton aria-label='Card options' bg='none'>
-          <MoreVertIcon />
-        </IconButton>
+        <MoreVertIcon />
       </MenuButton>
       <MenuList bg={menuBgColor} borderColor={borderColor}>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>

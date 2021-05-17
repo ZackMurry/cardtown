@@ -36,9 +36,7 @@ const ArgumentCardOptionsButton: FC<Props> = ({ cardId, argumentId, onEdit, inde
   return (
     <Menu>
       <MenuButton>
-        <IconButton aria-label='Card options' bg='none'>
-          <MoreVertIcon />
-        </IconButton>
+        <MoreVertIcon />
       </MenuButton>
       <MenuList bg={menuBgColor} borderColor={borderColor}>
         <MenuItem onClick={handleRemove}>Remove</MenuItem>
