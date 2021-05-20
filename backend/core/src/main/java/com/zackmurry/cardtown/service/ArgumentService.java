@@ -549,7 +549,7 @@ public class ArgumentService {
         // to check for permission to access the argument
         final List<ArgumentCardJoinEntity> argumentCardJoinEntities = argumentDao.getArgumentCardJoinEntitiesByCardId(decompressedCardId);
         // todo use a HashMap for greedily getting user details once sharing is implemented
-        final ResponseUserDetails ownerDetails = ResponseUserDetails.fromUser(principal);
+        final Map<UUID, ResponseUserDetails> userDetailsMap = new HashMap<>();
         final List<ArgumentWithCardModel> argList = new ArrayList<>();
         for (ArgumentCardJoinEntity e : argumentCardJoinEntities) {
             try {
@@ -557,6 +557,13 @@ public class ArgumentService {
             } catch (Exception exception) {
                 exception.printStackTrace();
                 throw new InternalServerException();
+            }
+            ResponseUserDetails ownerDetails;
+            if (userDetailsMap.containsKey(e.getOwnerId())) {
+                ownerDetails = userDetailsMap.get(e.getOwnerId());
+            } else {
+                ownerDetails = userService.getResponseUserDetailsById(e.getOwnerId()).orElseThrow(InternalServerException::new);
+                userDetailsMap.put(e.getOwnerId(), ownerDetails);
             }
             argList.add(
                     new ArgumentWithCardModel(

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { Box, Text, useColorModeValue } from '@chakra-ui/react'
 import { FC, useState } from 'react'
-import PageName from 'types/PageName'
 import chakraTheme from 'lib/chakraTheme'
 import DashNavbarDesktopAvatar from './DashNavbarDesktopAvatar'
 import DashNavbarColorSwitch from './DashNavbarColorSwitch'
@@ -27,11 +26,7 @@ const PageTitleDisplay: FC<{ href: string; title: string }> = ({ href, title }) 
   )
 }
 
-interface Props {
-  pageName: PageName
-}
-
-const DashNavbarDesktop: FC<Props> = ({ pageName }) => {
+const DashNavbarDesktop: FC = () => {
   const bgColor = useColorModeValue('white', chakraTheme.colors.darkElevated)
   return (
     <header

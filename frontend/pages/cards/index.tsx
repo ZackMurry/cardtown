@@ -25,9 +25,10 @@ const Cards: NextPage<Props> = ({ cards: initialCards, errorText, showDeleted: i
   const [showDeleted, setShowDeleted] = useState(initialShowDeleted)
   const { setErrorMessage } = useContext(errorMessageContext)
   const itemBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
-  const borderColor = useColorModeValue('lightGrayBorder', 'darkGrayBorder')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   const tooltipBgColor = useColorModeValue('white', 'darkElevated')
   const deletedWarningColor = useColorModeValue('red.500', 'red.200')
+  const textColor = useColorModeValue('darkText', 'darkGray')
   const { jwt } = useContext(userContext)
   const router = useRouter()
 
@@ -87,7 +88,14 @@ const Cards: NextPage<Props> = ({ cards: initialCards, errorText, showDeleted: i
             showDeleted={showDeleted}
           />
         </Stack>
-        <Checkbox defaultChecked={showDeleted} onChange={handleCheckChange} iconColor='white' ml='15px' mb='10px'>
+        <Checkbox
+          defaultChecked={showDeleted}
+          onChange={handleCheckChange}
+          iconColor='white'
+          ml='15px'
+          mb='10px'
+          color={textColor}
+        >
           Show deleted cards
         </Checkbox>
         <Grid templateColumns='repeat(4, 1fr)' visibility={{ base: 'hidden', lg: 'visible' }}>
@@ -123,46 +131,49 @@ const Cards: NextPage<Props> = ({ cards: initialCards, errorText, showDeleted: i
                   borderWidth='1px'
                   borderStyle='solid'
                   borderColor={borderColor}
-                  style={{
-                    borderRadius: 5,
-                    margin: '15px 0',
-                    cursor: 'pointer'
-                  }}
+                  borderRadius='5px'
+                  m='15px 0'
+                  cursor='pointer'
                 >
                   <GridItem colSpan={1}>
                     {shortenedCite === c.cite ? (
-                      <Text color='darkGray'>{shortenedCite}</Text>
+                      <Text color={textColor}>{shortenedCite}</Text>
                     ) : (
                       <Tooltip
                         label={c.cite}
                         aria-label='Full cite of card'
                         bg={tooltipBgColor}
-                        color='darkGray'
+                        color={textColor}
                         fontWeight='normal'
                       >
-                        <Text color='darkGray'>{shortenedCite}</Text>
+                        <Text color={textColor}>{shortenedCite}</Text>
                       </Tooltip>
                     )}
                   </GridItem>
                   <GridItem colSpan={2}>
                     {shortenedTag === c.tag ? (
-                      <Text color='darkGray'>{shortenedTag}</Text>
+                      <Text color={textColor}>{shortenedTag}</Text>
                     ) : (
                       <Tooltip
                         label={c.tag}
                         aria-label='Full tag of card'
                         bg={tooltipBgColor}
-                        color='darkGray'
+                        color={textColor}
                         fontWeight='normal'
                       >
-                        <Text color='darkGray'>{shortenedTag}</Text>
+                        <Text color={textColor}>{shortenedTag}</Text>
                       </Tooltip>
                     )}
                   </GridItem>
                   <GridItem colSpan={1}>
                     <Flex justifyContent='flex-end' p='0 15px'>
                       {c.deleted && (
-                        <Tooltip label='This card has been deleted' bg={tooltipBgColor} color='darkGray' fontWeight='normal'>
+                        <Tooltip
+                          label='This card has been deleted'
+                          bg={tooltipBgColor}
+                          color={textColor}
+                          fontWeight='normal'
+                        >
                           <WarningIcon color={deletedWarningColor} fontSize='larger' />
                         </Tooltip>
                       )}

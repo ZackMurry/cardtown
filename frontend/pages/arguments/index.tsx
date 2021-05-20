@@ -29,9 +29,10 @@ const ArgumentsPage: FC<Props> = ({ args: initialArgs, fetchErrorText, showDelet
   const [showDeleted, setShowDeleted] = useState(initialShowDeleted)
   const { setErrorMessage } = useContext(errorMessageContext)
   const itemBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
-  const borderColor = useColorModeValue('lightGrayBorder', 'darkGrayBorder')
+  const borderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
   const tooltipBgColor = useColorModeValue('white', 'darkElevated')
   const deletedWarningColor = useColorModeValue('red.500', 'red.200')
+  const textColor = useColorModeValue('darkText', 'darkGray')
   const router = useRouter()
   const { jwt } = useContext(userContext)
 
@@ -128,7 +129,14 @@ const ArgumentsPage: FC<Props> = ({ args: initialArgs, fetchErrorText, showDelet
           </PrimaryButton>
           <SearchArguments args={allArgs} onResults={handleSearchResults} onClear={handleClearSearch} />
         </Stack>
-        <Checkbox defaultChecked={showDeleted} onChange={handleCheckChange} iconColor='white' ml='15px' mb='10px'>
+        <Checkbox
+          defaultChecked={showDeleted}
+          onChange={handleCheckChange}
+          iconColor='white'
+          ml='15px'
+          mb='10px'
+          color={textColor}
+        >
           Show deleted arguments
         </Checkbox>
         <Grid templateColumns='repeat(4, 1fr)' display={{ base: 'none', md: 'grid' }}>
@@ -168,22 +176,20 @@ const ArgumentsPage: FC<Props> = ({ args: initialArgs, fetchErrorText, showDelet
                 borderWidth='1px'
                 borderStyle='solid'
                 borderColor={borderColor}
-                style={{
-                  borderRadius: 5,
-                  margin: '15px 0',
-                  cursor: 'pointer'
-                }}
+                borderRadius='5px'
+                m='15px 0'
+                cursor='pointer'
               >
                 <GridItem colSpan={2}>
-                  <Text color='darkGray'>{a.name}</Text>
+                  <Text color={textColor}>{a.name}</Text>
                 </GridItem>
                 <GridItem colSpan={1} pl='20px'>
-                  <Text color='darkGray'>{a.cards.length}</Text>
+                  <Text color={textColor}>{a.cards.length}</Text>
                 </GridItem>
                 <GridItem colSpan={1}>
                   <Flex justifyContent='flex-end' p='0 15px'>
                     {a.deleted && (
-                      <Tooltip label='This card has been deleted' bg={tooltipBgColor} color='darkGray' fontWeight='normal'>
+                      <Tooltip label='This card has been deleted' bg={tooltipBgColor} color={textColor} fontWeight='normal'>
                         <WarningIcon color={deletedWarningColor} fontSize='larger' />
                       </Tooltip>
                     )}

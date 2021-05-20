@@ -1,15 +1,10 @@
 import { HamburgerIcon } from '@chakra-ui/icons'
 import Link from 'next/link'
 import { FC, useState } from 'react'
-import PageName from 'types/PageName'
 import { Box, Flex, Collapse, useColorModeValue, IconButton, Text } from '@chakra-ui/react'
 import chakraTheme from 'lib/chakraTheme'
 
-interface Props {
-  pageName: PageName
-}
-
-const DashNavbarMobile: FC<Props> = ({ pageName }) => {
+const DashNavbarMobile: FC = () => {
   const [isExpanded, setExpanded] = useState(false)
   const bgColor = useColorModeValue('white', 'darkElevated')
 

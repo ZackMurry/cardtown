@@ -15,6 +15,8 @@ const DashActionFeed: FC<Props> = ({ actions: initialActions }) => {
   const [isLoading, setLoading] = useState(false)
   const { jwt } = useContext(userContext)
   const buttonBgColor = useColorModeValue('offWhiteAccent', 'offBlackAccent')
+  const buttonBorderColor = useColorModeValue('grayBorder', 'darkGrayBorder')
+  const buttonTextColor = useColorModeValue('darkText', 'darkGray')
   const width = useBreakpointValue({ sm: '100%', md: '50%' })
 
   const handleLoadMore = async () => {
@@ -38,12 +40,20 @@ const DashActionFeed: FC<Props> = ({ actions: initialActions }) => {
       {actions && actions.map(action => <DashActionItem action={action} key={action.time} />)}
       {moreActionsAvailable ? (
         <Flex justifyContent='center' mt='50px'>
-          <Button variant='outline' bg={buttonBgColor} size='sm' onClick={handleLoadMore} isLoading={isLoading}>
+          <Button
+            variant='outline'
+            bg={buttonBgColor}
+            size='sm'
+            onClick={handleLoadMore}
+            isLoading={isLoading}
+            borderColor={buttonBorderColor}
+            color={buttonTextColor}
+          >
             Load more
           </Button>
         </Flex>
       ) : (
-        <Text textAlign='center' color='darkGray' fontSize='14px'>
+        <Text textAlign='center' color='darkText' fontSize='14px'>
           No more actions to show
         </Text>
       )}

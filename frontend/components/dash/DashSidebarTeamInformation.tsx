@@ -24,7 +24,7 @@ const DashSidebarTeamInformation: FC<Props> = ({ team }) => (
           </Text>
         </a>
       </Link>
-      <Button variant='outline' size='xs' mt='10px' fontWeight='normal'>
+      <Button variant='outline' size='xs' mt='10px' fontWeight='normal' color='darkText'>
         Invite teammates
       </Button>
     </Box>
