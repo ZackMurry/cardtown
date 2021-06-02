@@ -15,7 +15,6 @@ interface Props {
   actions?: ResponseAction[]
 }
 
-// todo wrap dash pages in a DashboardPage component instead of rewriting layout
 // todo improve responsiveness of sidebar etc
 const Dash: FC<Props> = ({ team, fetchErrorText, actions }) => {
   const { setErrorMessage } = useContext(errorMessageContext)

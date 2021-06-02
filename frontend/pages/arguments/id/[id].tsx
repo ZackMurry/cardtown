@@ -114,14 +114,19 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
   }
 
   const handleDeleteAnalytic = (position: number) => {
-    const newAnalytics = Array.from(argument.analytics)
+    const newAnalytics = Array.from(argument.analytics).filter(a => a.position !== position)
     for (let i = 0; i < newAnalytics.length; i++) {
-      if (newAnalytics[i].position === position) {
-        newAnalytics.splice(i, 1)
-        break
+      if (newAnalytics[i].position > position) {
+        newAnalytics[i].position--
       }
     }
-    setArgument({ ...argument, analytics: newAnalytics })
+    const newCards = Array.from(argument.cards)
+    for (let i = 0; i < newCards.length; i++) {
+      if (newCards[i].position > position) {
+        newCards[i].position--
+      }
+    }
+    setArgument({ ...argument, analytics: newAnalytics, cards: newCards })
   }
 
   const handleUpdateAnalytic = (position: number, newValue: ResponseAnalytic) => {
@@ -145,7 +150,18 @@ const ViewArgument: NextPage<Props> = ({ fetchingErrorText, argument: initialArg
 
   const handleRemoveCard = (position: number) => {
     const newCards = Array.from(argument.cards).filter(c => c.position !== position)
-    setArgument({ ...argument, cards: newCards })
+    for (let i = 0; i < newCards.length; i++) {
+      if (newCards[i].position > position) {
+        newCards[i].position--
+      }
+    }
+    const newAnalytics = Array.from(argument.analytics)
+    for (let i = 0; i < newAnalytics.length; i++) {
+      if (newCards[i].position > position) {
+        newCards[i].position--
+      }
+    }
+    setArgument({ ...argument, cards: newCards, analytics: newAnalytics })
   }
 
   return (
